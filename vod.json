@@ -988,7 +988,7 @@
   },
   {
     "id": "vv99kk",
-    "name": "VV99KK",
+    "name": "熊猫视频",
     "type": 1,
     "nsfw": true,
     "extra": {
@@ -1094,6 +1094,38 @@
         "home": "const cate=env.get(\"category\");const page=env.get(\"page\");const unsafeObj=JSON.parse(await req(`${env.baseUrl}/forward`,{method:\"POST\",data:{RecordsPage:20,command:\"WEB_GET_INFO\",content:\"\",languageType:\"CN\",pageNumber:page,typeId:+cate,typeMid:1}}));return unsafeObj.data.resultList.map(item=>{return{id:item.id,cover:item.vod_pic,title:item.vod_name,remark:item.vod_class}})",
         "detail": "const id=env.get(\"movieId\");const response=JSON.parse(await req(`${env.baseUrl}/forward`,{method:\"POST\",data:{command:\"WEB_GET_INFO_DETAIL\",id,languageType:\"CN\",type_Mid:\"1\"}}));const _=response.data.result;const initObj=JSON.parse(await req(`${env.baseUrl}/getDataInit`,{method:\"POST\",data:{age:31,city:\"New York\",name:\"John\"}}));const xl1=initObj.data.macVodLinkMap;let playUrl=\"\";let xl=false;const num=Math.floor(Math.random()*2+1);if(null!=xl){if(xl==1){playUrl=xl1[response.data.result.vod_server_id].LINK_1+response.data.result.vod_url}else if(xl==2){playUrl=xl1[response.data.result.vod_server_id].LINK_2+response.data.result.vod_url}else if(xl==3){playUrl=xl1[response.data.result.vod_server_id].LINK_3+response.data.result.vod_url}else{if(num==1){playUrl=xl1[response.data.result.vod_server_id].LINK_1+response.data.result.vod_url;console.log(1)}else if(num==2){playUrl=xl1[response.data.result.vod_server_id].LINK_2+response.data.result.vod_url;console.log(2)}else{playUrl=xl1[response.data.result.vod_server_id].LINK_1+response.data.result.vod_url;console.log(3)}}}return{id,title:_.vod_name,playlist:[{title:\"\\u9ED8\\u8BA4\",videos:[{id:playUrl,text:\"\\u64AD\\u653E\"}]}]}",
         "search": "const wd=env.get(\"keyword\");const page=env.get(\"page\");const unsafeObj=JSON.parse(await req(`${env.baseUrl}/forward`,{method:\"POST\",data:{RecordsPage:20,command:\"WEB_GET_INFO\",content:wd,languageType:\"CN\",pageNumber:page,type:1,typeMid:1,typeId:0}}));return unsafeObj.data.resultList.map(item=>{return{id:item.id,cover:item.vod_pic,title:item.vod_name,remark:item.vod_class}})"
+      }
+    }
+  },
+  {
+    "id": "yise6324",
+    "name": "一色",
+    "api": "https://yise42.xyz",
+    "nsfw": true,
+    "type": 1,
+    "extra": {
+      "js": {
+        "category": [
+          {
+            "text": "AI换脸",
+            "id": "AI换脸"
+          },
+          {
+            "text": "无码",
+            "id": "无码"
+          },
+          {
+            "text": "黑丝",
+            "id": "黑丝"
+          },
+          {
+            "text": "FC2",
+            "id": "fc2"
+          }
+        ],
+        "home": "const cate=env.get(\"category\");const page=env.get(\"page\");const url=`${env.baseUrl}/sp/index.php/vod/search/page/${page}/wd/${cate}.html`;const $=kitty.load(await req(url));return $(\".stui-vodlist li\").toArray().map(item=>{const a=$(item).find(\"a\");const title=a.attr(\"title\")??\"\";const cover=a.attr(\"data-original\")??\"\";const id=a.attr(\"href\")??\"\";const remark=a.find(\".pic-text.text-right\").text().trim();return{title,cover,id,remark}})",
+        "detail": "const id=env.get(\"movieId\");const url=`${env.baseUrl}${id}`;const html=await req(url);const $=kitty.load(html);const m3u8=kitty.utils.getM3u8WithStr(html);const title=$(\"h1.title\").text();return{title,playlist:[{title:\"\\u9ED8\\u8BA4\",videos:[{text:\"\\u64AD\\u653E\",id:m3u8}]}]}",
+        "search": "const wd=env.get(\"keyword\");const page=env.get(\"page\");const url=`${env.baseUrl}/sp/index.php/vod/search/page/${page}/wd/${wd}.html`;const $=kitty.load(await req(url));return $(\".stui-vodlist li\").toArray().map(item=>{const a=$(item).find(\"a\");const title=a.attr(\"title\")??\"\";const cover=a.attr(\"data-original\")??\"\";const id=a.attr(\"href\")??\"\";const remark=a.find(\".pic-text.text-right\").text().trim();return{title,cover,id,remark}})"
       }
     }
   },

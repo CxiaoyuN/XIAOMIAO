@@ -1,3 +1,10 @@
+花 🌸，我懂了，你希望页面更现代化，尤其是每个分区标题里的 **「复制订阅地址」按钮居中显示**，整体界面更美观。下面我帮你改造一下 `index.html`，让它更现代化：  
+
+---
+
+## 🎨 改进版 `index.html`
+
+```html
 <!DOCTYPE html>
 <html lang="zh">
 <head>
@@ -6,7 +13,7 @@
   <style>
     body {
       font-family: "Segoe UI", system-ui, sans-serif;
-      background: linear-gradient(135deg, #f0f4ff, #fafafa);
+      background: linear-gradient(135deg, #eef2f7, #ffffff);
       margin: 0;
       padding: 0;
       color: #333;
@@ -57,56 +64,68 @@
       border-radius: 6px;
       box-shadow: 0 2px 4px rgba(0,0,0,0.05);
     }
-    h2 {
-      margin-top: 2rem;
-      border-left: 4px solid #0078d7;
-      padding-left: 0.5rem;
-      color: #0078d7;
-    }
-    ul {
-      list-style: none;
-      padding: 0;
-      max-width: 900px;
-      margin: 1rem auto;
-      display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
-      gap: 1rem;
-    }
-    li {
+    section {
+      margin: 2rem auto;
+      max-width: 1000px;
       background: #fff;
-      padding: 1rem;
-      border-radius: 8px;
-      box-shadow: 0 2px 6px rgba(0,0,0,0.08);
-      transition: transform 0.15s ease, box-shadow 0.15s ease;
+      border-radius: 10px;
+      padding: 1.5rem;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.1);
     }
-    li:hover {
-      transform: translateY(-3px);
-      box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+    .section-header {
+      text-align: center;
+      margin-bottom: 1rem;
     }
-    a {
-      text-decoration: none;
+    .section-header h2 {
+      display: inline-block;
+      margin: 0;
+      font-size: 1.3rem;
       color: #0078d7;
-      font-weight: bold;
-      font-size: 1.05rem;
     }
-    .desc {
-      display: block;
-      font-size: 0.85rem;
-      color: #666;
-      margin-top: 0.3rem;
-    }
-    button.copy-btn {
+    .copy-btn {
+      display: inline-block;
       margin-left: 1rem;
-      padding: 0.3rem 0.6rem;
-      font-size: 0.8rem;
+      padding: 0.4rem 0.8rem;
+      font-size: 0.85rem;
       border: none;
       border-radius: 4px;
       background: #0078d7;
       color: #fff;
       cursor: pointer;
     }
-    button.copy-btn:hover {
+    .copy-btn:hover {
       background: #005a9e;
+    }
+    ul {
+      list-style: none;
+      padding: 0;
+      margin: 1rem 0 0 0;
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+      gap: 1rem;
+    }
+    li {
+      background: #f9f9f9;
+      padding: 1rem;
+      border-radius: 8px;
+      box-shadow: 0 1px 4px rgba(0,0,0,0.08);
+      transition: transform 0.15s ease, box-shadow 0.15s ease;
+    }
+    li:hover {
+      transform: translateY(-3px);
+      box-shadow: 0 4px 10px rgba(0,0,0,0.15);
+    }
+    a {
+      text-decoration: none;
+      color: #0078d7;
+      font-weight: bold;
+      font-size: 1rem;
+    }
+    .desc {
+      display: block;
+      font-size: 0.85rem;
+      color: #666;
+      margin-top: 0.3rem;
     }
     #toast {
       position: fixed;
@@ -170,14 +189,18 @@
     function renderList(name, data, fileUrl) {
       const container = document.getElementById("lists");
       const section = document.createElement("section");
+
+      const header = document.createElement("div");
+      header.className = "section-header";
       const title = document.createElement("h2");
-      title.textContent = name + " ";
+      title.textContent = name;
       const copyBtn = document.createElement("button");
       copyBtn.textContent = "复制订阅地址";
       copyBtn.className = "copy-btn";
       copyBtn.onclick = () => copyToClipboard(fileUrl);
-      title.appendChild(copyBtn);
-      section.appendChild(title);
+      header.appendChild(title);
+      header.appendChild(copyBtn);
+      section.appendChild(header);
 
       const ul = document.createElement("ul");
 
@@ -212,9 +235,12 @@
     function renderError(name, err) {
       const container = document.getElementById("lists");
       const section = document.createElement("section");
+      const header = document.createElement("div");
+      header.className = "section-header";
       const title = document.createElement("h2");
       title.textContent = name;
-      section.appendChild(title);
+      header.appendChild(title);
+      section.appendChild(header);
 
       const ul = document.createElement("ul");
       const li = document.createElement("li");
@@ -237,13 +263,4 @@
     document.getElementById("search-box").addEventListener("input", function() {
       const keyword = this.value.toLowerCase();
       document.querySelectorAll("#lists li").forEach(li => {
-        const text = li.dataset.search ? li.dataset.search.toLowerCase() : "";
-        li.style.display = text.includes(keyword) ? "" : "none";
-      });
-    });
-
-    // 加载四个 JSON
-    sources.forEach(src => loadJson(src.name, src.url));
-  </script>
-</body>
-</html>
+       

@@ -1,1 +1,233 @@
-空
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+  <meta charset="UTF-8">
+  <title>小猫影视源</title>
+  <style>
+    body {
+      font-family: "Segoe UI", system-ui, sans-serif;
+      background: linear-gradient(135deg, #eef2f7, #ffffff);
+      margin: 0;
+      padding: 2rem;
+      color: #333;
+    }
+    h1 {
+      text-align: center;
+      margin-bottom: 1rem;
+      color: #0078d7;
+    }
+    #search-box {
+      display: block;
+      margin: 0 auto 2rem auto;
+      padding: 0.6rem 1rem;
+      font-size: 1rem;
+      width: 80%;
+      max-width: 500px;
+      border: 1px solid #ccc;
+      border-radius: 6px;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+    }
+    section {
+      margin: 2rem auto;
+      max-width: 1200px;
+      background: #fff;
+      border-radius: 12px;
+      padding: 1.5rem;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+      text-align: center;
+    }
+    .section-header {
+      margin-bottom: 1rem;
+    }
+    .section-header h2 {
+      margin: 0;
+      font-size: 1.3rem;
+      color: #0078d7;
+      display: inline-block;
+    }
+    .copy-btn {
+      margin-left: 1rem;
+      padding: 0.4rem 0.8rem;
+      font-size: 0.9rem;
+      border: none;
+      border-radius: 6px;
+      background: #0078d7;
+      color: #fff;
+      cursor: pointer;
+    }
+    .copy-btn:hover {
+      background: #005a9e;
+    }
+    ul {
+      list-style: none;
+      padding: 0;
+      margin: 1rem 0 0 0;
+      display: grid;
+      grid-template-columns: repeat(6, 1fr); /* 一行6列 */
+      gap: 1rem;
+    }
+    li {
+      background: #f9f9f9;
+      padding: 1rem;
+      border-radius: 10px;
+      box-shadow: 0 1px 4px rgba(0,0,0,0.08);
+      transition: transform 0.15s ease, box-shadow 0.15s ease;
+      text-align: center;
+    }
+    li:hover {
+      transform: translateY(-3px);
+      box-shadow: 0 4px 10px rgba(0,0,0,0.15);
+    }
+    a {
+      text-decoration: none;
+      color: #0078d7;
+      font-weight: bold;
+      font-size: 1rem;
+      display: block;
+    }
+    .desc {
+      display: block;
+      font-size: 0.8rem;
+      color: #666;
+      margin-top: 0.3rem;
+    }
+    #toast {
+      position: fixed;
+      bottom: 20px;
+      left: 50%;
+      transform: translateX(-50%);
+      background: #4caf50;
+      color: #fff;
+      padding: 0.6rem 1rem;
+      border-radius: 6px;
+      display: none;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.2);
+    }
+    footer {
+      text-align: center;
+      padding: 1rem;
+      margin-top: 3rem;
+      font-size: 0.85rem;
+      color: #666;
+    }
+  </style>
+</head>
+<body>
+  <h1>订阅源列表</h1>
+  <input type="text" id="search-box" placeholder="🔍 输入关键字搜索源...">
+  <div id="lists"></div>
+  <div id="toast">已复制订阅地址</div>
+
+  <footer>
+    © 2025 小猫影视源 | Powered by GitHub Pages
+  </footer>
+
+  <script>
+    const sources = [
+      { name: "Kitty源", url: "https://cxiaoyun.github.io/kitty/all.json", showButton: true },
+      { name: "JS源", url: "https://cxiaoyun.github.io/kitty/x.json", showButton: false },
+      { name: "影视vod", url: "https://cxiaoyun.github.io/kitty/vod.json", showButton: false },
+      { name: "福利vod", url: "https://cxiaoyun.github.io/kitty/xvod.json", showButton: false }
+    ];
+
+    async function loadJson(name, url, showButton) {
+      try {
+        const res = await fetch(url);
+        const data = await res.json();
+        renderList(name, data, url, showButton);
+      } catch (err) {
+        renderError(name, err);
+      }
+    }
+
+    function renderList(name, data, fileUrl, showButton) {
+      const container = document.getElementById("lists");
+      const section = document.createElement("section");
+
+      const header = document.createElement("div");
+      header.className = "section-header";
+      const title = document.createElement("h2");
+      title.textContent = name;
+      header.appendChild(title);
+
+      if (showButton) {
+        const copyBtn = document.createElement("button");
+        copyBtn.textContent = "订阅";
+        copyBtn.className = "copy-btn";
+        copyBtn.onclick = () => copyToClipboard(fileUrl);
+        header.appendChild(copyBtn);
+      }
+
+      section.appendChild(header);
+
+      const ul = document.createElement("ul");
+
+      if (Array.isArray(data)) {
+        data.forEach(item => {
+          const li = document.createElement("li");
+          li.dataset.search = (item.name || item.title || "") + " " + (item.desc || item.remark || "");
+          const link = document.createElement("a");
+          link.href = item.url || "#";
+          link.textContent = item.name || item.title || "未命名源";
+          li.appendChild(link);
+
+          if (item.desc || item.remark) {
+            const desc = document.createElement("span");
+            desc.className = "desc";
+            desc.textContent = item.desc || item.remark;
+            li.appendChild(desc);
+          }
+
+          ul.appendChild(li);
+        });
+      } else {
+        const li = document.createElement("li");
+        li.textContent = "JSON 格式不正确";
+        ul.appendChild(li);
+      }
+
+      section.appendChild(ul);
+      container.appendChild(section);
+    }
+
+    function renderError(name, err) {
+      const container = document.getElementById("lists");
+      const section = document.createElement("section");
+      const header = document.createElement("div");
+      header.className = "section-header";
+      const title = document.createElement("h2");
+      title.textContent = name;
+      header.appendChild(title);
+      section.appendChild(header);
+
+      const ul = document.createElement("ul");
+      const li = document.createElement("li");
+      li.textContent = "加载失败: " + err;
+      ul.appendChild(li);
+
+      section.appendChild(ul);
+      container.appendChild(section);
+    }
+
+    function copyToClipboard(text) {
+      navigator.clipboard.writeText(text).then(() => {
+        const toast = document.getElementById("toast");
+        toast.style.display = "block";
+        setTimeout(() => toast.style.display = "none", 1500);
+      });
+    }
+
+    // 搜索功能
+    document.getElementById("search-box").addEventListener("input", function() {
+      const keyword = this.value.toLowerCase();
+      document.querySelectorAll("#lists li").forEach(li => {
+        const text = li.dataset.search ? li.dataset.search.toLowerCase() : "";
+        li.style.display = text.includes(keyword) ? "" : "none";
+      });
+    });
+
+    // 加载四个 JSON
+    sources.forEach(src => loadJson(src.name, src.url, src.showButton));
+  </script>
+</body>
+</html>

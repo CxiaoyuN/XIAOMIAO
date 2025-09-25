@@ -3,7 +3,7 @@ name: Smart Sync, Build & Deploy Kitty JSON
 on:
   schedule:
     - cron: "0 2 * * *"   # 每天凌晨 2 点自动同步
-  workflow_dispatch:       # 手动触发
+  workflow_dispatch:
   push:
     branches:
       - main
@@ -29,22 +29,16 @@ jobs:
           git remote add upstream https://github.com/d1y/kitty.git
           git fetch upstream
 
-          # 检出上游 main 分支的文件
           for file in $(git ls-tree -r --name-only upstream/main); do
-            # 跳过 workflows、kitty.config.ts、docs 文件夹
             if [[ "$file" == .github/workflows/* ]] || [[ "$file" == "kitty.config.ts" ]] || [[ "$file" == docs/* ]]; then
               echo "跳过 $file"
               continue
             fi
-
-            # 如果本地有修改，先备份
             if [[ -f "$file" ]] && ! git diff --quiet HEAD -- "$file"; then
               ts=$(date +%Y%m%d%H%M%S)
               mv "$file" "${file}_local_${ts}"
               echo "检测到本地修改，已备份为 ${file}_local_${ts}"
             fi
-
-            # 从上游检出文件
             git checkout upstream/main -- "$file"
           done
 
@@ -73,8 +67,8 @@ jobs:
           mkdir -p docs
           KITTY_TARGET=x bunx kitty-parse -o docs/x.json
           KITTY_TARGET=vod bunx kitty-parse -o docs/vod.json
-          KITTY_TARGET=xvod bunx kitty-parse -o docs/xvod.json
-          jq -s 'add' docs/x.json docs/vod.json docs/xvod.json > docs/all.json
+          jq -s 'add' docs/x.json docs/vod.json > docs/all.json
+          jq -c . docs/all.json > docs/all.min.json
 
       - name: Deploy to gh-pages branch
         uses: peaceiris/actions-gh-pages@v3

@@ -29,12 +29,12 @@
     }
     section {
       margin: 2rem auto;
-      max-width: 1000px;
+      max-width: 1200px;
       background: #fff;
       border-radius: 12px;
       padding: 1.5rem;
       box-shadow: 0 4px 12px rgba(0,0,0,0.1);
-      text-align: center; /* 整个分区居中 */
+      text-align: center;
     }
     .section-header {
       margin-bottom: 1rem;
@@ -44,25 +44,12 @@
       font-size: 1.3rem;
       color: #0078d7;
     }
-    .copy-btn {
-      margin-top: 0.5rem;
-      padding: 0.5rem 1rem;
-      font-size: 0.9rem;
-      border: none;
-      border-radius: 6px;
-      background: #0078d7;
-      color: #fff;
-      cursor: pointer;
-    }
-    .copy-btn:hover {
-      background: #005a9e;
-    }
     ul {
       list-style: none;
       padding: 0;
       margin: 1rem 0 0 0;
       display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+      grid-template-columns: repeat(6, 1fr); /* 一行6列 */
       gap: 1rem;
     }
     li {
@@ -71,24 +58,42 @@
       border-radius: 10px;
       box-shadow: 0 1px 4px rgba(0,0,0,0.08);
       transition: transform 0.15s ease, box-shadow 0.15s ease;
-      text-align: center; /* 卡片内容居中 */
+      text-align: center;
     }
     li:hover {
       transform: translateY(-3px);
       box-shadow: 0 4px 10px rgba(0,0,0,0.15);
+    }
+    .item-header {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      gap: 0.5rem;
+      margin-bottom: 0.3rem;
     }
     a {
       text-decoration: none;
       color: #0078d7;
       font-weight: bold;
       font-size: 1rem;
-      display: block;
     }
     .desc {
       display: block;
-      font-size: 0.85rem;
+      font-size: 0.8rem;
       color: #666;
       margin-top: 0.3rem;
+    }
+    .copy-btn {
+      padding: 0.2rem 0.6rem;
+      font-size: 0.8rem;
+      border: none;
+      border-radius: 4px;
+      background: #0078d7;
+      color: #fff;
+      cursor: pointer;
+    }
+    .copy-btn:hover {
+      background: #005a9e;
     }
     #toast {
       position: fixed;
@@ -123,10 +128,10 @@
 
   <script>
     const sources = [
-      { name: "x.json", url: "https://cxiaoyun.github.io/kitty/x.json" },
-      { name: "vod.json", url: "https://cxiaoyun.github.io/kitty/vod.json" },
-      { name: "xvod.json", url: "https://cxiaoyun.github.io/kitty/xvod.json" },
-      { name: "all.json", url: "https://cxiaoyun.github.io/kitty/all.json" }
+      { name: "Kitty源", url: "https://cxiaoyun.github.io/kitty/all.json" },
+      { name: "JS源", url: "https://cxiaoyun.github.io/kitty/x.json" },
+      { name: "影视vod", url: "https://cxiaoyun.github.io/kitty/vod.json" },
+      { name: "福利vod", url: "https://cxiaoyun.github.io/kitty/xvod.json" }
     ];
 
     async function loadJson(name, url) {
@@ -147,13 +152,7 @@
       header.className = "section-header";
       const title = document.createElement("h2");
       title.textContent = name;
-      const copyBtn = document.createElement("button");
-      copyBtn.textContent = "复制订阅地址";
-      copyBtn.className = "copy-btn";
-      copyBtn.onclick = () => copyToClipboard(fileUrl);
       header.appendChild(title);
-      header.appendChild(document.createElement("br"));
-      header.appendChild(copyBtn);
       section.appendChild(header);
 
       const ul = document.createElement("ul");
@@ -162,10 +161,22 @@
         data.forEach(item => {
           const li = document.createElement("li");
           li.dataset.search = (item.name || item.title || "") + " " + (item.desc || item.remark || "");
+
+          const headerRow = document.createElement("div");
+          headerRow.className = "item-header";
+
           const link = document.createElement("a");
           link.href = item.url || "#";
           link.textContent = item.name || item.title || "未命名源";
-          li.appendChild(link);
+
+          const copyBtn = document.createElement("button");
+          copyBtn.textContent = "订阅";
+          copyBtn.className = "copy-btn";
+          copyBtn.onclick = () => copyToClipboard(item.url || fileUrl);
+
+          headerRow.appendChild(link);
+          headerRow.appendChild(copyBtn);
+          li.appendChild(headerRow);
 
           if (item.desc || item.remark) {
             const desc = document.createElement("span");
@@ -222,7 +233,7 @@
       });
     });
 
-    // 加载四个 JSON
+    // 加载四个 JSON（all.json 放最上面）
     sources.forEach(src => loadJson(src.name, src.url));
   </script>
 </body>

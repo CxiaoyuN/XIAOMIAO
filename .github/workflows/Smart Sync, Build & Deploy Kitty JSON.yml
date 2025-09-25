@@ -5,8 +5,7 @@ on:
     - cron: "0 2 * * *"   # 每天凌晨 2 点自动同步
   workflow_dispatch:
   push:
-    branches:
-      - main
+    branches: [ main ]
 
 jobs:
   sync-build-deploy:
@@ -20,31 +19,39 @@ jobs:
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Sync from d1y/kitty (exclude workflows, kitty.config.ts, docs)
+      - name: Smart sync from d1y/kitty (exclude workflows, keep kitty.config.* and docs)
         run: |
           set -e
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
 
-          git remote add upstream https://github.com/d1y/kitty.git
+          if ! git remote | grep -q upstream; then
+            git remote add upstream https://github.com/d1y/kitty.git
+          fi
           git fetch upstream
 
           for file in $(git ls-tree -r --name-only upstream/main); do
-            if [[ "$file" == .github/workflows/* ]] || [[ "$file" == "kitty.config.ts" ]] || [[ "$file" == docs/* ]]; then
-              echo "跳过 $file"
+            # 跳过 workflows、所有 kitty.config.* 文件、docs 文件夹
+            if [[ "$file" == .github/workflows/* ]] || [[ "$file" == kitty.config.* ]] || [[ "$file" == docs/* ]]; then
+              echo "Skip $file"
               continue
             fi
+
+            # 如果本地有修改，先备份
             if [[ -f "$file" ]] && ! git diff --quiet HEAD -- "$file"; then
               ts=$(date +%Y%m%d%H%M%S)
-              mv "$file" "${file}_local_${ts}"
-              echo "检测到本地修改，已备份为 ${file}_local_${ts}"
+              backup="${file}_local_${ts}"
+              mkdir -p "$(dirname "$backup")"
+              mv "$file" "$backup"
+              echo "Backed up local change: $file -> $backup"
             fi
+
             git checkout upstream/main -- "$file"
           done
 
           git add .
-          git commit -m "smart sync from upstream (exclude workflows, kitty.config.ts, docs, backup local changes)" || true
-          git push origin HEAD:main --force
+          git commit -m "smart sync: exclude workflows, keep kitty.config.* and docs, backup local changes" || true
+          git push origin HEAD:main
 
       - name: Install Bun
         run: |
@@ -65,12 +72,12 @@ jobs:
       - name: Build JSON files
         run: |
           mkdir -p docs
-          KITTY_TARGET=x bunx kitty-parse -o docs/x.json
-          KITTY_TARGET=vod bunx kitty-parse -o docs/vod.json
-          jq -s 'add' docs/x.json docs/vod.json > docs/all.json
-          jq -c . docs/all.json > docs/all.min.json
+          bunx kitty-parse -c kitty.config.x.ts -o docs/x.json
+          bunx kitty-parse -c kitty.config.vod.ts -o docs/vod.json
+          bunx kitty-parse -c kitty.config.xvod.ts -o docs/xvod.json
+          jq -s 'add' docs/x.json docs/vod.json docs/xvod.json > docs/all.json
 
-      - name: Deploy to gh-pages branch
+      - name: Deploy to gh-pages
         uses: peaceiris/actions-gh-pages@v3
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}

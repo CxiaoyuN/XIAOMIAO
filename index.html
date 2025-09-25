@@ -43,6 +43,20 @@
       margin: 0;
       font-size: 1.3rem;
       color: #0078d7;
+      display: inline-block;
+    }
+    .copy-btn {
+      margin-left: 1rem;
+      padding: 0.4rem 0.8rem;
+      font-size: 0.9rem;
+      border: none;
+      border-radius: 6px;
+      background: #0078d7;
+      color: #fff;
+      cursor: pointer;
+    }
+    .copy-btn:hover {
+      background: #005a9e;
     }
     ul {
       list-style: none;
@@ -64,36 +78,18 @@
       transform: translateY(-3px);
       box-shadow: 0 4px 10px rgba(0,0,0,0.15);
     }
-    .item-header {
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      gap: 0.5rem;
-      margin-bottom: 0.3rem;
-    }
     a {
       text-decoration: none;
       color: #0078d7;
       font-weight: bold;
       font-size: 1rem;
+      display: block;
     }
     .desc {
       display: block;
       font-size: 0.8rem;
       color: #666;
       margin-top: 0.3rem;
-    }
-    .copy-btn {
-      padding: 0.2rem 0.6rem;
-      font-size: 0.8rem;
-      border: none;
-      border-radius: 4px;
-      background: #0078d7;
-      color: #fff;
-      cursor: pointer;
-    }
-    .copy-btn:hover {
-      background: #005a9e;
     }
     #toast {
       position: fixed;
@@ -128,23 +124,23 @@
 
   <script>
     const sources = [
-      { name: "Kitty源", url: "https://cxiaoyun.github.io/kitty/all.json" },
-      { name: "JS源", url: "https://cxiaoyun.github.io/kitty/x.json" },
-      { name: "影视vod", url: "https://cxiaoyun.github.io/kitty/vod.json" },
-      { name: "福利vod", url: "https://cxiaoyun.github.io/kitty/xvod.json" }
+      { name: "Kitty源", url: "https://cxiaoyun.github.io/kitty/all.json", showButton: true },
+      { name: "JS源", url: "https://cxiaoyun.github.io/kitty/x.json", showButton: false },
+      { name: "影视vod", url: "https://cxiaoyun.github.io/kitty/vod.json", showButton: false },
+      { name: "福利vod", url: "https://cxiaoyun.github.io/kitty/xvod.json", showButton: false }
     ];
 
-    async function loadJson(name, url) {
+    async function loadJson(name, url, showButton) {
       try {
         const res = await fetch(url);
         const data = await res.json();
-        renderList(name, data, url);
+        renderList(name, data, url, showButton);
       } catch (err) {
         renderError(name, err);
       }
     }
 
-    function renderList(name, data, fileUrl) {
+    function renderList(name, data, fileUrl, showButton) {
       const container = document.getElementById("lists");
       const section = document.createElement("section");
 
@@ -153,6 +149,15 @@
       const title = document.createElement("h2");
       title.textContent = name;
       header.appendChild(title);
+
+      if (showButton) {
+        const copyBtn = document.createElement("button");
+        copyBtn.textContent = "订阅";
+        copyBtn.className = "copy-btn";
+        copyBtn.onclick = () => copyToClipboard(fileUrl);
+        header.appendChild(copyBtn);
+      }
+
       section.appendChild(header);
 
       const ul = document.createElement("ul");
@@ -161,22 +166,10 @@
         data.forEach(item => {
           const li = document.createElement("li");
           li.dataset.search = (item.name || item.title || "") + " " + (item.desc || item.remark || "");
-
-          const headerRow = document.createElement("div");
-          headerRow.className = "item-header";
-
           const link = document.createElement("a");
           link.href = item.url || "#";
           link.textContent = item.name || item.title || "未命名源";
-
-          const copyBtn = document.createElement("button");
-          copyBtn.textContent = "订阅";
-          copyBtn.className = "copy-btn";
-          copyBtn.onclick = () => copyToClipboard(item.url || fileUrl);
-
-          headerRow.appendChild(link);
-          headerRow.appendChild(copyBtn);
-          li.appendChild(headerRow);
+          li.appendChild(link);
 
           if (item.desc || item.remark) {
             const desc = document.createElement("span");
@@ -233,8 +226,8 @@
       });
     });
 
-    // 加载四个 JSON（all.json 放最上面）
-    sources.forEach(src => loadJson(src.name, src.url));
+    // 加载四个 JSON
+    sources.forEach(src => loadJson(src.name, src.url, src.showButton));
   </script>
 </body>
 </html>

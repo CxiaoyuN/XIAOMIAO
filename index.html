@@ -5,48 +5,63 @@
   <title>小猫影视源</title>
   <style>
     body {
-      font-family: system-ui, sans-serif;
-      background: #f9f9f9;
-      margin: 2rem;
+      font-family: "Segoe UI", system-ui, sans-serif;
+      background: linear-gradient(135deg, #f0f4ff, #fafafa);
+      margin: 0;
+      padding: 2rem;
       color: #333;
     }
     h1 {
       text-align: center;
-      margin-bottom: 1.5rem;
+      margin-bottom: 1rem;
+      color: #0078d7;
+    }
+    #search-box {
+      display: block;
+      margin: 0 auto 2rem auto;
+      padding: 0.6rem 1rem;
+      font-size: 1rem;
+      width: 80%;
+      max-width: 500px;
+      border: 1px solid #ccc;
+      border-radius: 6px;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.05);
     }
     h2 {
       margin-top: 2rem;
-      border-bottom: 2px solid #ddd;
-      padding-bottom: 0.3rem;
+      border-left: 4px solid #0078d7;
+      padding-left: 0.5rem;
+      color: #0078d7;
     }
     ul {
       list-style: none;
       padding: 0;
-      max-width: 700px;
-      margin-left: 0; /* 改成靠左 */
+      max-width: 800px;
+      margin: 1rem auto;
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+      gap: 1rem;
     }
     li {
       background: #fff;
-      margin: 0.5rem 0;
       padding: 1rem;
-      border-radius: 6px;
-      box-shadow: 0 1px 3px rgba(0,0,0,0.1);
-      transition: transform 0.1s ease;
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
+      border-radius: 8px;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.08);
+      transition: transform 0.15s ease, box-shadow 0.15s ease;
     }
     li:hover {
-      transform: translateY(-2px);
+      transform: translateY(-3px);
+      box-shadow: 0 4px 12px rgba(0,0,0,0.15);
     }
     a {
       text-decoration: none;
       color: #0078d7;
       font-weight: bold;
+      font-size: 1.05rem;
     }
     .desc {
       display: block;
-      font-size: 0.9rem;
+      font-size: 0.85rem;
       color: #666;
       margin-top: 0.3rem;
     }
@@ -63,11 +78,25 @@
     button.copy-btn:hover {
       background: #005a9e;
     }
+    #toast {
+      position: fixed;
+      bottom: 20px;
+      left: 50%;
+      transform: translateX(-50%);
+      background: #4caf50;
+      color: #fff;
+      padding: 0.6rem 1rem;
+      border-radius: 6px;
+      display: none;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.2);
+    }
   </style>
 </head>
 <body>
   <h1>小猫影视源</h1>
+  <input type="text" id="search-box" placeholder="🔍 输入关键字搜索源...">
   <div id="lists"></div>
+  <div id="toast">已复制订阅地址</div>
 
   <script>
     const sources = [
@@ -92,15 +121,10 @@
       const section = document.createElement("section");
       const title = document.createElement("h2");
       title.textContent = name + " ";
-      // 给每个文件加一个复制按钮
       const copyBtn = document.createElement("button");
       copyBtn.textContent = "复制订阅地址";
       copyBtn.className = "copy-btn";
-      copyBtn.onclick = () => {
-        navigator.clipboard.writeText(fileUrl).then(() => {
-          alert("已复制: " + fileUrl);
-        });
-      };
+      copyBtn.onclick = () => copyToClipboard(fileUrl);
       title.appendChild(copyBtn);
       section.appendChild(title);
 
@@ -109,20 +133,19 @@
       if (Array.isArray(data)) {
         data.forEach(item => {
           const li = document.createElement("li");
-          const left = document.createElement("div");
+          li.dataset.search = (item.name || item.title || "") + " " + (item.desc || item.remark || "");
           const link = document.createElement("a");
           link.href = item.url || "#";
           link.textContent = item.name || item.title || "未命名源";
-          left.appendChild(link);
+          li.appendChild(link);
 
           if (item.desc || item.remark) {
             const desc = document.createElement("span");
             desc.className = "desc";
             desc.textContent = item.desc || item.remark;
-            left.appendChild(desc);
+            li.appendChild(desc);
           }
 
-          li.appendChild(left);
           ul.appendChild(li);
         });
       } else {
@@ -151,7 +174,24 @@
       container.appendChild(section);
     }
 
-    // 依次加载四个 JSON
+    function copyToClipboard(text) {
+      navigator.clipboard.writeText(text).then(() => {
+        const toast = document.getElementById("toast");
+        toast.style.display = "block";
+        setTimeout(() => toast.style.display = "none", 1500);
+      });
+    }
+
+    // 搜索功能
+    document.getElementById("search-box").addEventListener("input", function() {
+      const keyword = this.value.toLowerCase();
+      document.querySelectorAll("#lists li").forEach(li => {
+        const text = li.dataset.search ? li.dataset.search.toLowerCase() : "";
+        li.style.display = text.includes(keyword) ? "" : "none";
+      });
+    });
+
+    // 加载四个 JSON
     sources.forEach(src => loadJson(src.name, src.url));
   </script>
 </body>

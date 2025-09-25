@@ -989,6 +989,7 @@
   {
     "id": "vv99kk",
     "name": "熊猫视频",
+    "api": "https://spiderscloudcn2.51111666.com",
     "type": 1,
     "nsfw": true,
     "extra": {

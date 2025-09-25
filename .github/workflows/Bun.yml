@@ -1,14 +1,14 @@
-name: Build & Deploy result.json with Bun
+name: Build & Deploy vod.json with Bun
 
 on:
   workflow_dispatch:   # 手动触发
   schedule:
     - cron: "0 2 * * *"   # 每天凌晨 2 点自动运行
   push:
-    branches: [ main ]    # 当 main 分支有更新时触发
+    branches: [ main ]
 
 jobs:
-  build-deploy:
+  build-vod:
     runs-on: ubuntu-latest
     permissions:
       contents: write
@@ -25,10 +25,12 @@ jobs:
       - name: Install dependencies
         run: bun install
 
-      - name: Run kitty-parse
+      - name: Build vod.json
         run: |
           mkdir -p docs
-          bunx kitty-parse -o docs/result.json
+          # 直接用 vod.ts 作为配置
+          cp kitty.config.vod.ts kitty.config.ts
+          bunx kitty-parse -o docs/vod.json
 
       - name: Deploy to gh-pages
         uses: peaceiris/actions-gh-pages@v3

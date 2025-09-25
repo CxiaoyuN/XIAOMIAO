@@ -19,15 +19,12 @@ export default function () {
   const target = (process.env.KITTY_TARGET || "").toLowerCase();
 
   if (target === "x") {
-    return loadX18();
+    return loadX18(); // 成人源
   }
   if (target === "vod") {
-    return vod.filter(i => i.nsfw === false);
-  }
-  if (target === "xvod") {
-    return vod.filter(i => i.nsfw === true);
+    return vod; // 全部 vod.ts 源，不再区分 nsfw
   }
 
-  // 默认：全部
+  // 默认返回全部
   return [...loadX18(), ...vod];
 }

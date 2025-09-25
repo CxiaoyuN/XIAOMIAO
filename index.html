@@ -23,7 +23,7 @@
       list-style: none;
       padding: 0;
       max-width: 700px;
-      margin: auto;
+      margin-left: 0; /* 改成靠左 */
     }
     li {
       background: #fff;
@@ -32,6 +32,9 @@
       border-radius: 6px;
       box-shadow: 0 1px 3px rgba(0,0,0,0.1);
       transition: transform 0.1s ease;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
     }
     li:hover {
       transform: translateY(-2px);
@@ -47,11 +50,23 @@
       color: #666;
       margin-top: 0.3rem;
     }
+    button.copy-btn {
+      margin-left: 1rem;
+      padding: 0.3rem 0.6rem;
+      font-size: 0.8rem;
+      border: none;
+      border-radius: 4px;
+      background: #0078d7;
+      color: #fff;
+      cursor: pointer;
+    }
+    button.copy-btn:hover {
+      background: #005a9e;
+    }
   </style>
 </head>
 <body>
   <h1>小猫影视源</h1>
-
   <div id="lists"></div>
 
   <script>
@@ -66,17 +81,27 @@
       try {
         const res = await fetch(url);
         const data = await res.json();
-        renderList(name, data);
+        renderList(name, data, url);
       } catch (err) {
         renderError(name, err);
       }
     }
 
-    function renderList(name, data) {
+    function renderList(name, data, fileUrl) {
       const container = document.getElementById("lists");
       const section = document.createElement("section");
       const title = document.createElement("h2");
-      title.textContent = name;
+      title.textContent = name + " ";
+      // 给每个文件加一个复制按钮
+      const copyBtn = document.createElement("button");
+      copyBtn.textContent = "复制订阅地址";
+      copyBtn.className = "copy-btn";
+      copyBtn.onclick = () => {
+        navigator.clipboard.writeText(fileUrl).then(() => {
+          alert("已复制: " + fileUrl);
+        });
+      };
+      title.appendChild(copyBtn);
       section.appendChild(title);
 
       const ul = document.createElement("ul");
@@ -84,18 +109,20 @@
       if (Array.isArray(data)) {
         data.forEach(item => {
           const li = document.createElement("li");
+          const left = document.createElement("div");
           const link = document.createElement("a");
           link.href = item.url || "#";
           link.textContent = item.name || item.title || "未命名源";
-          li.appendChild(link);
+          left.appendChild(link);
 
           if (item.desc || item.remark) {
             const desc = document.createElement("span");
             desc.className = "desc";
             desc.textContent = item.desc || item.remark;
-            li.appendChild(desc);
+            left.appendChild(desc);
           }
 
+          li.appendChild(left);
           ul.appendChild(li);
         });
       } else {

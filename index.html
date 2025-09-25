@@ -8,42 +8,12 @@
       font-family: "Segoe UI", system-ui, sans-serif;
       background: linear-gradient(135deg, #eef2f7, #ffffff);
       margin: 0;
-      padding: 0;
+      padding: 2rem;
       color: #333;
     }
-    /* 顶部导航栏 */
-    nav {
-      background: #0078d7;
-      color: #fff;
-      padding: 0.8rem 2rem;
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      box-shadow: 0 2px 6px rgba(0,0,0,0.2);
-    }
-    nav .logo {
-      font-weight: bold;
-      font-size: 1.2rem;
-    }
-    nav ul {
-      list-style: none;
-      display: flex;
-      gap: 1.5rem;
-      margin: 0;
-      padding: 0;
-    }
-    nav ul li a {
-      color: #fff;
-      text-decoration: none;
-      font-weight: 500;
-    }
-    nav ul li a:hover {
-      text-decoration: underline;
-    }
-
     h1 {
       text-align: center;
-      margin: 2rem 0 1rem 0;
+      margin-bottom: 1rem;
       color: #0078d7;
     }
     #search-box {
@@ -61,27 +31,25 @@
       margin: 2rem auto;
       max-width: 1000px;
       background: #fff;
-      border-radius: 10px;
+      border-radius: 12px;
       padding: 1.5rem;
       box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+      text-align: center; /* 整个分区居中 */
     }
     .section-header {
-      text-align: center;
       margin-bottom: 1rem;
     }
     .section-header h2 {
-      display: inline-block;
       margin: 0;
       font-size: 1.3rem;
       color: #0078d7;
     }
     .copy-btn {
-      display: inline-block;
-      margin-left: 1rem;
-      padding: 0.4rem 0.8rem;
-      font-size: 0.85rem;
+      margin-top: 0.5rem;
+      padding: 0.5rem 1rem;
+      font-size: 0.9rem;
       border: none;
-      border-radius: 4px;
+      border-radius: 6px;
       background: #0078d7;
       color: #fff;
       cursor: pointer;
@@ -94,15 +62,16 @@
       padding: 0;
       margin: 1rem 0 0 0;
       display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+      grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
       gap: 1rem;
     }
     li {
       background: #f9f9f9;
       padding: 1rem;
-      border-radius: 8px;
+      border-radius: 10px;
       box-shadow: 0 1px 4px rgba(0,0,0,0.08);
       transition: transform 0.15s ease, box-shadow 0.15s ease;
+      text-align: center; /* 卡片内容居中 */
     }
     li:hover {
       transform: translateY(-3px);
@@ -113,6 +82,7 @@
       color: #0078d7;
       font-weight: bold;
       font-size: 1rem;
+      display: block;
     }
     .desc {
       display: block;
@@ -142,17 +112,7 @@
   </style>
 </head>
 <body>
-  <!-- 顶部导航栏 -->
-  <nav>
-    <div class="logo">小猫影视源</div>
-    <ul>
-      <li><a href="#top">首页</a></li>
-      <li><a href="#lists">订阅地址</a></li>
-      <li><a href="https://github.com/CxiaoyuN/kitty" target="_blank">关于</a></li>
-    </ul>
-  </nav>
-
-  <h1 id="top">订阅源列表</h1>
+  <h1>订阅源列表</h1>
   <input type="text" id="search-box" placeholder="🔍 输入关键字搜索源...">
   <div id="lists"></div>
   <div id="toast">已复制订阅地址</div>
@@ -192,6 +152,7 @@
       copyBtn.className = "copy-btn";
       copyBtn.onclick = () => copyToClipboard(fileUrl);
       header.appendChild(title);
+      header.appendChild(document.createElement("br"));
       header.appendChild(copyBtn);
       section.appendChild(header);
 
@@ -256,3 +217,13 @@
     document.getElementById("search-box").addEventListener("input", function() {
       const keyword = this.value.toLowerCase();
       document.querySelectorAll("#lists li").forEach(li => {
+        const text = li.dataset.search ? li.dataset.search.toLowerCase() : "";
+        li.style.display = text.includes(keyword) ? "" : "none";
+      });
+    });
+
+    // 加载四个 JSON
+    sources.forEach(src => loadJson(src.name, src.url));
+  </script>
+</body>
+</html>

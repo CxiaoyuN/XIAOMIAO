@@ -20,7 +20,7 @@ jobs:
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Sync from d1y/kitty (safe mode)
+      - name: Sync from d1y/kitty (exclude workflows, kitty.config.ts, docs)
         run: |
           set -e
           git config user.name "github-actions[bot]"
@@ -29,21 +29,18 @@ jobs:
           git remote add upstream https://github.com/d1y/kitty.git
           git fetch upstream
 
-          # 创建一个临时分支保存上游代码
-          git checkout -b upstream-main upstream/main
-
-          # 遍历上游文件，逐个同步
+          # 检出上游 main 分支的文件
           for file in $(git ls-tree -r --name-only upstream/main); do
-            # 跳过 workflows、kitty.config.ts、docs
+            # 跳过 workflows、kitty.config.ts、docs 文件夹
             if [[ "$file" == .github/workflows/* ]] || [[ "$file" == "kitty.config.ts" ]] || [[ "$file" == docs/* ]]; then
               echo "跳过 $file"
               continue
             fi
 
-            # 如果文件在本地有修改，先备份
+            # 如果本地有修改，先备份
             if [[ -f "$file" ]] && ! git diff --quiet HEAD -- "$file"; then
               ts=$(date +%Y%m%d%H%M%S)
-              mv "$file" "${file%.ts}_local_${ts}.ts" || mv "$file" "${file}_local_${ts}"
+              mv "$file" "${file}_local_${ts}"
               echo "检测到本地修改，已备份为 ${file}_local_${ts}"
             fi
 
@@ -51,9 +48,8 @@ jobs:
             git checkout upstream/main -- "$file"
           done
 
-          git checkout main
           git add .
-          git commit -m "smart sync from upstream (exclude workflows, keep kitty.config.ts/docs, backup local changes)" || true
+          git commit -m "smart sync from upstream (exclude workflows, kitty.config.ts, docs, backup local changes)" || true
           git push origin HEAD:main --force
 
       - name: Install Bun

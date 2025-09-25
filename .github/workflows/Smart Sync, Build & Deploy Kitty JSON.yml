@@ -72,9 +72,20 @@ jobs:
       - name: Build JSON files
         run: |
           mkdir -p docs
-          bunx kitty-parse -c kitty.config.x.ts -o docs/x.json
-          bunx kitty-parse -c kitty.config.vod.ts -o docs/vod.json
-          bunx kitty-parse -c kitty.config.xvod.ts -o docs/xvod.json
+
+          # 生成 x.json
+          cp kitty.config.x.ts kitty.config.ts
+          bunx kitty-parse -o docs/x.json
+
+          # 生成 vod.json
+          cp kitty.config.vod.ts kitty.config.ts
+          bunx kitty-parse -o docs/vod.json
+
+          # 生成 xvod.json
+          cp kitty.config.xvod.ts kitty.config.ts
+          bunx kitty-parse -o docs/xvod.json
+
+          # 合并成 all.json
           jq -s 'add' docs/x.json docs/vod.json docs/xvod.json > docs/all.json
 
       - name: Deploy to gh-pages

@@ -1,65 +1,34 @@
-name: Smart Sync, Fetch & Deploy Kitty JSON
+name: Build & Deploy vod/xvod JSON
 
 on:
+  workflow_dispatch:   # 手动触发
   schedule:
-    - cron: "0 2 * * *"   # 每天凌晨 2 点自动同步
-  workflow_dispatch:
+    - cron: "0 2 * * *"   # 每天凌晨 2 点自动运行
   push:
     branches: [ main ]
 
 jobs:
-  sync-fetch-deploy:
+  build-vod:
     runs-on: ubuntu-latest
     permissions:
       contents: write
 
     steps:
-      - name: Checkout your repo
+      - name: Checkout repository
         uses: actions/checkout@v4
+
+      - name: Setup Bun
+        uses: oven-sh/setup-bun@v1
         with:
-          token: ${{ secrets.GITHUB_TOKEN }}
+          bun-version: latest
 
-      - name: Smart sync from d1y/kitty (exclude workflows, keep kitty.config.* and docs)
-        run: |
-          set -e
-          git config user.name "github-actions[bot]"
-          git config user.email "github-actions[bot]@users.noreply.github.com"
+      - name: Install dependencies
+        run: bun install
 
-          if ! git remote | grep -q upstream; then
-            git remote add upstream https://github.com/d1y/kitty.git
-          fi
-          git fetch upstream
-
-          for file in $(git ls-tree -r --name-only upstream/main); do
-            # 跳过 workflows、所有 kitty.config.* 文件、docs 文件夹
-            if [[ "$file" == .github/workflows/* ]] || [[ "$file" == kitty.config.* ]] || [[ "$file" == docs/* ]]; then
-              echo "Skip $file"
-              continue
-            fi
-
-            # 如果本地有修改，先备份
-            if [[ -f "$file" ]] && ! git diff --quiet HEAD -- "$file"; then
-              ts=$(date +%Y%m%d%H%M%S)
-              backup="${file}_local_${ts}"
-              mkdir -p "$(dirname "$backup")"
-              mv "$file" "$backup"
-              echo "Backed up local change: $file -> $backup"
-            fi
-
-            git checkout upstream/main -- "$file"
-          done
-
-          git add .
-          git commit -m "smart sync: exclude workflows, keep kitty.config.* and docs, backup local changes" || true
-          git push origin HEAD:main
-
-      - name: Fetch upstream JSONs
+      - name: Build vod.json and xvod.json
         run: |
           mkdir -p docs
-          curl -L -o docs/vod.json https://raw.githubusercontent.com/d1y/kitty/gh-pages/vod.json
-          curl -L -o docs/x.json https://raw.githubusercontent.com/d1y/kitty/gh-pages/x.json
-          curl -L -o docs/xvod.json https://raw.githubusercontent.com/d1y/kitty/gh-pages/xvod.json
-          jq -s 'add' docs/x.json docs/vod.json docs/xvod.json > docs/all.json
+          bun run vod.ts docs/vod.json docs/xvod.json
 
       - name: Deploy to gh-pages
         uses: peaceiris/actions-gh-pages@v3

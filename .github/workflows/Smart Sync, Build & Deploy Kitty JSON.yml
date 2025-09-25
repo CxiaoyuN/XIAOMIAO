@@ -1,4 +1,4 @@
-name: Build & Deploy vod/xvod/x JSON
+name: Build & Deploy vod/xvod/x/all JSON
 
 on:
   workflow_dispatch:   # 手动触发
@@ -25,7 +25,7 @@ jobs:
       - name: Install dependencies
         run: bun install
 
-      - name: Build vod.json, xvod.json and x.json
+      - name: Build vod.json, xvod.json, x.json and all.json
         run: |
           mkdir -p docs
           # 生成 vod.json 和 xvod.json（直接用 vod.ts）
@@ -34,6 +34,9 @@ jobs:
           # 生成 x.json（用 kitty.config.x.ts）
           cp kitty.config.x.ts kitty.config.ts
           bunx kitty-parse -o docs/x.json
+
+          # 合并成 all.json
+          jq -s 'add' docs/vod.json docs/xvod.json docs/x.json > docs/all.json
 
       - name: Deploy to gh-pages
         uses: peaceiris/actions-gh-pages@v3

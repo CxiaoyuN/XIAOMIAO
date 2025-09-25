@@ -1,4 +1,4 @@
-name: Smart Sync, Build & Deploy Kitty JSON
+name: Smart Sync, Fetch & Deploy Kitty JSON
 
 on:
   schedule:
@@ -8,7 +8,7 @@ on:
     branches: [ main ]
 
 jobs:
-  sync-build-deploy:
+  sync-fetch-deploy:
     runs-on: ubuntu-latest
     permissions:
       contents: write
@@ -53,39 +53,12 @@ jobs:
           git commit -m "smart sync: exclude workflows, keep kitty.config.* and docs, backup local changes" || true
           git push origin HEAD:main
 
-      - name: Install Bun
-        run: |
-          curl -fsSL https://bun.sh/install | bash
-          echo "$HOME/.bun/bin" >> $GITHUB_PATH
-
-      - name: Setup Node.js
-        uses: actions/setup-node@v4
-        with:
-          node-version: '18'
-
-      - name: Install dependencies
-        run: |
-          if [ -f package.json ]; then
-            npm install
-          fi
-
-      - name: Build JSON files
+      - name: Fetch upstream JSONs
         run: |
           mkdir -p docs
-
-          # 生成 x.json
-          cp kitty.config.x.ts kitty.config.ts
-          bunx kitty-parse -o docs/x.json
-
-          # 生成 vod.json
-          cp kitty.config.vod.ts kitty.config.ts
-          bunx kitty-parse -o docs/vod.json
-
-          # 生成 xvod.json
-          cp kitty.config.xvod.ts kitty.config.ts
-          bunx kitty-parse -o docs/xvod.json
-
-          # 合并成 all.json
+          curl -L -o docs/vod.json https://raw.githubusercontent.com/d1y/kitty/gh-pages/vod.json
+          curl -L -o docs/x.json https://raw.githubusercontent.com/d1y/kitty/gh-pages/x.json
+          curl -L -o docs/xvod.json https://raw.githubusercontent.com/d1y/kitty/gh-pages/xvod.json
           jq -s 'add' docs/x.json docs/vod.json docs/xvod.json > docs/all.json
 
       - name: Deploy to gh-pages

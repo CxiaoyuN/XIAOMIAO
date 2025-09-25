@@ -14,10 +14,15 @@
       text-align: center;
       margin-bottom: 1.5rem;
     }
+    h2 {
+      margin-top: 2rem;
+      border-bottom: 2px solid #ddd;
+      padding-bottom: 0.3rem;
+    }
     ul {
       list-style: none;
       padding: 0;
-      max-width: 600px;
+      max-width: 700px;
       margin: auto;
     }
     li {
@@ -45,47 +50,82 @@
   </style>
 </head>
 <body>
-  <h1>我的 JS 源列表</h1>
-  <ul id="source-list">
-    <li>正在加载数据...</li>
-  </ul>
+  <h1>小猫影视源</h1>
+
+  <div id="lists"></div>
 
   <script>
-    async function loadSources() {
+    const sources = [
+      { name: "x.json", url: "https://cxiaoyun.github.io/kitty/x.json" },
+      { name: "vod.json", url: "https://cxiaoyun.github.io/kitty/vod.json" },
+      { name: "xvod.json", url: "https://cxiaoyun.github.io/kitty/xvod.json" },
+      { name: "all.json", url: "https://cxiaoyun.github.io/kitty/all.json" }
+    ];
+
+    async function loadJson(name, url) {
       try {
-        const res = await fetch('./source.json'); // 确保 source.json 在 docs/ 下
+        const res = await fetch(url);
         const data = await res.json();
-        const list = document.getElementById('source-list');
-        list.innerHTML = '';
-
-        if (Array.isArray(data)) {
-          data.forEach(item => {
-            const li = document.createElement('li');
-            const link = document.createElement('a');
-            link.href = item.url || '#';
-            link.textContent = item.name || item.title || '未命名源';
-            li.appendChild(link);
-
-            if (item.desc || item.remark) {
-              const desc = document.createElement('span');
-              desc.className = 'desc';
-              desc.textContent = item.desc || item.remark;
-              li.appendChild(desc);
-            }
-
-            list.appendChild(li);
-          });
-        } else {
-          list.innerHTML = '<li>source.json 格式不正确</li>';
-        }
+        renderList(name, data);
       } catch (err) {
-        document.getElementById('source-list').innerHTML =
-          '<li>加载 source.json 失败</li>';
-        console.error(err);
+        renderError(name, err);
       }
     }
 
-    loadSources();
+    function renderList(name, data) {
+      const container = document.getElementById("lists");
+      const section = document.createElement("section");
+      const title = document.createElement("h2");
+      title.textContent = name;
+      section.appendChild(title);
+
+      const ul = document.createElement("ul");
+
+      if (Array.isArray(data)) {
+        data.forEach(item => {
+          const li = document.createElement("li");
+          const link = document.createElement("a");
+          link.href = item.url || "#";
+          link.textContent = item.name || item.title || "未命名源";
+          li.appendChild(link);
+
+          if (item.desc || item.remark) {
+            const desc = document.createElement("span");
+            desc.className = "desc";
+            desc.textContent = item.desc || item.remark;
+            li.appendChild(desc);
+          }
+
+          ul.appendChild(li);
+        });
+      } else {
+        const li = document.createElement("li");
+        li.textContent = "JSON 格式不正确";
+        ul.appendChild(li);
+      }
+
+      section.appendChild(ul);
+      container.appendChild(section);
+    }
+
+    function renderError(name, err) {
+      const container = document.getElementById("lists");
+      const section = document.createElement("section");
+      const title = document.createElement("h2");
+      title.textContent = name;
+      section.appendChild(title);
+
+      const ul = document.createElement("ul");
+      const li = document.createElement("li");
+      li.textContent = "加载失败: " + err;
+      ul.appendChild(li);
+
+      section.appendChild(ul);
+      container.appendChild(section);
+    }
+
+    // 依次加载四个 JSON
+    sources.forEach(src => loadJson(src.name, src.url));
   </script>
 </body>
 </html>

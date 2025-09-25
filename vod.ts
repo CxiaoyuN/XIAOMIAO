@@ -4,7 +4,7 @@ import { join } from 'path'
 const vods = <Iconfig[]>[
   {
     id: "niuniuziyuan",
-    name: "牛牛视频",
+    name: "牛牛资源",
     api: "https://api.niuniuzy.me/api.php/provide/vod",
     nsfw: false,
     logo: "https://api.niuniuzy.me/template/niuniuzy/static/images/logo.png",

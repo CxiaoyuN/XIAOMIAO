@@ -907,10 +907,10 @@
   },
   {
     "id": "libvio",
-    "name": "LIBVIO",
+    "name": "LIBVIO影院",
     "api": "https://www.libvio.cc",
-    "type": 1,
     "nsfw": false,
+    "type": 1,
     "extra": {
       "js": {
         "category": [
@@ -919,7 +919,7 @@
             "id": "1"
           },
           {
-            "text": "剧集",
+            "text": "电视剧",
             "id": "2"
           },
           {
@@ -929,20 +929,11 @@
           {
             "text": "动漫",
             "id": "4"
-          },
-          {
-            "text": "韩剧",
-            "id": "15"
-          },
-          null,
-          {
-            "text": "美剧",
-            "id": "16"
           }
         ],
-        "home": "const cate=env.get(\"category\")||\"1\";const page=env.get(\"page\")||1;const url=`${env.baseUrl}/type/${cate}-${page}.html`;const html=await req(url);const $=kitty.load(html);return $(\"a.module-poster-item\").toArray().map(item=>{const $a=$(item);const id=$a.attr(\"href\")??\"\";const title=$a.find(\".module-poster-item-title\").text().trim()||$a.attr(\"title\")||\"\";const remark=$a.find(\".module-item-note\").text().trim();const cover=$a.find(\"img\").attr(\"data-original\")||$a.find(\"img\").attr(\"data-src\")||$a.find(\"img\").attr(\"src\")||\"\";return{id,title,cover,remark,playlist:[]}})",
-        "detail": "const id=env.get(\"movieId\");const url=id.startsWith(\"http\")?id:`${env.baseUrl}${id}`;const html=await req(url);const $=kitty.load(html);const title=$(\".module-info-heading h1\").text().trim()||$(\"title\").text().trim();const cover=$(\".module-info-poster img\").attr(\"data-original\")||$(\".module-info-poster img\").attr(\"src\")||\"\";const desc=$(\".module-info-introduction-content\").text().trim();const player=$(\".module-play-list a\").toArray().map(item=>{const $a=$(item);const text=$a.text().trim();const id=$a.attr(\"href\")??\"\";return{text,id}});return{id:url,title,cover,desc,remark:\"\",playlist:[{title:\"LIBVIO\",videos:player}]}",
-        "search": "const wd=env.get(\"keyword\");const page=env.get(\"page\")||1;const url=`${env.baseUrl}/search/${encodeURIComponent(wd)}----------${page}---.html`;const html=await req(url);const $=kitty.load(html);return $(\"a.module-poster-item\").toArray().map(item=>{const $a=$(item);const id=$a.attr(\"href\")??\"\";const title=$a.find(\".module-poster-item-title\").text().trim()||$a.attr(\"title\")||\"\";const cover=$a.find(\"img\").attr(\"data-original\")||$a.find(\"img\").attr(\"data-src\")||$a.find(\"img\").attr(\"src\")||\"\";const remark=$a.find(\".module-item-note\").text().trim();return{id,title,cover,remark,playlist:[]}})",
+        "home": "const cate=env.get(\"category\");const page=env.get(\"page\");const url=`${env.baseUrl}/vodshow/${cate}--------${page}---.html`;const html=await req(url);const $=kitty.load(html);return $(\".stui-vodlist li\").toArray().map(item=>{const a=$(item).find(\"a.stui-vodlist__thumb\");const id=a.attr(\"href\")??\"\";const title=a.attr(\"title\")??\"\";const cover=a.attr(\"data-original\")??\"\";const remark=a.find(\".pic-text.text-right\").text()??\"\";return{id,title,cover,remark}})",
+        "detail": "const id=env.get(\"movieId\");const url=`${env.baseUrl}${id}`;const html=await req(url);const $=kitty.load(html);const tabs=$(\".nav.nav-tabs li\").toArray().map(item=>{return $(item).text().trim()});const map=$(\".stui-panel_bd div.tab-pane\").toArray().map(item=>{return $(item).find(\"a\").toArray().map(_=>{const text=$(_).text().trim();const id=$(_).attr(\"href\")??\"\";return{id,text}})});const playlist=tabs.map((title,index)=>{const videos=map[index];return{title,videos}});const a=$(\".stui-pannel-box .stui-vodlist__thumb.picture.v-thumb\");const title=a.attr(\"title\")??\"\";const cover=a.find(\"img\").attr(\"data-original\")??\"\";const desc=$(\".detail.col-pd\").text().trim();return{id,title,cover,desc,playlist}",
+        "search": "const page=env.get(\"page\");const wd=env.get(\"keyword\");const url=`${env.baseUrl}/vodsearch/${wd}----------${page}---.html`;const html=await req(url);const $=kitty.load(html);return $(\".stui-vodlist__media li\").toArray().map(item=>{const a=$(item).find(\".v-thumb.stui-vodlist__thumb\");const title=a.attr(\"title\")??\"\";const cover=a.attr(\"data-original\")??\"\";const id=a.attr(\"href\")??\"\";const remark=a.find(\".pic-text.text-right\").text()??\"\";return{id,title,cover,remark}})",
         "parseIframe": "return kitty.utils.getM3u8WithIframe(env)"
       }
     }

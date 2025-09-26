@@ -9,7 +9,7 @@ export default class UAA implements Handle {
     };
   }
 
-  // 固定分类列表
+  // ✅ 固定分类列表
   async getCategory() {
     return [
       { id: "/video/list", text: "全部视频" },
@@ -25,7 +25,7 @@ export default class UAA implements Handle {
     ];
   }
 
-  // 视频列表页
+  // ✅ 视频列表页
   async getHome() {
     const cate = env.get("category") || "/video/list";
     const page = env.get("page") || 1;
@@ -35,9 +35,10 @@ export default class UAA implements Handle {
 
     return $("li.video_li").map((i, el) => {
       const a = $(el).find(".cover_box a");
+      const img = a.find("img.cover");
       const title = $(el).find(".brief_box .title a").text().trim();
-      const cover = a.find("img.cover").attr("src");
       const id = a.attr("href");
+      const cover = img.attr("src");
       const remark = $(el).find(".info_box .view span").first().text().trim();
       const author = $(el).find("a[href*='/video/author']").text().trim();
 
@@ -51,7 +52,7 @@ export default class UAA implements Handle {
     }).get();
   }
 
-  // 搜索功能
+  // ✅ 搜索功能
   async getSearch(keyword: string) {
     const page = env.get("page") || 1;
     const url = `${env.baseUrl}/search?wd=${encodeURIComponent(keyword)}&page=${page}`;
@@ -60,9 +61,10 @@ export default class UAA implements Handle {
 
     return $("li.video_li").map((i, el) => {
       const a = $(el).find(".cover_box a");
+      const img = a.find("img.cover");
       const title = $(el).find(".brief_box .title a").text().trim();
-      const cover = a.find("img.cover").attr("src");
       const id = a.attr("href");
+      const cover = img.attr("src");
       const remark = $(el).find(".info_box .view span").first().text().trim();
       const author = $(el).find("a[href*='/video/author']").text().trim();
 
@@ -76,7 +78,7 @@ export default class UAA implements Handle {
     }).get();
   }
 
-  // 视频详情页（支持 m3u8 和 iframe fallback）
+  // ✅ 视频详情页（m3u8 + 描述 + 封面）
   async getDetail() {
     const id = env.get("movieId");
     const url = `${env.baseUrl}${id}`;
@@ -100,6 +102,12 @@ export default class UAA implements Handle {
 
     const iframe = $("iframe").attr("src");
 
+    const desc =
+      $("meta[name='description']").attr("content") ||
+      $(".video-intro").text().trim() ||
+      $(".desc_box").text().trim() ||
+      "";
+
     let playlist: IPlaylist[] = [];
 
     if (m3u8) {
@@ -113,12 +121,12 @@ export default class UAA implements Handle {
       id,
       title,
       cover: poster,
-      desc: "",
+      desc,
       playlist,
     };
   }
 
-  // iframe 播放支持
+  // ✅ iframe 播放支持
   async parseIframe() {
     return env.get<string>("iframe");
   }

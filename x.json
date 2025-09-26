@@ -1067,7 +1067,7 @@
       "js": {
         "category": [
           {
-            "id": "/video/list",
+            "id": "https://www.uaa.com/video/list",
             "text": "全部视频"
           },
           {

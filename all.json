@@ -907,7 +907,7 @@
   },
   {
     "id": "libvio",
-    "name": "LIBVIO影院",
+    "name": "LIBVIO",
     "api": "https://www.libvio.cc",
     "nsfw": false,
     "type": 1,
@@ -919,12 +919,8 @@
             "id": "1"
           },
           {
-            "text": "电视剧",
+            "text": "剧集",
             "id": "2"
-          },
-          {
-            "text": "综艺",
-            "id": "3"
           },
           {
             "text": "动漫",
@@ -939,10 +935,10 @@
             "id": "16"
           }
         ],
-        "home": "const cate=env.get(\"category\");const page=env.get(\"page\");const url=`${env.baseUrl}/vodshow/${cate}--------${page}---.html`;const html=await req(url);const $=kitty.load(html);return $(\".stui-vodlist li\").toArray().map(item=>{const a=$(item).find(\"a.stui-vodlist__thumb\");const id=a.attr(\"href\")??\"\";const title=a.attr(\"title\")??\"\";const cover=a.attr(\"data-original\")??\"\";const remark=a.find(\".pic-text.text-right\").text()??\"\";return{id,title,cover,remark}})",
-        "detail": "const id=env.get(\"movieId\");const url=`${env.baseUrl}${id}`;const html=await req(url);const $=kitty.load(html);const tabs=$(\".nav.nav-tabs li\").toArray().map(item=>{return $(item).text()??\"\"});const map=$(\".stui-panel_bd div.tab-pane\").toArray().map(item=>{return $(item).find(\"a\").toArray().map(_=>{const text=$(_).text()??\"\";const id=$(_).attr(\"href\")??\"\";return{id,text}})});const playlist=tabs.map((title,index)=>{const videos=map[index];return{title,videos}});const a=$(\".stui-pannel-box .stui-vodlist__thumb.picture.v-thumb\");const title=a.attr(\"title\")??\"\";const cover=a.find(\"img\").attr(\"data-original\")??\"\";const desc=$(\".detail.col-pd\").text()??\"\";return{id,title,cover,desc,playlist}",
-        "search": "const page=env.get(\"page\");const wd=env.get(\"keyword\");const url=`${env.baseUrl}/vodsearch/${wd}----------${page}---.html`;const html=await req(url);const $=kitty.load(html);return $(\".stui-vodlist__media li\").toArray().map(item=>{const a=$(item).find(\".v-thumb.stui-vodlist__thumb\");const title=a.attr(\"title\")??\"\";const cover=a.attr(\"data-original\")??\"\";const id=a.attr(\"href\")??\"\";const remark=a.find(\".pic-text.text-right\").text()??\"\";return{id,title,cover,remark}})",
-        "parseIframe": "return kitty.utils.getM3u8WithIframe(env)"
+        "home": "const cate=this.env.get(\"category\");const page=this.env.get(\"page\")||1;const url=`${this.env.baseUrl}/type/${cate}.html?page=${page}`;try{const html=await req(url);const $=kitty.load(html);return $(\".stui-vodlist__box\").toArray().map(item=>{const a=$(item).find(\"a.stui-vodlist__thumb\");return{id:a.attr(\"href\")??\"\",title:a.attr(\"title\")??\"\",cover:a.attr(\"data-original\")??\"\",remark:a.find(\".pic-text.text-right\").text()??\"\"}})}catch(error){console.error(\"\\u83B7\\u53D6\\u9996\\u9875\\u5185\\u5BB9\\u5931\\u8D25:\",error);return[]}",
+        "detail": "const id=this.env.get(\"movieId\");if(!id){throw new Error(\"\\u7535\\u5F71ID\\u4E0D\\u5B58\\u5728\")}try{const url=`${this.env.baseUrl}${id}`;const html=await req(url);const $=kitty.load(html);const tabs=$(\".nav.nav-tabs li\").toArray().map(item=>{return $(item).text().trim()??\"\"});const _videos=$(\".stui-panel_bd div.tab-pane\").toArray().map(item=>{return $(item).find(\"a\").toArray().map(_=>{return{id:$(_).attr(\"href\")??\"\",text:$(_).text().trim()??\"\"}})});const playlist=tabs.map((title,index)=>({title,videos:_videos[index]||[]}));const a=$(\".stui-pannel-box .stui-vodlist__thumb.picture.v-thumb\");return{id,title:a.attr(\"title\")??\"\",cover:a.find(\"img\").attr(\"data-original\")??\"\",desc:$(\".detail.col-pd\").text().trim()??\"\",playlist}}catch(error){console.error(\"\\u83B7\\u53D6\\u8BE6\\u60C5\\u5931\\u8D25:\",error);return{id,title:\"\",cover:\"\",desc:\"\",playlist:[]}}",
+        "search": "const page=this.env.get(\"page\")||\"1\";const wd=this.env.get(\"keyword\");if(!wd){throw new Error(\"\\u641C\\u7D22\\u5173\\u952E\\u8BCD\\u4E0D\\u5B58\\u5728\")}try{const url=`${this.env.baseUrl}/vodsearch/${wd}----------${page}---.html`;const html=await req(url);const $=kitty.load(html);return $(\".stui-vodlist__media li\").toArray().map(item=>{const a=$(item).find(\".v-thumb.stui-vodlist__thumb\");return{id:a.attr(\"href\")??\"\",title:a.attr(\"title\")??\"\",cover:a.attr(\"data-original\")??\"\",remark:a.find(\".pic-text.text-right\").text()??\"\"}})}catch(error){console.error(\"\\u641C\\u7D22\\u5931\\u8D25:\",error);return[]}",
+        "parseIframe": "const iframePath=this.env.get(\"iframe\");if(!iframePath){throw new Error(\"\\u64AD\\u653E\\u5730\\u5740\\u4E0D\\u5B58\\u5728\")}try{const playUrl=`${this.env.baseUrl}${iframePath}`;const html=await req(playUrl);const $=kitty.load(html);const playerScriptSrc=$(\"script[src*='player.js']\").attr(\"src\");if(!playerScriptSrc){throw new Error(\"\\u672A\\u627E\\u5230player.js\")}const fullPlayerUrl=playerScriptSrc.startsWith(\"http\")?playerScriptSrc:`${this.env.baseUrl}${playerScriptSrc.startsWith(\"/\")?\"\":\"/\"}${playerScriptSrc}`;const playerJsContent=await req(fullPlayerUrl);const m3u8Match=playerJsContent.match(/videoUrl\\s*=\\s*[\"'](.*?\\.m3u8)[\"']/i)||playerJsContent.match(/url\\s*:\\s*[\"'](.*?\\.m3u8)[\"']/i);if(m3u8Match&&m3u8Match[1]){let url=m3u8Match[1];if(url.startsWith(\"//\")){url=`https:${url}`}else if(!url.startsWith(\"http\")&&!url.startsWith(this.env.baseUrl)){url=`${this.env.baseUrl}${url.startsWith(\"/\")?\"\":\"/\"}${url}`}return url}const pageScript=$(\"script\").toArray().find(script=>{const text=$(script).text();return text.includes(\".m3u8\")&&text.includes(\"play\")});if(pageScript){const scriptText=$(pageScript).text();const pageM3u8Match=scriptText.match(/[\"'](https?:\\/\\/.*?\\.m3u8)[\"']/i);if(pageM3u8Match){return pageM3u8Match[1]}}throw new Error(\"\\u672A\\u4ECEplayer.js\\u4E2D\\u627E\\u5230\\u64AD\\u653E\\u5730\\u5740\")}catch(error){console.error(\"\\u89E3\\u6790\\u64AD\\u653E\\u5730\\u5740\\u5931\\u8D25:\",error);return\"\"}"
       }
     }
   },

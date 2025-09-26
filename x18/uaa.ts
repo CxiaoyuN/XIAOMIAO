@@ -12,7 +12,7 @@ export default class UAA implements Handle {
   // ✅ 分类列表（已确认链接结构）
   async getCategory() {
     return [
-      { id: "/video/list", text: "全部视频" },
+      { id: "https://www.uaa.com/video/list", text: "全部视频" },
       { id: "/video/rank?type=1", text: "排行榜" },
       { id: "/actress", text: "AV女优" },
       { id: "/authors", text: "片商排行" },

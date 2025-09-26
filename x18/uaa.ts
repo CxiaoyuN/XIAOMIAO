@@ -29,10 +29,13 @@ export default class Uaa implements Handle {
     return $('li.video_li').toArray().map<IMovie>(el => {
       const a = $(el).find('.cover_box a')
       const id = a.attr('href') ?? ''
-      const title = $(el).find('.title a').text().trim()
+      const title = $(el).find('.brief_box .title a').text().trim()
       let cover = $(el).find('img.cover').attr('src') ?? ''
       if (cover.startsWith('//')) cover = 'https:' + cover
-      const remark = $(el).find('.info_box .view').last().text().trim()
+
+      // 取最后一个 view 的数值（通常是播放量）
+      const remark = $(el).find('.info_box .view span').last().text().trim()
+
       return { id, title, cover, desc: '', remark, playlist: [] }
     })
   }
@@ -69,9 +72,10 @@ export default class Uaa implements Handle {
     return $('li.video_li').toArray().map<IMovie>(el => {
       const a = $(el).find('.cover_box a')
       const id = a.attr('href') ?? ''
-      const title = $(el).find('.title a').text().trim()
+      const title = $(el).find('.brief_box .title a').text().trim()
       let cover = $(el).find('img.cover').attr('src') ?? ''
       if (cover.startsWith('//')) cover = 'https:' + cover
+
       return { id, title, cover, desc: '', remark: '搜索结果', playlist: [] }
     })
   }

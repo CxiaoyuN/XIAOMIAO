@@ -38,17 +38,15 @@
     }
     .section-header {
       margin-bottom: 1rem;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      gap: 1rem;
     }
     .section-header h2 {
       margin: 0;
       font-size: 1.3rem;
       color: #0078d7;
+      display: inline-block;
     }
     .copy-btn {
+      margin-left: 1rem;
       padding: 0.4rem 0.8rem;
       font-size: 0.9rem;
       border: none;
@@ -65,18 +63,8 @@
       padding: 0;
       margin: 1rem 0 0 0;
       display: grid;
-      grid-template-columns: repeat(6, 1fr);
+      grid-template-columns: repeat(6, 1fr); /* 一行6列 */
       gap: 1rem;
-      max-height: calc(4 * 180px); /* 4行高度，假设每行约180px */
-      overflow-y: auto;
-    }
-    /* 隐藏滚动条 */
-    ul::-webkit-scrollbar {
-      display: none;
-    }
-    ul {
-      -ms-overflow-style: none;  /* IE/Edge */
-      scrollbar-width: none;     /* Firefox */
     }
     li {
       background: #f9f9f9;
@@ -115,16 +103,6 @@
       display: none;
       box-shadow: 0 2px 6px rgba(0,0,0,0.2);
     }
-    #loading {
-      text-align: center;
-      font-size: 1rem;
-      color: #0078d7;
-      margin-top: 2rem;
-    }
-    .error {
-      color: #d32f2f;
-      font-weight: bold;
-    }
     footer {
       text-align: center;
       padding: 1rem;
@@ -137,7 +115,6 @@
 <body>
   <h1>订阅源列表</h1>
   <input type="text" id="search-box" placeholder="🔍 输入关键字搜索源...">
-  <div id="loading">⏳ 正在加载订阅源...</div>
   <div id="lists"></div>
   <div id="toast">已复制订阅地址</div>
 
@@ -147,29 +124,23 @@
 
   <script>
     const sources = [
-      { name: "Kitty源", url: "https://cxiaoyun.github.io/kitty/all.json" },
-      { name: "影视vod", url: "https://cxiaoyun.github.io/kitty/vod.json" },
-      { name: "福利vod", url: "https://cxiaoyun.github.io/kitty/xvod.json" },
-      { name: "JS源", url: "https://cxiaoyun.github.io/kitty/x.json" }
+      { name: "Kitty源", url: "https://cxiaoyun.github.io/kitty/all.json", showButton: true },
+      { name: "影视vod", url: "https://cxiaoyun.github.io/kitty/vod.json", showButton: false },
+      { name: "福利vod", url: "https://cxiaoyun.github.io/kitty/xvod.json", showButton: false }
+      { name: "JS源", url: "https://cxiaoyun.github.io/kitty/x.json", showButton: false }
     ];
 
-    let pendingLoads = sources.length;
-
-    async function loadJson(name, url) {
+    async function loadJson(name, url, showButton) {
       try {
         const res = await fetch(url);
         const data = await res.json();
-        renderList(name, data, url);
+        renderList(name, data, url, showButton);
       } catch (err) {
         renderError(name, err);
-      } finally {
-        if (--pendingLoads === 0) {
-          document.getElementById("loading").style.display = "none";
-        }
       }
     }
 
-    function renderList(name, data, fileUrl) {
+    function renderList(name, data, fileUrl, showButton) {
       const container = document.getElementById("lists");
       const section = document.createElement("section");
 
@@ -179,12 +150,13 @@
       title.textContent = name;
       header.appendChild(title);
 
-      // 每个标题都加订阅按钮
-      const copyBtn = document.createElement("button");
-      copyBtn.textContent = "订阅";
-      copyBtn.className = "copy-btn";
-      copyBtn.onclick = () => copyToClipboard(fileUrl);
-      header.appendChild(copyBtn);
+      if (showButton) {
+        const copyBtn = document.createElement("button");
+        copyBtn.textContent = "订阅";
+        copyBtn.className = "copy-btn";
+        copyBtn.onclick = () => copyToClipboard(fileUrl);
+        header.appendChild(copyBtn);
+      }
 
       section.appendChild(header);
 
@@ -226,18 +198,11 @@
       const title = document.createElement("h2");
       title.textContent = name;
       header.appendChild(title);
-
-      const copyBtn = document.createElement("button");
-      copyBtn.textContent = "订阅";
-      copyBtn.className = "copy-btn";
-      copyBtn.onclick = () => copyToClipboard("#");
-      header.appendChild(copyBtn);
-
       section.appendChild(header);
 
       const ul = document.createElement("ul");
       const li = document.createElement("li");
-      li.innerHTML = "⚠️ <span class='error'>加载失败:</span> " + err;
+      li.textContent = "加载失败: " + err;
       ul.appendChild(li);
 
       section.appendChild(ul);
@@ -248,4 +213,21 @@
       navigator.clipboard.writeText(text).then(() => {
         const toast = document.getElementById("toast");
         toast.style.display = "block";
-        setTimeout(() => toast.style.display =
+        setTimeout(() => toast.style.display = "none", 1500);
+      });
+    }
+
+    // 搜索功能
+    document.getElementById("search-box").addEventListener("input", function() {
+      const keyword = this.value.toLowerCase();
+      document.querySelectorAll("#lists li").forEach(li => {
+        const text = li.dataset.search ? li.dataset.search.toLowerCase() : "";
+        li.style.display = text.includes(keyword) ? "" : "none";
+      });
+    });
+
+    // 加载四个 JSON
+    sources.forEach(src => loadJson(src.name, src.url, src.showButton));
+  </script>
+</body>
+</html>

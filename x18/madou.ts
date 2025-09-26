@@ -52,10 +52,33 @@ export default class Madou implements Handle {
     if (cover.startsWith('//')) cover = 'https:' + cover
     const desc = $('article').text().slice(0, 200)
 
-    // 直接把详情页当成“播放入口”
+    // 提取 iframe
+    const iframeUrl = $('iframe').attr('src') ?? ''
+
+    let realUrl = ''
+    if (iframeUrl) {
+      const iframeHtml = await req(iframeUrl, {
+        headers: {
+          'User-Agent': 'Mozilla/5.0',
+          'Referer': url
+        }
+      })
+      const tokenMatch = iframeHtml.match(/var token = "([^"]+)"/)
+      const token = tokenMatch ? tokenMatch[1] : ""
+
+      const m3u8Match = iframeHtml.match(/var m3u8 = '([^']+)'/)
+      const m3u8Path = m3u8Match ? m3u8Match[1] : ""
+
+      if (m3u8Path && token) {
+        realUrl = `https://dash.madou.club${m3u8Path}?token=${token}`
+      }
+    }
+
     const playlist = [{
-      title: '网页模式',
-      videos: [{ text: '打开详情页', id: url }]
+      title: '默认',
+      videos: realUrl
+        ? [{ text: '在线播放', url: realUrl }]
+        : [{ text: '打开详情页', id: url }]
     }]
 
     return <IMovie>{ id: url, title, cover, desc, playlist }
@@ -76,14 +99,5 @@ export default class Madou implements Handle {
       if (cover.startsWith('//')) cover = 'https:' + cover
       return { id, title, cover, desc: '', remark: '搜索结果', playlist: [] }
     })
-  }
-
-  async parseIframe() {
-    // 不再解析，直接返回详情页
-    const detailUrl = env.get<string>("movieId")
-    return [{
-      text: "打开详情页",
-      id: detailUrl
-    }]
   }
 }

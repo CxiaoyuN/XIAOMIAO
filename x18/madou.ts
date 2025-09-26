@@ -94,11 +94,14 @@ export default class Madou implements Handle {
       }
     })
 
-    // 匹配 m3u8 地址（带 token）
+    // 提取 player_aaaa 里的 url（带 token 的 m3u8）
     const match = html.match(/"url":"([^"]+\\.m3u8[^"]*)"/)
     if (match) {
       const realUrl = match[1].replace(/\\u002F/g, "/")
-      return [{ text: "播放", url: realUrl }]
+      return [{
+        text: "播放",
+        url: realUrl
+      }]
     }
 
     // fallback：交给内置工具

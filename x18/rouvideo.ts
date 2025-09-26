@@ -80,7 +80,7 @@ export default class rouvideo implements Handle {
         const html = await req(url, {
           headers: { 'User-Agent': 'Mozilla/5.0', 'Referer': url }
         })
-        const match = html.match(/"(https:[^"]+\\.m3u8[^"]*auth=[^"]+)"/)
+        const match = html.match(/"(https:[^"]+\.m3u8[^"]*auth=[^"]+)"/)
         if (match) {
           realUrl = match[1]
         }
@@ -188,3 +188,8 @@ export default class rouvideo implements Handle {
     return cards.map<IMovie>(item => ({
       id: item.vod_id,
       title: item.vod_name,
+      cover: item.vod_pic,
+      remark: item.vod_remarks,
+    }))
+  }
+}

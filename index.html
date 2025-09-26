@@ -38,15 +38,17 @@
     }
     .section-header {
       margin-bottom: 1rem;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      gap: 1rem;
     }
     .section-header h2 {
       margin: 0;
       font-size: 1.3rem;
       color: #0078d7;
-      display: inline-block;
     }
     .copy-btn {
-      margin-left: 1rem;
       padding: 0.4rem 0.8rem;
       font-size: 0.9rem;
       border: none;
@@ -65,6 +67,16 @@
       display: grid;
       grid-template-columns: repeat(6, 1fr);
       gap: 1rem;
+      max-height: calc(4 * 180px); /* 4行高度，假设每行约180px */
+      overflow-y: auto;
+    }
+    /* 隐藏滚动条 */
+    ul::-webkit-scrollbar {
+      display: none;
+    }
+    ul {
+      -ms-overflow-style: none;  /* IE/Edge */
+      scrollbar-width: none;     /* Firefox */
     }
     li {
       background: #f9f9f9;
@@ -135,19 +147,19 @@
 
   <script>
     const sources = [
-      { name: "Kitty源", url: "https://cxiaoyun.github.io/kitty/all.json", showButton: true },
-      { name: "影视vod", url: "https://cxiaoyun.github.io/kitty/vod.json", showButton: false },
-      { name: "福利vod", url: "https://cxiaoyun.github.io/kitty/xvod.json", showButton: false },
-      { name: "JS源", url: "https://cxiaoyun.github.io/kitty/x.json", showButton: false }
+      { name: "Kitty源", url: "https://cxiaoyun.github.io/kitty/all.json" },
+      { name: "影视vod", url: "https://cxiaoyun.github.io/kitty/vod.json" },
+      { name: "福利vod", url: "https://cxiaoyun.github.io/kitty/xvod.json" },
+      { name: "JS源", url: "https://cxiaoyun.github.io/kitty/x.json" }
     ];
 
     let pendingLoads = sources.length;
 
-    async function loadJson(name, url, showButton) {
+    async function loadJson(name, url) {
       try {
         const res = await fetch(url);
         const data = await res.json();
-        renderList(name, data, url, showButton);
+        renderList(name, data, url);
       } catch (err) {
         renderError(name, err);
       } finally {
@@ -157,7 +169,7 @@
       }
     }
 
-    function renderList(name, data, fileUrl, showButton) {
+    function renderList(name, data, fileUrl) {
       const container = document.getElementById("lists");
       const section = document.createElement("section");
 
@@ -167,13 +179,12 @@
       title.textContent = name;
       header.appendChild(title);
 
-      if (showButton) {
-        const copyBtn = document.createElement("button");
-        copyBtn.textContent = "订阅";
-        copyBtn.className = "copy-btn";
-        copyBtn.onclick = () => copyToClipboard(fileUrl);
-        header.appendChild(copyBtn);
-      }
+      // 每个标题都加订阅按钮
+      const copyBtn = document.createElement("button");
+      copyBtn.textContent = "订阅";
+      copyBtn.className = "copy-btn";
+      copyBtn.onclick = () => copyToClipboard(fileUrl);
+      header.appendChild(copyBtn);
 
       section.appendChild(header);
 
@@ -215,6 +226,13 @@
       const title = document.createElement("h2");
       title.textContent = name;
       header.appendChild(title);
+
+      const copyBtn = document.createElement("button");
+      copyBtn.textContent = "订阅";
+      copyBtn.className = "copy-btn";
+      copyBtn.onclick = () => copyToClipboard("#");
+      header.appendChild(copyBtn);
+
       section.appendChild(header);
 
       const ul = document.createElement("ul");
@@ -230,21 +248,4 @@
       navigator.clipboard.writeText(text).then(() => {
         const toast = document.getElementById("toast");
         toast.style.display = "block";
-        setTimeout(() => toast.style.display = "none", 1500);
-      });
-    }
-
-    // 搜索功能
-    document.getElementById("search-box").addEventListener("input", function() {
-      const keyword = this.value.toLowerCase();
-      document.querySelectorAll("#lists li").forEach(li => {
-        const text = li.dataset.search ? li.dataset.search.toLowerCase() : "";
-        li.style.display = text.includes(keyword) ? "" : "none";
-      });
-    });
-
-    // 加载四个 JSON
-    sources.forEach(src => loadJson(src.name, src.url, src.showButton));
-  </script>
-</body>
-</html>
+        setTimeout(() => toast.style.display =

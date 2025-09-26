@@ -4,7 +4,7 @@ export default class Maiyoux {
       id: 'maiyoux',
       name: 'Maiyoux聚合',
       api: 'http://api.maiyoux.com:81/mf/json.txt',
-      nsfw: false,
+      nsfw: true,
       type: 1,
     }
   }

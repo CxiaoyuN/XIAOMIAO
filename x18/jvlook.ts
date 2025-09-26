@@ -1,97 +1,103 @@
-export default class JvLook implements Handle {
+export default class JVLook implements Handle {
   getConfig() {
-    return <Iconfig>{
-      id: 'jvlook',
-      name: 'JvLook',
-      api: 'https://jvlook.com/plate3',
-      nsfw: true,
+    return <IConfig>{
+      id: "jvlook$",
+      name: "JVLook",
       type: 1,
-    }
+      nsfw: true,
+      api: "https://zdapi.421573.top",
+    };
   }
 
+  // 分类
   async getCategory() {
-    return <ICategory[]>[
-      { text: '短视频', id: 'short' },
-      { text: '长视频', id: 'long' },
-      { text: 'AV', id: 'av' },
-      { text: '动漫', id: 'anime' },
-    ]
+    const url = `${env.baseUrl}/zd/sp/getPlateLabelList?plateId=4`;
+    const json = await req(url, {
+      headers: this.makeHeaders(),
+    }).then(r => JSON.parse(r));
+
+    return json.data.map((v: any) => <ICategory>{
+      id: v.id,
+      text: v.name,
+    });
   }
 
+  // 列表
   async getHome() {
-    const cate = env.get<string>('category') || ''
-    const page = env.get<number>('page') || 1
-    let url = `${env.baseUrl}/`
-    if (cate) url += `${cate}/`
-    if (page > 1) url += `page/${page}/`
+    const cate = env.get("category") || 1;
+    const page = env.get("page") || 1;
+    const url = `${env.baseUrl}/zd/sp/getLabelVideoList?plateId=4&labelId=${cate}&page=${page}&size=25`;
+    const json = await req(url, {
+      headers: this.makeHeaders(),
+    }).then(r => JSON.parse(r));
 
-    const html = await req(url)
-    const $ = kitty.load(html)
-
-    return $('article.excerpt').toArray().map<IMovie>(el => {
-      const a = $(el).find('h2 a')
-      const id = a.attr('href') ?? ''
-      const title = a.text().trim()
-      let cover = $(el).find('img').attr('data-src') ?? $(el).find('img').attr('src') ?? ''
-      if (cover.startsWith('//')) cover = 'https:' + cover
-      const remark = $(el).find('.post-view').text().trim()
-      return { id, title, cover, desc: '', remark, playlist: [] }
-    })
+    return json.data.records.map((v: any) => <IMovie>{
+      id: v.id,
+      title: v.title,
+      cover: v.coverUrl,
+      remark: v.updateTime,
+    });
   }
 
+  // 详情
   async getDetail() {
-    const id = env.get<string>('movieId')
-    const url = id.startsWith('http') ? id : `${env.baseUrl}${id}`
-    const html = await req(url)
-    const $ = kitty.load(html)
+    const id = env.get("movieId");
+    const url = `${env.baseUrl}/zd/sp/getLovelyList?plateId=4&videoId=${id}`;
+    const json = await req(url, {
+      headers: this.makeHeaders(),
+    }).then(r => JSON.parse(r));
 
-    const title = $('h1').text().trim()
-    let cover = $('article img').first().attr('src') ?? ''
-    if (cover.startsWith('//')) cover = 'https:' + cover
-    const desc = $('article').text().slice(0, 200)
-
-    // 提取 iframe
-    const iframeUrl = $('iframe').attr('src') ?? ''
-
-    let realUrl = ''
-    if (iframeUrl) {
-      const iframeHtml = await req(iframeUrl, {
-        headers: {
-          'User-Agent': 'Mozilla/5.0',
-          'Referer': url
-        }
-      })
-      // jvlook 的 iframe 可能直接就是 m3u8 地址
-      const m3u8Match = iframeHtml.match(/(https?:\\/\\/[^'"]+\\.m3u8[^'"]*)/)
-      if (m3u8Match) {
-        realUrl = m3u8Match[1]
-      }
-    }
-
-    const playlist = [{
-      title: '默认',
-      videos: realUrl
-        ? [{ text: '在线播放', url: realUrl }]
-        : [{ text: '打开详情页', id: url }]
-    }]
-
-    return <IMovie>{ id: url, title, cover, desc, playlist }
+    // 这里只是示例，实际要根据返回结构拼 playlist
+    return <IMovie>{
+      id,
+      title: "影片详情",
+      cover: "",
+      desc: "",
+      playlist: [
+        {
+          title: "默认线路",
+          videos: json.data.map((v: any) => <IPlaylistVideo>{
+            text: v.title,
+            id: v.playUrl,
+          }),
+        },
+      ],
+    };
   }
 
-  async getSearch() {
-    const wd = env.get<string>('keyword') || ''
-    const page = env.get<number>('page') || 1
-    const url = `${env.baseUrl}/search/${encodeURIComponent(wd)}/page/${page}/`
-    const html = await req(url)
-    const $ = kitty.load(html)
+  async parseIframe() {
+    const url = env.get<string>("iframe");
+    return url; // 如果是 m3u8/mp4 直链，直接返回
+  }
 
-    return $('article.excerpt').toArray().map<IMovie>(el => {
-      const a = $(el).find('h2 a')
-      const id = a.attr('href') ?? ''
-      const title = a.text().trim()
-      let cover = $(el).find('img').attr('data-src') ?? $(el).find('img').attr('src') ?? ''
-      if (cover.startsWith('//')) cover = 'https:' + cover
-      return { id, title, cover, desc: '', remark: '搜索结果', playlist: [] }
-    })
+  // 🔑 生成请求头（需要你补充 sign 算法）
+  private makeHeaders() {
+    const timestamp = Date.now();
+    const nonce = this.randomString(16);
+    const token = "你的token"; // 可以从浏览器复制，或者逆向生成
+    const sign = this.calcSign(nonce, timestamp, token);
+
+    return {
+      "Origin": "https://jvlook.com",
+      "Referer": "https://jvlook.com/",
+      "User-Agent": "Mozilla/5.0 ...",
+      "Accept": "application/json, text/plain, */*",
+      "nonce": nonce,
+      "timestamp": timestamp.toString(),
+      "token": token,
+      "sign": sign,
+      "url": "jvlook.com",
+    };
+  }
+
+  private randomString(len: number) {
+    const chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
+    return Array.from({ length: len }, () => chars[Math.floor(Math.random() * chars.length)]).join("");
+  }
+
+  private calcSign(nonce: string, timestamp: number, token: string) {
+    // TODO: 这里实现 jvlook 的 sign 算法
+    // 一般是 md5(nonce + timestamp + token + secretKey)
+    return "FAKE_SIGN";
   }
 }

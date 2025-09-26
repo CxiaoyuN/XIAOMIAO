@@ -922,6 +922,20 @@
     }
   },
   {
+    "id": "maiyoux-json",
+    "name": "MaiYouX直播频道",
+    "api": "http://api.maiyoux.com:81/mf/jsonweishizhibo.txt",
+    "nsfw": false,
+    "type": 3,
+    "extra": {
+      "js": {
+        "home": "const json=await req(env.api).then(res=>JSON.parse(res));const list=json.zhubo||[];return list.map(item=>{return{id:item.address||\"\",title:item.title||\"\\u672A\\u547D\\u540D\\u9891\\u9053\",cover:item.img||\"\",desc:\"\",remark:\"\",playlist:[{title:\"\\u76F4\\u64AD\",videos:[{text:\"\\u64AD\\u653E\",id:item.address}]}]}})",
+        "detail": "const id=env.get(\"movieId\");return{id,title:\"\\u76F4\\u64AD\\u9891\\u9053\",cover:\"\",desc:\"\\u70B9\\u51FB\\u64AD\\u653E\\u8FDB\\u5165\\u76F4\\u64AD\",playlist:[{title:\"\\u76F4\\u64AD\",videos:[{text:\"\\u64AD\\u653E\",id}]}]}",
+        "search": "const keyword=env.get(\"keyword\")?.toLowerCase()||\"\";const json=await req(env.api).then(res=>JSON.parse(res));const list=json.zhubo||[];return list.filter(item=>{const text=`${item.title||\"\"}`.toLowerCase();return text.includes(keyword)}).map(item=>{return{id:item.address||\"\",title:item.title||\"\\u672A\\u547D\\u540D\\u9891\\u9053\",cover:item.img||\"\",desc:\"\",remark:\"\",playlist:[{title:\"\\u76F4\\u64AD\",videos:[{text:\"\\u64AD\\u653E\",id:item.address}]}]}})"
+      }
+    }
+  },
+  {
     "id": "netflav$",
     "name": "NetFlav",
     "api": "https://www.netflav.com",

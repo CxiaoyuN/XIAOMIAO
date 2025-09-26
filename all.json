@@ -1108,40 +1108,28 @@
         "category": [
           {
             "text": "TV动漫",
-            "id": "/index.php/vod/type/id/4.html"
+            "id": "4"
           },
           {
             "text": "剧场版动漫",
-            "id": "/index.php/vod/type/id/20.html"
+            "id": "20"
           },
           {
             "text": "电影",
-            "id": "/index.php/vod/type/id/1.html"
+            "id": "1"
           },
           {
             "text": "连续剧",
-            "id": "/index.php/vod/type/id/2.html"
+            "id": "2"
           },
           {
             "text": "短剧",
-            "id": "/index.php/vod/type/id/3.html"
-          },
-          {
-            "text": "热榜",
-            "id": "/index.php/label/hot.html"
-          },
-          {
-            "text": "今日更新",
-            "id": "/index.php/label/new.html"
-          },
-          {
-            "text": "周表",
-            "id": "/index.php/label/week.html"
+            "id": "3"
           }
         ],
-        "home": "const cate=env.get(\"category\")||\"/index.php/vod/type/id/4.html\";const page=env.get(\"page\")||1;const hasQuery=/\\?/.test(cate);const url=`${env.baseUrl}${cate}${hasQuery?\"&\":\"?\"}page=${page}`;const html=await req(url);const $=kitty.load(html);return this._parseList($)",
-        "detail": "const id=env.get(\"movieId\")||\"\";const url=id.startsWith(\"http\")?id:`${env.baseUrl}${id}`;const html=await req(url,{headers:{\"User-Agent\":\"Mozilla/5.0\",\"Referer\":env.baseUrl}});const $=kitty.load(html);const title=$(\".module-info-heading .module-info-title\").first().text().trim()||$(\"h1\").first().text().trim()||$(\"title\").text().trim();let cover=$(\".module-info-poster img\").attr(\"data-original\")||$(\".module-info-poster img\").attr(\"src\")||$(\"img\").first().attr(\"src\")||\"\";if(cover&&cover.startsWith(\"//\"))cover=\"https:\"+cover;const episodes=[];$(\".module-play-list a, .module-play-list-link a\").each((_,el)=>{const $a=$(el);const text=($a.text()||\"\").trim();let href=$a.attr(\"href\")||\"\";if(!href)return;if(!/^https?:/.test(href))href=`${env.baseUrl}${href}`;episodes.push({text,id:href})});let directUrl=\"\";$(\"script\").each((_,el)=>{const t=$(el).html()||\"\";if(!t)return;const m=t.match(/https?:[^\\s'\"<>]+\\.m3u8[^\\s'\"<>]*/i)||t.match(/[\"'](https?:\\/\\/[^\"']+\\.m3u8[^\"']*)[\"']/i)||t.match(/url\\s*[:=]\\s*[\"'](https?:\\/\\/[^\"']+)[\"']/i);if(m){directUrl=m[1]||m[0]}});const playlist=[];if(directUrl){playlist.push({title:\"\\u9ED8\\u8BA4\",videos:[{text:\"\\u5728\\u7EBF\\u64AD\\u653E\",url:directUrl}]})}else if(episodes.length>0){playlist.push({title:\"\\u9ED8\\u8BA4\",videos:episodes})}else{playlist.push({title:\"\\u9ED8\\u8BA4\",videos:[{text:\"\\u6253\\u5F00\\u8BE6\\u60C5\\u9875\",id:url}]})}return{id:url,title,cover,desc:\"\",playlist}",
-        "search": "const wd=env.get(\"keyword\")||\"\";const page=env.get(\"page\")||1;if(!wd)return[];const url=`${env.baseUrl}/index.php/vod/search.html?wd=${encodeURIComponent(wd)}&page=${page}`;const html=await req(url);const $=kitty.load(html);return this._parseList($).map(it=>({...it,remark:\"\\u641C\\u7D22\\u7ED3\\u679C\"}))"
+        "home": "const cate=env.get(\"category\")||\"4\";const page=env.get(\"page\")||1;const url=`${env.baseUrl}/vodshow/${cate}-----------${page}---.html`;const html=await req(url);const $=kitty.load(html);return this._parseList($)",
+        "detail": "const id=env.get(\"movieId\")||\"\";const url=id.startsWith(\"http\")?id:`${env.baseUrl}${id}`;const html=await req(url);const $=kitty.load(html);const title=$(\".module-info-heading .module-info-title\").first().text().trim()||$(\"h1\").first().text().trim();let cover=$(\".module-info-poster img\").attr(\"data-original\")||$(\".module-info-poster img\").attr(\"src\")||\"\";if(cover&&cover.startsWith(\"//\"))cover=\"https:\"+cover;const episodes=[];$(\".module-play-list a\").each((_,el)=>{const $a=$(el);const text=($a.text()||\"\").trim();let href=$a.attr(\"href\")||\"\";if(!href)return;if(!/^https?:/.test(href))href=`${env.baseUrl}${href}`;episodes.push({text,id:href})});const playlist=[];if(episodes.length>0){playlist.push({title:\"\\u9ED8\\u8BA4\",videos:episodes})}else{playlist.push({title:\"\\u9ED8\\u8BA4\",videos:[{text:\"\\u6253\\u5F00\\u8BE6\\u60C5\\u9875\",id:url}]})}return{id:url,title,cover,desc:\"\",playlist}",
+        "search": "const wd=env.get(\"keyword\")||\"\";const page=env.get(\"page\")||1;if(!wd)return[];const url=`${env.baseUrl}/vodsearch/${encodeURIComponent(wd)}----------${page}---.html`;const html=await req(url);const $=kitty.load(html);return this._parseList($).map(it=>({...it,remark:\"\\u641C\\u7D22\\u7ED3\\u679C\"}))"
       }
     }
   },

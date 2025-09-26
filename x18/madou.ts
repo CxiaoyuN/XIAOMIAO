@@ -11,7 +11,6 @@ export default class Madou implements Handle {
   }
 
   async getCategory() {
-    // 固定分类（可根据 madou.club 实际栏目调整/扩展）
     return <ICategory[]>[
       { text: '麻豆传媒', id: 'category/%e9%ba%bb%e8%b1%86%e4%bc%a0%e5%aa%92' },
       { text: '麻豆番外篇', id: 'category/%e9%ba%bb%e8%b1%86%e7%95%aa%e5%a4%96%e7%af%87' },
@@ -54,12 +53,16 @@ export default class Madou implements Handle {
     if (cover.startsWith('//')) cover = 'https:' + cover
     const desc = $('article').text().slice(0, 200)
 
-    // 提取 iframe 播放器
+    // 优先提取 iframe
     const iframe = $('iframe').attr('src') ?? ''
 
     const playlist = [{
       title: '默认',
-      videos: [{ text: '播放', id: iframe || url }]
+      videos: [
+        iframe
+          ? { text: '在线播放', id: iframe }
+          : { text: '原页面播放', id: url }
+      ]
     }]
 
     return <IMovie>{ id: url, title, cover, desc, playlist }
@@ -83,7 +86,7 @@ export default class Madou implements Handle {
   }
 
   async parseIframe() {
-    // 当 detail 返回的 playlist.video.id 是 iframe 时调用
+    // 当 playlist.video.id 是 iframe 时调用
     return kitty.utils.getM3u8WithIframe(env)
   }
 }

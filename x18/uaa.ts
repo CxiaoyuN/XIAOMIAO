@@ -1,154 +1,105 @@
 export default class UAA implements Handle {
   getConfig() {
-    return <IConfig>{
-      id: "uaa$",
-      name: "UAA视频",
+    return <Iconfig>{
+      id: 'uaa',
+      name: 'UAA影视',
+      api: 'https://www.uaa.com',
+      nsfw: false,
       type: 1,
-      nsfw: true,
-      api: "https://www.uaa.com",
-    };
+    }
   }
 
-  // ✅ 分类列表（已确认链接结构）
+  // 固定分类（根据你提供的结构）
   async getCategory() {
-    return [
-      { id: "https://www.uaa.com/video/list", text: "全部视频" },
-      { id: "/video/rank?type=1", text: "排行榜" },
-      { id: "/actress", text: "AV女优" },
-      { id: "/authors", text: "片商排行" },
-      { id: "/chinese-av-porn", text: "国产视频" },
-      { id: "/jav", text: "日本AV" },
-      { id: "/video/list?category=无码流出&origin=2", text: "无码流出" },
-      { id: "/video/list?origin=3", text: "H动漫" },
-      { id: "/video/list?category=里番", text: "里番" },
-      { id: "/video/list?category=泡面番", text: "泡面番" },
-    ];
+    return <ICategory[]>[
+      { text: '全部题材', id: '/video/list?keyword=&searchType=1&category=&origin=&tag=&sort=1' },
+      { text: '国产视频', id: '/video/list?keyword=&searchType=1&origin=1&tag=&sort=1' },
+      { text: '日本AV', id: '/video/list?keyword=&searchType=1&origin=2&tag=&sort=1' },
+      { text: 'H动漫', id: '/video/list?keyword=&searchType=1&origin=3&tag=&sort=1' },
+      { text: '正规', id: '/video/list?keyword=&searchType=1&origin=4&tag=&sort=1' },
+      { text: '欧美', id: '/video/list?keyword=&searchType=1&origin=5&tag=&sort=1' },
+      { text: '短剧', id: '/video/list?keyword=&searchType=1&category=短剧&origin=&tag=&sort=1' },
+      { text: '偷拍', id: '/video/list?keyword=&searchType=1&category=偷拍&origin=&tag=&sort=1' },
+      { text: '00后露出', id: '/video/list?keyword=&searchType=1&category=00后露出&origin=&tag=&sort=1' },
+      { text: '无码流出', id: '/video/list?keyword=&searchType=1&category=无码流出&origin=&tag=&sort=1' },
+      { text: '高清AV', id: '/video/list?keyword=&searchType=1&category=高清AV&origin=&tag=&sort=1' },
+      { text: '自拍', id: '/video/list?keyword=&searchType=1&category=自拍&origin=&tag=&sort=1' },
+      { text: '人妖伪娘', id: '/video/list?keyword=&searchType=1&category=人妖伪娘&origin=&tag=&sort=1' },
+      { text: '主播福利', id: '/video/list?keyword=&searchType=1&category=主播福利&origin=&tag=&sort=1' },
+      { text: '里番', id: '/video/list?keyword=&searchType=1&category=里番&origin=&tag=&sort=1' },
+      { text: '泡面番', id: '/video/list?keyword=&searchType=1&category=泡面番&origin=&tag=&sort=1' },
+    ]
   }
 
-  // ✅ 视频列表页（修复选择器 + 封面图 + 发布时间等）
+  // 视频列表
   async getHome() {
-    const cate = env.get("category") || "/video/list";
-    const page = env.get("page") || 1;
-    const url = `${env.baseUrl}${cate}${cate.includes("?") ? "&" : "?"}page=${page}`;
-    const html = await req(url);
-    const $ = kitty.load(html);
+    const cate = env.get<string>('category') || '/video/list'
+    const page = env.get<number>('page') || 1
+    let url = `${env.baseUrl}${cate}`
+    if (page > 1) url += `&page=${page}`
 
-    return $("li.video_li").map((i, el) => {
-      const a = $(el).find(".cover_box a");
-      const img = a.find("img.cover");
-      const id = a.attr("href") ?? "";
-      const title = $(el).find(".brief_box .title a").text().trim();
+    const html = await req(url)
+    const $ = kitty.load(html)
 
-      // ✅ 封面图处理（支持懒加载）
-      let cover = img.attr("src") || img.attr("data-cfsrc") || "";
-      if (cover && !cover.startsWith("http")) {
-        cover = `${env.baseUrl}${cover}`;
-      }
-
-      // ✅ 发布时间、收藏数、播放量
-      const spans = $(el).find(".info_box .view span");
-      const time = spans.eq(0).text().trim();
-      const favs = spans.eq(1).text().trim();
-      const views = spans.eq(2).text().trim();
-
-      // ✅ 作者信息
-      const author = $(el).find("a[href*='/video/author']").text().trim();
-
-      return <IMovie>{
-        id,
-        title,
-        cover,
-        remark: `${time} | ❤${favs} | 👁${views}`,
-        extra: author || "",
-      };
-    }).get();
+    return $('div.video-item, div.post-box, article.post').toArray().map<IMovie>(el => {
+      const a = $(el).find('a').first()
+      const id = a.attr('href') ?? ''
+      const title = a.attr('title') || a.text().trim()
+      let cover = $(el).find('img').attr('src') ?? $(el).find('img').attr('data-src') ?? ''
+      if (cover.startsWith('//')) cover = 'https:' + cover
+      const remark = $(el).find('.video-meta, .post-meta').text().trim()
+      return { id, title, cover, desc: '', remark, playlist: [] }
+    })
   }
 
-  // ✅ 搜索功能（结构一致）
-  async getSearch(keyword: string) {
-    const page = env.get("page") || 1;
-    const url = `${env.baseUrl}/search?wd=${encodeURIComponent(keyword)}&page=${page}`;
-    const html = await req(url);
-    const $ = kitty.load(html);
-
-    return $("li.video_li").map((i, el) => {
-      const a = $(el).find(".cover_box a");
-      const img = a.find("img.cover");
-      const id = a.attr("href") ?? "";
-      const title = $(el).find(".brief_box .title a").text().trim();
-
-      let cover = img.attr("src") || img.attr("data-cfsrc") || "";
-      if (cover && !cover.startsWith("http")) {
-        cover = `${env.baseUrl}${cover}`;
-      }
-
-      const spans = $(el).find(".info_box .view span");
-      const time = spans.eq(0).text().trim();
-      const favs = spans.eq(1).text().trim();
-      const views = spans.eq(2).text().trim();
-
-      const author = $(el).find("a[href*='/video/author']").text().trim();
-
-      return <IMovie>{
-        id,
-        title,
-        cover,
-        remark: `${time} | ❤${favs} | 👁${views}`,
-        extra: author || "",
-      };
-    }).get();
-  }
-
-  // ✅ 详情页解析（标题、封面、描述、播放地址）
+  // 详情页：提取 MP4 和 m3u8 播放地址
   async getDetail() {
-    const id = env.get("movieId");
-    const url = `${env.baseUrl}${id}`;
-    const html = await req(url);
-    const $ = kitty.load(html);
+    const id = env.get<string>('movieId')
+    const url = id.startsWith('http') ? id : `${env.baseUrl}${id}`
+    const html = await req(url)
+    const $ = kitty.load(html)
 
-    const title =
-      $("#mui-player").attr("video_title") ||
-      $("#title-name").text().trim() ||
-      $("title").text().trim();
+    const title = $('h1').text().trim()
+    let cover = $('article img, .post img, .video-player img').first().attr('src') ?? ''
+    if (cover.startsWith('//')) cover = 'https:' + cover
+    const desc = $('article, .post-content').text().slice(0, 200)
 
-    const m3u8 =
-      $("#mui-player").attr("src") ||
-      $("video").attr("src");
+    const playlist: IPlaylist[] = []
+    const lines: IVideo[] = []
 
-    const poster =
-      $("#mui-player").attr("poster") ||
-      $(".mplayer-poster img").attr("src") ||
-      $("meta[property='og:image']").attr("content") ||
-      "";
+    $('a, button, source').each((_, el) => {
+      const text = $(el).text().trim() || $(el).attr('title') || '线路'
+      const link = $(el).attr('data-url') || $(el).attr('href') || $(el).attr('src') || ''
+      if (link.endsWith('.mp4') || link.endsWith('.m3u8')) {
+        let finalUrl = link
+        if (finalUrl.startsWith('//')) finalUrl = 'https:' + finalUrl
+        lines.push({ text, id: finalUrl })
+      }
+    })
 
-    const iframe = $("iframe").attr("src");
-
-    const desc =
-      $("meta[name='description']").attr("content") ||
-      $(".video-intro").text().trim() ||
-      $(".desc_box").text().trim() ||
-      "";
-
-    let playlist: IPlaylist[] = [];
-
-    if (m3u8) {
-      playlist = [{ title: "默认线路", videos: [{ text: "播放", id: m3u8 }] }];
-    } else if (iframe) {
-      env.set("iframe", iframe);
-      playlist = [{ title: "默认线路", videos: [{ text: "播放", id: iframe }] }];
+    if (lines.length > 0) {
+      playlist.push({ title: '播放线路', videos: lines })
     }
 
-    return <IMovie>{
-      id,
-      title,
-      cover: poster,
-      desc,
-      playlist,
-    };
+    return <IMovie>{ id: url, title, cover, desc, playlist }
   }
 
-  // ✅ iframe 播放支持
-  async parseIframe() {
-    return env.get<string>("iframe");
+  // 搜索
+  async getSearch() {
+    const wd = env.get<string>('keyword') || ''
+    const page = env.get<number>('page') || 1
+    const url = `${env.baseUrl}/video/list?keyword=${encodeURIComponent(wd)}&searchType=1&page=${page}`
+
+    const html = await req(url)
+    const $ = kitty.load(html)
+
+    return $('div.video-item, div.post-box, article.post').toArray().map<IMovie>(el => {
+      const a = $(el).find('a').first()
+      const id = a.attr('href') ?? ''
+      const title = a.attr('title') || a.text().trim()
+      let cover = $(el).find('img').attr('src') ?? $(el).find('img').attr('data-src') ?? ''
+      if (cover.startsWith('//')) cover = 'https:' + cover
+      return { id, title, cover, desc: '', remark: '搜索结果', playlist: [] }
+    })
   }
 }

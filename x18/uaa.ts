@@ -9,7 +9,7 @@ export default class UAA implements Handle {
     };
   }
 
-  // ✅ 固定分类
+  // ✅ 分类列表（已确认链接结构）
   async getCategory() {
     return [
       { id: "/video/list", text: "全部视频" },
@@ -25,7 +25,7 @@ export default class UAA implements Handle {
     ];
   }
 
-  // ✅ 视频列表页
+  // ✅ 视频列表页（修复选择器 + 封面图 + 发布时间等）
   async getHome() {
     const cate = env.get("category") || "/video/list";
     const page = env.get("page") || 1;
@@ -36,13 +36,22 @@ export default class UAA implements Handle {
     return $("li.video_li").map((i, el) => {
       const a = $(el).find(".cover_box a");
       const img = a.find("img.cover");
+      const id = a.attr("href") ?? "";
       const title = $(el).find(".brief_box .title a").text().trim();
-      const id = a.attr("href");
-      const cover = img.attr("src") || img.attr("data-cfsrc") || "";
+
+      // ✅ 封面图处理（支持懒加载）
+      let cover = img.attr("src") || img.attr("data-cfsrc") || "";
+      if (cover && !cover.startsWith("http")) {
+        cover = `${env.baseUrl}${cover}`;
+      }
+
+      // ✅ 发布时间、收藏数、播放量
       const spans = $(el).find(".info_box .view span");
       const time = spans.eq(0).text().trim();
       const favs = spans.eq(1).text().trim();
       const views = spans.eq(2).text().trim();
+
+      // ✅ 作者信息
       const author = $(el).find("a[href*='/video/author']").text().trim();
 
       return <IMovie>{
@@ -55,7 +64,7 @@ export default class UAA implements Handle {
     }).get();
   }
 
-  // ✅ 搜索功能
+  // ✅ 搜索功能（结构一致）
   async getSearch(keyword: string) {
     const page = env.get("page") || 1;
     const url = `${env.baseUrl}/search?wd=${encodeURIComponent(keyword)}&page=${page}`;
@@ -65,13 +74,19 @@ export default class UAA implements Handle {
     return $("li.video_li").map((i, el) => {
       const a = $(el).find(".cover_box a");
       const img = a.find("img.cover");
+      const id = a.attr("href") ?? "";
       const title = $(el).find(".brief_box .title a").text().trim();
-      const id = a.attr("href");
-      const cover = img.attr("src") || img.attr("data-cfsrc") || "";
+
+      let cover = img.attr("src") || img.attr("data-cfsrc") || "";
+      if (cover && !cover.startsWith("http")) {
+        cover = `${env.baseUrl}${cover}`;
+      }
+
       const spans = $(el).find(".info_box .view span");
       const time = spans.eq(0).text().trim();
       const favs = spans.eq(1).text().trim();
       const views = spans.eq(2).text().trim();
+
       const author = $(el).find("a[href*='/video/author']").text().trim();
 
       return <IMovie>{
@@ -84,7 +99,7 @@ export default class UAA implements Handle {
     }).get();
   }
 
-  // ✅ 视频详情页
+  // ✅ 详情页解析（标题、封面、描述、播放地址）
   async getDetail() {
     const id = env.get("movieId");
     const url = `${env.baseUrl}${id}`;

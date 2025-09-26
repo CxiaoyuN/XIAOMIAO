@@ -1711,6 +1711,21 @@
     }
   },
   {
+    "id": "uaa$",
+    "name": "UAA视频",
+    "type": 1,
+    "nsfw": true,
+    "api": "https://www.uaa.com",
+    "extra": {
+      "js": {
+        "home": "const page=env.get(\"page\")||1;const url=`${env.baseUrl}/video?page=${page}`;const html=await req(url);const $=kitty.load(html);return $(\".video-card\").map((i,el)=>{const a=$(el).find(\"a\");return{id:a.attr(\"href\"),title:a.find(\".title\").text().trim(),cover:a.find(\"img\").attr(\"src\"),remark:a.find(\".duration\").text().trim()}}).get()",
+        "detail": "const id=env.get(\"movieId\");const url=`${env.baseUrl}${id}`;const html=await req(url);const $=kitty.load(html);const title=$(\"h1\").text().trim()||$(\"title\").text().trim();const poster=$(\"video\").attr(\"poster\");const m3u8=$(\"video source[type='application/x-mpegURL']\").attr(\"src\");return{id,title,cover:poster,desc:\"\",playlist:[{title:\"\\u9ED8\\u8BA4\\u7EBF\\u8DEF\",videos:m3u8?[{text:\"\\u64AD\\u653E\",id:m3u8}]:[]}]}",
+        "search": "const url=`${env.baseUrl}/search?wd=${encodeURIComponent(keyword)}`;const html=await req(url);const $=kitty.load(html);return $(\".video-card\").map((i,el)=>{const a=$(el).find(\"a\");return{id:a.attr(\"href\"),title:a.find(\".title\").text().trim(),cover:a.find(\"img\").attr(\"src\"),remark:a.find(\".duration\").text().trim()}}).get()",
+        "parseIframe": "return env.get(\"iframe\")"
+      }
+    }
+  },
+  {
     "id": "vv99kk",
     "name": "熊猫视频",
     "api": "https://spiderscloudcn2.51111666.com",

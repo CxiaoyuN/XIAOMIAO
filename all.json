@@ -1535,38 +1535,6 @@
     }
   },
   {
-    "id": "jvlook",
-    "name": "JvLook影视",
-    "api": "https://jvlook.com",
-    "nsfw": false,
-    "type": 1,
-    "extra": {
-      "js": {
-        "category": [
-          {
-            "text": "电影",
-            "id": "/plate1"
-          },
-          {
-            "text": "电视剧",
-            "id": "/plate2"
-          },
-          {
-            "text": "综艺",
-            "id": "/plate3"
-          },
-          {
-            "text": "动漫",
-            "id": "/plate4"
-          }
-        ],
-        "home": "const cate=env.get(\"category\")||\"\";const page=env.get(\"page\")||1;let url=`${env.baseUrl}/${cate}/`;if(page>1)url+=`page/${page}/`;const html=await req(url);const $=kitty.load(html);return $(\"article.post, div.video-item\").toArray().map(el=>{const a=$(el).find(\"a\").first();const id=a.attr(\"href\")??\"\";const title=a.attr(\"title\")||a.text().trim();let cover=$(el).find(\"img\").attr(\"src\")??\"\";if(cover.startsWith(\"//\"))cover=\"https:\"+cover;return{id,title,cover,desc:\"\",remark:\"\",playlist:[]}})",
-        "detail": "const id=env.get(\"movieId\");const url=id.startsWith(\"http\")?id:`${env.baseUrl}${id}`;const html=await req(url);const $=kitty.load(html);const title=$(\"h1\").text().trim();let cover=$(\"article img, .post img\").first().attr(\"src\")??\"\";if(cover.startsWith(\"//\"))cover=\"https:\"+cover;const desc=$(\"article\").text().slice(0,200);const playlist=[];const lines=[];$(\"a, button, source\").each((_,el)=>{const text=$(el).text().trim()||$(el).attr(\"title\")||\"\\u7EBF\\u8DEF\";const link=$(el).attr(\"data-url\")||$(el).attr(\"href\")||$(el).attr(\"src\")||\"\";if(link.endsWith(\".mp4\")||link.endsWith(\".m3u8\")){let finalUrl=link;if(finalUrl.startsWith(\"//\"))finalUrl=\"https:\"+finalUrl;lines.push({text,id:finalUrl})}});if(lines.length>0){playlist.push({title:\"\\u64AD\\u653E\\u7EBF\\u8DEF\",videos:lines})}return{id:url,title,cover,desc,playlist}",
-        "search": "const wd=env.get(\"keyword\")||\"\";const page=env.get(\"page\")||1;const url=`${env.baseUrl}/page/${page}/?s=${encodeURIComponent(wd)}`;const html=await req(url);const $=kitty.load(html);return $(\"article.post, div.video-item\").toArray().map(el=>{const a=$(el).find(\"a\").first();const id=a.attr(\"href\")??\"\";const title=a.attr(\"title\")||a.text().trim();let cover=$(el).find(\"img\").attr(\"src\")??\"\";if(cover.startsWith(\"//\"))cover=\"https:\"+cover;return{id,title,cover,desc:\"\",remark:\"\\u641C\\u7D22\\u7ED3\\u679C\",playlist:[]}})"
-      }
-    }
-  },
-  {
     "id": "madou",
     "name": "麻豆社",
     "api": "https://madou.club",

@@ -445,6 +445,42 @@
     }
   },
   {
+    "id": "yhdm668",
+    "name": "樱花动漫",
+    "api": "https://www.yhdm668.com",
+    "nsfw": false,
+    "type": 1,
+    "extra": {
+      "js": {
+        "category": [
+          {
+            "text": "TV动漫",
+            "id": "/TVdongman"
+          },
+          {
+            "text": "剧场版动漫",
+            "id": "/juchangbandongman"
+          },
+          {
+            "text": "电影",
+            "id": "/dianying"
+          },
+          {
+            "text": "连续剧",
+            "id": "/lianxuju"
+          },
+          {
+            "text": "短剧",
+            "id": "/duanju"
+          }
+        ],
+        "home": "const cate=env.get(\"category\")||\"/TVdongman\";const page=env.get(\"page\")||1;const url=`${env.baseUrl}${cate}?page=${page}`;const html=await req(url);const $=kitty.load(html);return this._parseList($)",
+        "detail": "const id=env.get(\"movieId\")||\"\";const url=id.startsWith(\"http\")?id:`${env.baseUrl}${id}`;const html=await req(url,{headers:{\"User-Agent\":\"Mozilla/5.0\",\"Referer\":env.baseUrl}});const $=kitty.load(html);const title=$(\"h1, .module-info-heading .module-info-title, .page-title\").first().text().trim()||$(\"title\").text().trim();let cover=$(\".module-info-poster img, .poster img, .module-poster-item img\").first().attr(\"src\")||$(\"img\").first().attr(\"src\")||\"\";if(cover&&cover.startsWith(\"//\"))cover=\"https:\"+cover;const scripts=[];$(\"script\").each((_,el)=>{const t=$(el).html()||\"\";if(t)scripts.push(t)});let playUrl=\"\";for(const s of scripts){let m=s.match(/https?:[^\\s'\"]+\\.m3u8[^\\s'\"]*/i)||s.match(/url\\s*[:=]\\s*[\"'](https?:[^\"']+)[\"']/i)||s.match(/src\\s*[:=]\\s*[\"'](https?:[^\"']+)[\"']/i);if(m&&m[0]){playUrl=Array.isArray(m)?m[1]||m[0]:m[0];break}}if(!playUrl){const a=$(\"a[href*=\\\".m3u8\\\"]\").first();if(a.length)playUrl=a.attr(\"href\")||\"\"}const playlist=[{title:\"\\u9ED8\\u8BA4\",videos:playUrl?[{text:\"\\u5728\\u7EBF\\u64AD\\u653E\",url:playUrl}]:[]}];return{id:url,title,cover,desc:\"\",playlist}",
+        "search": "const wd=env.get(\"keyword\")||\"\";const page=env.get(\"page\")||1;if(!wd)return[];const url=`${env.baseUrl}/search?wd=${encodeURIComponent(wd)}&page=${page}`;const html=await req(url);const $=kitty.load(html);return this._parseList($).map(it=>({...it,remark:\"\\u641C\\u7D22\\u7ED3\\u679C\"}))"
+      }
+    }
+  },
+  {
     "id": "ysttv$",
     "name": "影视天堂",
     "type": 1,

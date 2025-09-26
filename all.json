@@ -1099,7 +1099,7 @@
   },
   {
     "id": "yhdm668",
-    "name": "樱花动漫",
+    "name": "樱花动漫(模拟浏览器)",
     "api": "https://www.yhdm668.com",
     "nsfw": false,
     "type": 1,
@@ -1127,9 +1127,9 @@
             "id": "3"
           }
         ],
-        "home": "const cate=env.get(\"category\")||\"4\";const page=env.get(\"page\")||1;const url=`${env.baseUrl}/vodshow/${cate}-----------${page}---.html`;const html=await req(url);const $=kitty.load(html);return this._parseList($)",
-        "detail": "const id=env.get(\"movieId\")||\"\";const url=id.startsWith(\"http\")?id:`${env.baseUrl}${id}`;const html=await req(url);const $=kitty.load(html);const title=$(\".module-info-heading .module-info-title\").first().text().trim()||$(\"h1\").first().text().trim();let cover=$(\".module-info-poster img\").attr(\"data-original\")||$(\".module-info-poster img\").attr(\"src\")||\"\";if(cover&&cover.startsWith(\"//\"))cover=\"https:\"+cover;const episodes=[];$(\".module-play-list a\").each((_,el)=>{const $a=$(el);const text=($a.text()||\"\").trim();let href=$a.attr(\"href\")||\"\";if(!href)return;if(!/^https?:/.test(href))href=`${env.baseUrl}${href}`;episodes.push({text,id:href})});const playlist=[];if(episodes.length>0){playlist.push({title:\"\\u9ED8\\u8BA4\",videos:episodes})}else{playlist.push({title:\"\\u9ED8\\u8BA4\",videos:[{text:\"\\u6253\\u5F00\\u8BE6\\u60C5\\u9875\",id:url}]})}return{id:url,title,cover,desc:\"\",playlist}",
-        "search": "const wd=env.get(\"keyword\")||\"\";const page=env.get(\"page\")||1;if(!wd)return[];const url=`${env.baseUrl}/vodsearch/${encodeURIComponent(wd)}----------${page}---.html`;const html=await req(url);const $=kitty.load(html);return this._parseList($).map(it=>({...it,remark:\"\\u641C\\u7D22\\u7ED3\\u679C\"}))"
+        "home": "const cate=env.get(\"category\")||\"4\";const pageNum=env.get(\"page\")||1;const url=`${this.getConfig().api}/vodshow/${cate}-----------${pageNum}---.html`;const html=await this.fetchHtml(url);const items=[];const regex=/<a[^>]+href=\"([^\"]+)\"[^>]*class=\"module-poster-item\"[^>]*>[\\s\\S]*?<img[^>]+(data-original|src)=\"([^\"]+)\"[^>]*>[\\s\\S]*?<div[^>]*class=\"module-poster-item-title\">([^<]+)<\\/div>/g;let match;while((match=regex.exec(html))!==null){let href=match[1];if(!href.startsWith(\"http\"))href=this.getConfig().api+href;let cover=match[3];if(cover.startsWith(\"//\"))cover=\"https:\"+cover;const title=match[4].trim();items.push({id:href,title,cover,desc:\"\",remark:\"\",playlist:[]})}return items",
+        "detail": "const id=env.get(\"movieId\")||\"\";const url=id.startsWith(\"http\")?id:`${this.getConfig().api}${id}`;const html=await this.fetchHtml(url);const titleMatch=html.match(/<h1[^>]*>([^<]+)<\\/h1>/);const title=titleMatch?titleMatch[1].trim():\"\\u672A\\u77E5\\u6807\\u9898\";const coverMatch=html.match(/<div class=\"module-info-poster\">[\\s\\S]*?<img[^>]+(data-original|src)=\"([^\"]+)\"/);let cover=coverMatch?coverMatch[2]:\"\";if(cover.startsWith(\"//\"))cover=\"https:\"+cover;const m3u8Match=html.match(/(https?:\\/\\/[^\"']+\\.m3u8[^\"']*)/i);const playUrl=m3u8Match?m3u8Match[1]:\"\";const playlist=[{title:\"\\u9ED8\\u8BA4\",videos:playUrl?[{text:\"\\u5728\\u7EBF\\u64AD\\u653E\",url:playUrl}]:[]}];return{id:url,title,cover,desc:\"\",playlist}",
+        "search": "const wd=env.get(\"keyword\")||\"\";const pageNum=env.get(\"page\")||1;if(!wd)return[];const url=`${this.getConfig().api}/vodsearch/${encodeURIComponent(wd)}----------${pageNum}---.html`;const html=await this.fetchHtml(url);const items=[];const regex=/<a[^>]+href=\"([^\"]+)\"[^>]*class=\"module-poster-item\"[^>]*>[\\s\\S]*?<img[^>]+(data-original|src)=\"([^\"]+)\"[^>]*>[\\s\\S]*?<div[^>]*class=\"module-poster-item-title\">([^<]+)<\\/div>/g;let match;while((match=regex.exec(html))!==null){let href=match[1];if(!href.startsWith(\"http\"))href=this.getConfig().api+href;let cover=match[3];if(cover.startsWith(\"//\"))cover=\"https:\"+cover;const title=match[4].trim();items.push({id:href,title,cover,desc:\"\",remark:\"\\u641C\\u7D22\\u7ED3\\u679C\",playlist:[]})}return items"
       }
     }
   },

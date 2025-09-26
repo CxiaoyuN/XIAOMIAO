@@ -4,22 +4,21 @@ export default class MaiYouX implements Handle {
       id: 'maiyoux',
       name: 'MaiYouX直播源',
       api: 'http://api.maiyoux.com:81/mf',
-      nsfw: false,
+      nsfw: true,
       type: 1,
     }
   }
 
-  // 一级分类
+  // 一级分类：从 json.txt 读取
   async getCategory() {
     try {
-      const url = `${env.api}/json.txt`
-      const json = await req(url).then(res => JSON.parse(res))
+      const res = await req(`${env.api}/json.txt`)
+      const json = JSON.parse(res.data || res)
 
       return json.map<ICategory>((item: any) => {
-        const id = item.address?.replace(/\.txt$/, '') || ''
         return {
           text: item.title || '未命名分类',
-          id, // 用 address 去掉 .txt 作为分类 id
+          id: item.address || '',   // 直接用 address 作为分类 id
           cover: item.xinimg || ''
         }
       })
@@ -36,8 +35,8 @@ export default class MaiYouX implements Handle {
     if (!cate) return []
 
     try {
-      const url = `${env.api}/${cate}.txt`
-      const json = await req(url).then(res => JSON.parse(res))
+      const res = await req(`${env.api}/${cate}`)
+      const json = JSON.parse(res.data || res)
       const list = json.zhubo || []
 
       return list.map<IMovie>((item: any) => ({
@@ -63,7 +62,7 @@ export default class MaiYouX implements Handle {
     }
   }
 
-  // 详情页（直接返回播放地址）
+  // 详情页：直接返回播放地址
   async getDetail() {
     try {
       const id = env.get<string>('movieId')
@@ -90,20 +89,22 @@ export default class MaiYouX implements Handle {
     }
   }
 
-  // 搜索（跨分类）
+  // 搜索：跨分类模糊匹配频道名
   async getSearch() {
     const keyword = env.get<string>('keyword')?.toLowerCase() || ''
     if (!keyword) return []
 
     try {
-      const mainJson = await req(`${env.api}/json.txt`).then(res => JSON.parse(res))
+      const res = await req(`${env.api}/json.txt`)
+      const mainJson = JSON.parse(res.data || res)
       const results: IMovie[] = []
 
       for (const cate of mainJson) {
         const file = cate.address
         if (!file) continue
 
-        const subJson = await req(`${env.api}/${file}`).then(res => JSON.parse(res))
+        const subRes = await req(`${env.api}/${file}`)
+        const subJson = JSON.parse(subRes.data || subRes)
         const list = subJson.zhubo || []
 
         for (const item of list) {

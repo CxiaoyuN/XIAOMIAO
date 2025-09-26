@@ -10,22 +10,4 @@ bunx kitty-parse -o result.json
 npx http-server
 ```
 
-订阅地址: 
-
-- JS: https://d1y.github.io/kitty/x.json
-- vod: https://d1y.github.io/kitty/vod.json
-- xvod: https://d1y.github.io/kitty/xvod.json
-
-```log
-https://d1y.github.io/kitty/x.json
-https://d1y.github.io/kitty/vod.json
-https://d1y.github.io/kitty/xvod.json
-```
-
-国内镜像
-
-```log
-https://ghfast.top/https://raw.githubusercontent.com/d1y/kitty/refs/heads/gh-pages/x.json
-https://ghfast.top/https://raw.githubusercontent.com/d1y/kitty/refs/heads/gh-pages/vod.json
-https://ghfast.top/https://raw.githubusercontent.com/d1y/kitty/refs/heads/gh-pages/xvod.json
-```
+订阅地址:https://cxiaoyun.github.io/kitty

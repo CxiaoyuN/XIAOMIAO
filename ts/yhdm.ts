@@ -1,10 +1,10 @@
-// import { kitty, req, createTestEnv } from 'utils'
+import puppeteer from 'puppeteer'
 
-export default class YHDM668 implements Handle {
+export default class YHDM668 {
   getConfig() {
-    return <Iconfig>{
+    return {
       id: 'yhdm668',
-      name: '樱花动漫',
+      name: '樱花动漫(模拟浏览器)',
       api: 'https://www.yhdm668.com',
       nsfw: false,
       type: 1,
@@ -12,7 +12,7 @@ export default class YHDM668 implements Handle {
   }
 
   async getCategory() {
-    return <ICategory[]>[
+    return [
       { text: 'TV动漫', id: '4' },
       { text: '剧场版动漫', id: '20' },
       { text: '电影', id: '1' },
@@ -21,85 +21,78 @@ export default class YHDM668 implements Handle {
     ]
   }
 
-  private _parseList($: any): IMovie[] {
-    const items: IMovie[] = []
-    $('a.module-poster-item').each((_: any, el: any) => {
-      const $a = $(el)
-      let href = $a.attr('href') || ''
-      if (!href) return
-      if (!/^https?:/.test(href)) href = `${env.baseUrl}${href}`
-
-      let img =
-        $a.find('img').attr('data-original') ||
-        $a.find('img').attr('data-src') ||
-        $a.find('img').attr('src') ||
-        ''
-      if (img && img.startsWith('//')) img = 'https:' + img
-
-      const title =
-        ($a.find('.module-poster-item-title').text() || '').trim() ||
-        ($a.attr('title') || '').trim()
-
-      const remark = ($a.find('.module-item-note').text() || '').trim()
-
-      items.push({ id: href, title, cover: img, desc: '', remark, playlist: [] })
-    })
-    return items
+  // 用 Puppeteer 打开页面并返回 HTML
+  private async fetchHtml(url: string): Promise<string> {
+    const browser = await puppeteer.launch({ headless: true })
+    const page = await browser.newPage()
+    await page.goto(url, { waitUntil: 'networkidle2' })
+    const html = await page.content()
+    await browser.close()
+    return html
   }
 
   async getHome() {
-    const cate = env.get<string>('category') || '4'
-    const page = env.get<number>('page') || 1
-    const url = `${env.baseUrl}/vodshow/${cate}-----------${page}---.html`
-    const html = await req(url)
-    const $ = kitty.load(html)
-    return this._parseList($)
+    const cate = env.get('category') || '4'
+    const pageNum = env.get('page') || 1
+    const url = `${this.getConfig().api}/vodshow/${cate}-----------${pageNum}---.html`
+    const html = await this.fetchHtml(url)
+
+    const items: IMovie[] = []
+    const regex = /<a[^>]+href="([^"]+)"[^>]*class="module-poster-item"[^>]*>[\s\S]*?<img[^>]+(data-original|src)="([^"]+)"[^>]*>[\s\S]*?<div[^>]*class="module-poster-item-title">([^<]+)<\/div>/g
+    let match
+    while ((match = regex.exec(html)) !== null) {
+      let href = match[1]
+      if (!href.startsWith('http')) href = this.getConfig().api + href
+      let cover = match[3]
+      if (cover.startsWith('//')) cover = 'https:' + cover
+      const title = match[4].trim()
+      items.push({ id: href, title, cover, desc: '', remark: '', playlist: [] })
+    }
+    return items
   }
 
   async getDetail() {
-    const id = env.get<string>('movieId') || ''
-    const url = id.startsWith('http') ? id : `${env.baseUrl}${id}`
-    const html = await req(url)
-    const $ = kitty.load(html)
+    const id = env.get('movieId') || ''
+    const url = id.startsWith('http') ? id : `${this.getConfig().api}${id}`
+    const html = await this.fetchHtml(url)
 
-    const title =
-      $('.module-info-heading .module-info-title').first().text().trim() ||
-      $('h1').first().text().trim()
+    const titleMatch = html.match(/<h1[^>]*>([^<]+)<\/h1>/)
+    const title = titleMatch ? titleMatch[1].trim() : '未知标题'
 
-    let cover =
-      $('.module-info-poster img').attr('data-original') ||
-      $('.module-info-poster img').attr('src') ||
-      ''
-    if (cover && cover.startsWith('//')) cover = 'https:' + cover
+    const coverMatch = html.match(/<div class="module-info-poster">[\s\S]*?<img[^>]+(data-original|src)="([^"]+)"/)
+    let cover = coverMatch ? coverMatch[2] : ''
+    if (cover.startsWith('//')) cover = 'https:' + cover
 
-    const episodes: { text: string; id: string }[] = []
-    $('.module-play-list a').each((_: any, el: any) => {
-      const $a = $(el)
-      const text = ($a.text() || '').trim()
-      let href = $a.attr('href') || ''
-      if (!href) return
-      if (!/^https?:/.test(href)) href = `${env.baseUrl}${href}`
-      episodes.push({ text, id: href })
-    })
+    const m3u8Match = html.match(/(https?:\/\/[^"']+\.m3u8[^"']*)/i)
+    const playUrl = m3u8Match ? m3u8Match[1] : ''
 
-    const playlist: IPlaylist[] = []
-    if (episodes.length > 0) {
-      playlist.push({ title: '默认', videos: episodes })
-    } else {
-      playlist.push({ title: '默认', videos: [{ text: '打开详情页', id: url }] })
-    }
+    const playlist: IPlaylist[] = [{
+      title: '默认',
+      videos: playUrl ? [{ text: '在线播放', url: playUrl }] : []
+    }]
 
     return <IMovie>{ id: url, title, cover, desc: '', playlist }
   }
 
   async getSearch() {
-    const wd = env.get<string>('keyword') || ''
-    const page = env.get<number>('page') || 1
+    const wd = env.get('keyword') || ''
+    const pageNum = env.get('page') || 1
     if (!wd) return []
 
-    const url = `${env.baseUrl}/vodsearch/${encodeURIComponent(wd)}----------${page}---.html`
-    const html = await req(url)
-    const $ = kitty.load(html)
-    return this._parseList($).map(it => ({ ...it, remark: '搜索结果' }))
+    const url = `${this.getConfig().api}/vodsearch/${encodeURIComponent(wd)}----------${pageNum}---.html`
+    const html = await this.fetchHtml(url)
+
+    const items: IMovie[] = []
+    const regex = /<a[^>]+href="([^"]+)"[^>]*class="module-poster-item"[^>]*>[\s\S]*?<img[^>]+(data-original|src)="([^"]+)"[^>]*>[\s\S]*?<div[^>]*class="module-poster-item-title">([^<]+)<\/div>/g
+    let match
+    while ((match = regex.exec(html)) !== null) {
+      let href = match[1]
+      if (!href.startsWith('http')) href = this.getConfig().api + href
+      let cover = match[3]
+      if (cover.startsWith('//')) cover = 'https:' + cover
+      const title = match[4].trim()
+      items.push({ id: href, title, cover, desc: '', remark: '搜索结果', playlist: [] })
+    }
+    return items
   }
 }

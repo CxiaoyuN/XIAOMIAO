@@ -3,7 +3,7 @@ export default class Uaa implements Handle {
     return <Iconfig>{
       id: 'uaa',
       name: 'UAA影视',
-      api: 'https://www.uaa.com',
+      api: 'https://www.uaa001.com',
       nsfw: true,
       type: 1,
     }

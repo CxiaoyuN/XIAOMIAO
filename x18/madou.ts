@@ -53,7 +53,7 @@ export default class Madou implements Handle {
     if (cover.startsWith('//')) cover = 'https:' + cover
     const desc = $('article').text().slice(0, 200)
 
-    // 优先提取 iframe
+    // 提取 iframe 播放器
     const iframe = $('iframe').attr('src') ?? ''
 
     const playlist = [{
@@ -86,7 +86,22 @@ export default class Madou implements Handle {
   }
 
   async parseIframe() {
-    // 当 playlist.video.id 是 iframe 时调用
+    const iframeUrl = env.get<string>("iframe")
+    const html = await req(iframeUrl, {
+      headers: {
+        'User-Agent': 'Mozilla/5.0',
+        'Referer': iframeUrl
+      }
+    })
+
+    // 匹配 m3u8 地址（带 token）
+    const match = html.match(/"url":"([^"]+\\.m3u8[^"]*)"/)
+    if (match) {
+      const realUrl = match[1].replace(/\\u002F/g, "/")
+      return [{ text: "播放", url: realUrl }]
+    }
+
+    // fallback：交给内置工具
     return kitty.utils.getM3u8WithIframe(env)
   }
 }

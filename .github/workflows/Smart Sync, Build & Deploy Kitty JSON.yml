@@ -7,6 +7,7 @@ on:
       - 'x18/**.ts'
       - 'kitty.config.*.ts'
       - '.github/workflows/**'
+      - 'docs/**'   # docs 目录变化也触发
   workflow_dispatch:
 
 jobs:
@@ -18,6 +19,8 @@ jobs:
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
+        with:
+          fetch-depth: 0   # 保留完整历史，避免覆盖其他分支
 
       - name: Setup Bun
         uses: oven-sh/setup-bun@v1
@@ -40,9 +43,16 @@ jobs:
           # 合并成 all.json
           jq -s 'add' docs/vod.json docs/xvod.json docs/x.json > docs/all.json
 
+      - name: Keep CNAME if exists
+        run: |
+          if [ -f CNAME ]; then
+            cp CNAME docs/CNAME
+          fi
+
       - name: Deploy to gh-pages
         uses: peaceiris/actions-gh-pages@v3
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
           publish_branch: gh-pages
           publish_dir: ./docs
+          keep_files: true   # 保留已有文件，不清空

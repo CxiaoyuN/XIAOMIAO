@@ -5,6 +5,7 @@ on:
     paths:
       - 'vod.ts'
       - 'x18/**.ts'
+      - 'ts/**.ts'
       - 'kitty.config.*.ts'
       - '.github/workflows/**'
       - 'docs/**'   # docs 目录变化也触发

@@ -9,13 +9,13 @@ export default class JvLook implements Handle {
     }
   }
 
-  // 固定分类（直接写死）
+  // 固定分类（示例，可根据实际站点调整）
   async getCategory() {
     return <ICategory[]>[
-      { text: '电影', id: 'category/movie' },
-      { text: '电视剧', id: 'category/tv' },
-      { text: '综艺', id: 'category/variety' },
-      { text: '动漫', id: 'category/anime' },
+      { text: '电影', id: '/plate1' },
+      { text: '电视剧', id: '/plate2' },
+      { text: '综艺', id: '/plate3' },
+      { text: '动漫', id: '/plate4' },
     ]
   }
 
@@ -39,7 +39,7 @@ export default class JvLook implements Handle {
     })
   }
 
-  // 详情页：提取多条 MP4 播放线路
+  // 详情页：提取 MP4 和 m3u8 多线路
   async getDetail() {
     const id = env.get<string>('movieId')
     const url = id.startsWith('http') ? id : `${env.baseUrl}${id}`
@@ -51,15 +51,17 @@ export default class JvLook implements Handle {
     if (cover.startsWith('//')) cover = 'https:' + cover
     const desc = $('article').text().slice(0, 200)
 
-    // 多线路解析：假设页面里有 <a data-url="xxx.mp4">线路1</a>
     const playlist: IPlaylist[] = []
     const lines: IVideo[] = []
 
-    $('a, button').each((_, el) => {
-      const text = $(el).text().trim()
-      const mp4 = $(el).attr('data-url') || $(el).attr('href') || ''
-      if (mp4.endsWith('.mp4')) {
-        lines.push({ text: text || '线路', id: mp4 })
+    // 遍历所有可能的线路按钮/链接
+    $('a, button, source').each((_, el) => {
+      const text = $(el).text().trim() || $(el).attr('title') || '线路'
+      const link = $(el).attr('data-url') || $(el).attr('href') || $(el).attr('src') || ''
+      if (link.endsWith('.mp4') || link.endsWith('.m3u8')) {
+        let finalUrl = link
+        if (finalUrl.startsWith('//')) finalUrl = 'https:' + finalUrl
+        lines.push({ text, id: finalUrl })
       }
     })
 

@@ -1718,10 +1718,51 @@
     "api": "https://www.uaa.com",
     "extra": {
       "js": {
-        "category": "const url=`${env.baseUrl}/video`;const html=await req(url);const $=kitty.load(html);return $(\".links_box a\").map((i,el)=>{return{id:$(el).attr(\"href\"),text:$(el).text().trim()}}).get()",
-        "home": "const cate=env.get(\"category\")||\"/video/list\";const page=env.get(\"page\")||1;const url=`${env.baseUrl}${cate}${cate.includes(\"?\")?\"&\":\"?\"}page=${page}`;const html=await req(url);const $=kitty.load(html);return $(\"li.video_li\").map((i,el)=>{const a=$(el).find(\".cover_box a\");return{id:a.attr(\"href\"),title:$(el).find(\".video_title\").text().trim(),cover:a.find(\"img\").attr(\"src\"),remark:$(el).find(\".video_time\").text().trim()}}).get()",
-        "search": "const page=env.get(\"page\")||1;const url=`${env.baseUrl}/search?wd=${encodeURIComponent(keyword)}&page=${page}`;const html=await req(url);const $=kitty.load(html);return $(\"li.video_li\").map((i,el)=>{const a=$(el).find(\".cover_box a\");return{id:a.attr(\"href\"),title:$(el).find(\".video_title\").text().trim(),cover:a.find(\"img\").attr(\"src\"),remark:$(el).find(\".video_time\").text().trim()}}).get()",
-        "detail": "const id=env.get(\"movieId\");const url=`${env.baseUrl}${id}`;const html=await req(url);const $=kitty.load(html);const title=$(\"h1\").text().trim()||$(\"title\").text().trim();const poster=$(\"video\").attr(\"poster\")||$(\"meta[property='og:image']\").attr(\"content\")||\"\";const m3u8=$(\"video source[type='application/x-mpegURL']\").attr(\"src\");const iframe=$(\"iframe\").attr(\"src\");let playlist=[];if(m3u8){playlist=[{title:\"\\u9ED8\\u8BA4\\u7EBF\\u8DEF\",videos:[{text:\"\\u64AD\\u653E\",id:m3u8}]}]}else if(iframe){env.set(\"iframe\",iframe);playlist=[{title:\"\\u9ED8\\u8BA4\\u7EBF\\u8DEF\",videos:[{text:\"\\u64AD\\u653E\",id:iframe}]}]}return{id,title,cover:poster,desc:\"\",playlist}",
+        "category": [
+          {
+            "id": "/video/list",
+            "text": "全部视频"
+          },
+          {
+            "id": "/video/rank?type=1",
+            "text": "排行榜"
+          },
+          {
+            "id": "/actress",
+            "text": "AV女优"
+          },
+          {
+            "id": "/authors",
+            "text": "片商排行"
+          },
+          {
+            "id": "/chinese-av-porn",
+            "text": "国产视频"
+          },
+          {
+            "id": "/jav",
+            "text": "日本AV"
+          },
+          {
+            "id": "/video/list?category=无码流出&origin=2",
+            "text": "无码流出"
+          },
+          {
+            "id": "/video/list?origin=3",
+            "text": "H动漫"
+          },
+          {
+            "id": "/video/list?category=里番",
+            "text": "里番"
+          },
+          {
+            "id": "/video/list?category=泡面番",
+            "text": "泡面番"
+          }
+        ],
+        "home": "const cate=env.get(\"category\")||\"/video/list\";const page=env.get(\"page\")||1;const url=`${env.baseUrl}${cate}${cate.includes(\"?\")?\"&\":\"?\"}page=${page}`;const html=await req(url);const $=kitty.load(html);return $(\"li.video_li\").map((i,el)=>{const a=$(el).find(\".cover_box a\");const title=$(el).find(\".brief_box .title a\").text().trim();const cover=a.find(\"img.cover\").attr(\"src\");const id=a.attr(\"href\");const remark=$(el).find(\".info_box .view span\").first().text().trim();const author=$(el).find(\"a[href*='/video/author']\").text().trim();return{id,title,cover,remark,extra:author||\"\"}}).get()",
+        "search": "const page=env.get(\"page\")||1;const url=`${env.baseUrl}/search?wd=${encodeURIComponent(keyword)}&page=${page}`;const html=await req(url);const $=kitty.load(html);return $(\"li.video_li\").map((i,el)=>{const a=$(el).find(\".cover_box a\");const title=$(el).find(\".brief_box .title a\").text().trim();const cover=a.find(\"img.cover\").attr(\"src\");const id=a.attr(\"href\");const remark=$(el).find(\".info_box .view span\").first().text().trim();const author=$(el).find(\"a[href*='/video/author']\").text().trim();return{id,title,cover,remark,extra:author||\"\"}}).get()",
+        "detail": "const id=env.get(\"movieId\");const url=`${env.baseUrl}${id}`;const html=await req(url);const $=kitty.load(html);const title=$(\"#mui-player\").attr(\"video_title\")||$(\"#title-name\").text().trim()||$(\"title\").text().trim();const m3u8=$(\"#mui-player\").attr(\"src\")||$(\"video\").attr(\"src\");const poster=$(\"#mui-player\").attr(\"poster\")||$(\".mplayer-poster img\").attr(\"src\")||$(\"meta[property='og:image']\").attr(\"content\")||\"\";const iframe=$(\"iframe\").attr(\"src\");let playlist=[];if(m3u8){playlist=[{title:\"\\u9ED8\\u8BA4\\u7EBF\\u8DEF\",videos:[{text:\"\\u64AD\\u653E\",id:m3u8}]}]}else if(iframe){env.set(\"iframe\",iframe);playlist=[{title:\"\\u9ED8\\u8BA4\\u7EBF\\u8DEF\",videos:[{text:\"\\u64AD\\u653E\",id:iframe}]}]}return{id,title,cover:poster,desc:\"\",playlist}",
         "parseIframe": "return env.get(\"iframe\")"
       }
     }

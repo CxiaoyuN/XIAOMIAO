@@ -9,7 +9,7 @@ export default class UAA implements Handle {
     }
   }
 
-  // 固定分类（根据你提供的结构）
+  // 固定分类（你提供的结构）
   async getCategory() {
     return <ICategory[]>[
       { text: '全部题材', id: '/video/list?keyword=&searchType=1&category=&origin=&tag=&sort=1' },
@@ -41,44 +41,37 @@ export default class UAA implements Handle {
     const html = await req(url)
     const $ = kitty.load(html)
 
-    return $('div.video-item, div.post-box, article.post').toArray().map<IMovie>(el => {
-      const a = $(el).find('a').first()
+    return $('li.video_li').toArray().map<IMovie>(el => {
+      const a = $(el).find('.cover_box a')
       const id = a.attr('href') ?? ''
-      const title = a.attr('title') || a.text().trim()
-      let cover = $(el).find('img').attr('src') ?? $(el).find('img').attr('data-src') ?? ''
+      const title = $(el).find('.title a').text().trim()
+      let cover = $(el).find('img.cover').attr('src') ?? ''
       if (cover.startsWith('//')) cover = 'https:' + cover
-      const remark = $(el).find('.video-meta, .post-meta').text().trim()
+      const remark = $(el).find('.info_box .view').last().text().trim()
       return { id, title, cover, desc: '', remark, playlist: [] }
     })
   }
 
-  // 详情页：提取 MP4 和 m3u8 播放地址
+  // 详情页：提取播放地址（支持 m3u8 和 mp4）
   async getDetail() {
     const id = env.get<string>('movieId')
     const url = id.startsWith('http') ? id : `${env.baseUrl}${id}`
     const html = await req(url)
     const $ = kitty.load(html)
 
-    const title = $('h1').text().trim()
+    const title = $('#mui-player').attr('video_title') || $('h1').text().trim()
     let cover = $('article img, .post img, .video-player img').first().attr('src') ?? ''
     if (cover.startsWith('//')) cover = 'https:' + cover
     const desc = $('article, .post-content').text().slice(0, 200)
 
+    const videoUrl = $('#mui-player').attr('src') || ''
     const playlist: IPlaylist[] = []
-    const lines: IVideo[] = []
 
-    $('a, button, source').each((_, el) => {
-      const text = $(el).text().trim() || $(el).attr('title') || '线路'
-      const link = $(el).attr('data-url') || $(el).attr('href') || $(el).attr('src') || ''
-      if (link.endsWith('.mp4') || link.endsWith('.m3u8')) {
-        let finalUrl = link
-        if (finalUrl.startsWith('//')) finalUrl = 'https:' + finalUrl
-        lines.push({ text, id: finalUrl })
-      }
-    })
-
-    if (lines.length > 0) {
-      playlist.push({ title: '播放线路', videos: lines })
+    if (videoUrl.endsWith('.mp4') || videoUrl.endsWith('.m3u8')) {
+      playlist.push({
+        title: '在线播放',
+        videos: [{ text: '播放', id: videoUrl }]
+      })
     }
 
     return <IMovie>{ id: url, title, cover, desc, playlist }
@@ -93,12 +86,13 @@ export default class UAA implements Handle {
     const html = await req(url)
     const $ = kitty.load(html)
 
-    return $('div.video-item, div.post-box, article.post').toArray().map<IMovie>(el => {
-      const a = $(el).find('a').first()
+    return $('li.video_li').toArray().map<IMovie>(el => {
+      const a = $(el).find('.cover_box a')
       const id = a.attr('href') ?? ''
-      const title = a.attr('title') || a.text().trim()
-      let cover = $(el).find('img').attr('src') ?? $(el).find('img').attr('data-src') ?? ''
+      const title = $(el).find('.title a').text().trim()
+      let cover = $(el).find('img.cover').attr('src') ?? ''
       if (cover.startsWith('//')) cover = 'https:' + cover
+      const remark = $(el).find('.info_box .view').last().text().trim()
       return { id, title, cover, desc: '', remark: '搜索结果', playlist: [] }
     })
   }

@@ -6,7 +6,7 @@ export default class Madou implements Handle {
       name: '麻豆社',
       api: 'https://madou.club',
       nsfw: true,
-      type: 1, // 网页解析
+      type: 1,
     }
   }
 
@@ -53,7 +53,6 @@ export default class Madou implements Handle {
     if (cover.startsWith('//')) cover = 'https:' + cover
     const desc = $('article').text().slice(0, 200)
 
-    // 提取 iframe 播放器
     const iframe = $('iframe').attr('src') ?? ''
 
     const playlist = [{
@@ -87,6 +86,8 @@ export default class Madou implements Handle {
 
   async parseIframe() {
     const iframeUrl = env.get<string>("iframe")
+
+    // 请求 share 页面
     const html = await req(iframeUrl, {
       headers: {
         'User-Agent': 'Mozilla/5.0',
@@ -94,17 +95,33 @@ export default class Madou implements Handle {
       }
     })
 
-    // 提取 player_aaaa 里的 url（带 token 的 m3u8）
-    const match = html.match(/"url":"([^"]+\\.m3u8[^"]*)"/)
-    if (match) {
-      const realUrl = match[1].replace(/\\u002F/g, "/")
-      return [{
-        text: "播放",
-        url: realUrl
-      }]
+    // 提取 token
+    const tokenMatch = html.match(/var token = "([^"]+)"/)
+    const token = tokenMatch ? tokenMatch[1] : ""
+
+    // 提取 m3u8 路径
+    const m3u8Match = html.match(/var m3u8 = '([^']+)'/)
+    let m3u8Path = m3u8Match ? m3u8Match[1] : ""
+
+    if (m3u8Path && token) {
+      const realUrl = `https://dash.madou.club${m3u8Path}?token=${token}`
+
+      // 自动检测 token 是否过期
+      try {
+        const headResp = await req(realUrl, { method: "HEAD" })
+        if (headResp && !headResp.includes("403")) {
+          return [{ text: "播放", url: realUrl }]
+        }
+      } catch (e) {
+        // 请求失败，继续 fallback
+      }
     }
 
-    // fallback：交给内置工具
-    return kitty.utils.getM3u8WithIframe(env)
+    // fallback：直接加载详情页
+    const detailUrl = env.get<string>("movieId")
+    return [{
+      text: "原页面播放",
+      id: detailUrl
+    }]
   }
 }

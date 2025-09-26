@@ -906,6 +906,38 @@
     }
   },
   {
+    "id": "libvio",
+    "name": "LIBVIO",
+    "api": "https://www.libvio.cc",
+    "nsfw": false,
+    "type": 1,
+    "extra": {
+      "js": {
+        "category": [
+          {
+            "text": "电影",
+            "id": "1"
+          },
+          {
+            "text": "剧集",
+            "id": "2"
+          },
+          {
+            "text": "综艺",
+            "id": "3"
+          },
+          {
+            "text": "动漫",
+            "id": "4"
+          }
+        ],
+        "home": "const cate=env.get(\"category\")||\"1\";const page=env.get(\"page\")||1;const url=`${env.baseUrl}/type/${cate}-${page}.html`;const html=await req(url);const $=kitty.load(html);return this._parseList($)",
+        "detail": "const id=env.get(\"movieId\")||\"\";const url=id.startsWith(\"http\")?id:`${env.baseUrl}${id}`;const html=await req(url);const $=kitty.load(html);const title=$(\".module-info-heading .module-info-title\").first().text().trim()||$(\"h1\").first().text().trim();let cover=$(\".module-info-poster img\").attr(\"data-original\")||$(\".module-info-poster img\").attr(\"src\")||\"\";if(cover.startsWith(\"//\"))cover=\"https:\"+cover;const episodes=[];$(\".module-play-list a\").each((_,el)=>{const $a=$(el);const text=($a.text()||\"\").trim();let href=$a.attr(\"href\")||\"\";if(!href)return;if(!/^https?:/.test(href))href=`${env.baseUrl}${href}`;episodes.push({text,id:href})});const playlist=[];if(episodes.length>0){playlist.push({title:\"\\u9ED8\\u8BA4\",videos:episodes})}else{playlist.push({title:\"\\u9ED8\\u8BA4\",videos:[{text:\"\\u6253\\u5F00\\u8BE6\\u60C5\\u9875\",id:url}]})}return{id:url,title,cover,desc:\"\",playlist}",
+        "search": "const wd=env.get(\"keyword\")||\"\";const page=env.get(\"page\")||1;if(!wd)return[];const url=`${env.baseUrl}/search/${encodeURIComponent(wd)}----------${page}---.html`;const html=await req(url);const $=kitty.load(html);return this._parseList($).map(it=>({...it,remark:\"\\u641C\\u7D22\\u7ED3\\u679C\"}))"
+      }
+    }
+  },
+  {
     "id": "mxvod",
     "name": "MXVOD",
     "api": "https://www.mxvod.com",
@@ -1094,42 +1126,6 @@
         ],
         "home": "const cate=env.get(\"category\");const page=env.get(\"page\");const url=`${env.baseUrl}/cat/${cate}-${page}.html`;const html=await req(url);const $=kitty.load(html);return $(\".m4-list .item\").toArray().map(item=>{const img=$(item).find(\"img.img\");const id=$(item).find(\"a.link\").attr(\"href\")??\"\";const title=img.attr(\"alt\")??\"\";let cover=img.attr(\"data-src\")??\"\";if(!!cover&&cover.startsWith(\"//\")){cover=`https:${cover}`}const remark=$(item).find(\".tag1\").text()??\"\";return{id,title,cover,remark,playlist:[]}})",
         "detail": "const id=env.get(\"movieId\");const url=`${env.baseUrl}${id}`;const html=await req(url);const $=kitty.load(html);const div=$(\".m4-vod\");const img=div.find(\"img.img\");let cover=img.attr(\"src\")??\"\";if(!!cover&&cover.startsWith(\"//\")){cover=`https:${cover}`}const title=img.attr(\"alt\")??\"\";let desc=$(\".more .info:last-of-type\").text()??\"\";const kPrefix=\"\\u7B80\\u4ECB\\uFF1A\";if(desc.startsWith(kPrefix)){desc=desc.replace(kPrefix,\"\")}else{desc=\"\"}const playlist=[];for(const script of $(\"body script\").toArray()){let cx=$(script).text()??\"\";if(!cx||!cx.includes(\"var pp\"))continue;cx=cx.replace(\"var pp=\",\"\");if(cx.endsWith(\";\"))cx=cx.slice(0,-1);const unsafeJSObj=eval(`(${cx})`);for(const line of unsafeJSObj.lines){const _id=line[0];const text=line[1];const urls=line[3];const videos=$(`div[data-vod='${_id}'] .list a`).toArray().map((item,index)=>{const text=$(item).text().trim();const idx=+($(item).attr(\"data-sou_idx\")??\"0\");const realUrl=urls[idx];return{text,url:realUrl}});playlist.push({title:text,videos})}}return{id,title,cover,desc,playlist}"
-      }
-    }
-  },
-  {
-    "id": "yhdm668",
-    "name": "樱花动漫",
-    "api": "https://www.yhdm668.com",
-    "nsfw": false,
-    "type": 1,
-    "extra": {
-      "js": {
-        "category": [
-          {
-            "text": "TV动漫",
-            "id": "4"
-          },
-          {
-            "text": "剧场版动漫",
-            "id": "20"
-          },
-          {
-            "text": "电影",
-            "id": "1"
-          },
-          {
-            "text": "连续剧",
-            "id": "2"
-          },
-          {
-            "text": "短剧",
-            "id": "3"
-          }
-        ],
-        "home": "const cate=env.get(\"category\")||\"4\";const pageNum=env.get(\"page\")||1;const url=`${this.getConfig().api}/vodshow/${cate}-----------${pageNum}---.html`;const html=await this.fetchHtml(url);const items=[];const regex=/<a[^>]+href=\"([^\"]+)\"[^>]*class=\"module-poster-item\"[^>]*>[\\s\\S]*?<img[^>]+(data-original|src)=\"([^\"]+)\"[^>]*>[\\s\\S]*?<div[^>]*class=\"module-poster-item-title\">([^<]+)<\\/div>/g;let match;while((match=regex.exec(html))!==null){let href=match[1];if(!href.startsWith(\"http\"))href=this.getConfig().api+href;let cover=match[3];if(cover.startsWith(\"//\"))cover=\"https:\"+cover;const title=match[4].trim();items.push({id:href,title,cover,desc:\"\",remark:\"\",playlist:[]})}return items",
-        "detail": "const id=env.get(\"movieId\")||\"\";const url=id.startsWith(\"http\")?id:`${this.getConfig().api}${id}`;const html=await this.fetchHtml(url);const titleMatch=html.match(/<h1[^>]*>([^<]+)<\\/h1>/);const title=titleMatch?titleMatch[1].trim():\"\\u672A\\u77E5\\u6807\\u9898\";const coverMatch=html.match(/<div class=\"module-info-poster\">[\\s\\S]*?<img[^>]+(data-original|src)=\"([^\"]+)\"/);let cover=coverMatch?coverMatch[2]:\"\";if(cover.startsWith(\"//\"))cover=\"https:\"+cover;const m3u8Match=html.match(/(https?:\\/\\/[^\"']+\\.m3u8[^\"']*)/i);const playUrl=m3u8Match?m3u8Match[1]:\"\";const playlist=[{title:\"\\u9ED8\\u8BA4\",videos:playUrl?[{text:\"\\u5728\\u7EBF\\u64AD\\u653E\",url:playUrl}]:[]}];return{id:url,title,cover,desc:\"\",playlist}",
-        "search": "const wd=env.get(\"keyword\")||\"\";const pageNum=env.get(\"page\")||1;if(!wd)return[];const url=`${this.getConfig().api}/vodsearch/${encodeURIComponent(wd)}----------${pageNum}---.html`;const html=await this.fetchHtml(url);const items=[];const regex=/<a[^>]+href=\"([^\"]+)\"[^>]*class=\"module-poster-item\"[^>]*>[\\s\\S]*?<img[^>]+(data-original|src)=\"([^\"]+)\"[^>]*>[\\s\\S]*?<div[^>]*class=\"module-poster-item-title\">([^<]+)<\\/div>/g;let match;while((match=regex.exec(html))!==null){let href=match[1];if(!href.startsWith(\"http\"))href=this.getConfig().api+href;let cover=match[3];if(cover.startsWith(\"//\"))cover=\"https:\"+cover;const title=match[4].trim();items.push({id:href,title,cover,desc:\"\",remark:\"\\u641C\\u7D22\\u7ED3\\u679C\",playlist:[]})}return items"
       }
     }
   },

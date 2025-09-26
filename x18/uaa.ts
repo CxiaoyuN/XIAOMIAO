@@ -11,14 +11,27 @@ export default class Uaa implements Handle {
 
   async getCategory() {
     return <ICategory[]>[
-      { text: '视频排行榜', id: '/video/rank?type=1' },
-      { text: '女优排行榜', id: '/actress' },
-      { text: '片商排行榜', id: '/authors' },
+      { text: '全部题材', id: '/video/list?keyword=&searchType=1&category=&origin=&tag=&sort=1' },
+      { text: '国产视频', id: '/video/list?keyword=&searchType=1&origin=1&tag=&sort=1' },
+      { text: '日本AV', id: '/video/list?keyword=&searchType=1&origin=2&tag=&sort=1' },
+      { text: 'H动漫', id: '/video/list?keyword=&searchType=1&origin=3&tag=&sort=1' },
+      { text: '正规', id: '/video/list?keyword=&searchType=1&origin=4&tag=&sort=1' },
+      { text: '欧美', id: '/video/list?keyword=&searchType=1&origin=5&tag=&sort=1' },
+      { text: '短剧', id: '/video/list?keyword=&searchType=1&category=%E7%9F%AD%E5%89%A7&origin=&tag=&sort=1' },
+      { text: '偷拍', id: '/video/list?keyword=&searchType=1&category=%E5%81%B7%E6%8B%8D&origin=&tag=&sort=1' },
+      { text: '00后露出', id: '/video/list?keyword=&searchType=1&category=00%E5%90%8E%E9%9C%B2%E5%87%BA&origin=&tag=&sort=1' },
+      { text: '无码流出', id: '/video/list?keyword=&searchType=1&category=%E6%97%A0%E7%A0%81%E6%B5%81%E5%87%BA&origin=&tag=&sort=1' },
+      { text: '高清AV', id: '/video/list?keyword=&searchType=1&category=%E9%AB%98%E6%B8%85AV&origin=&tag=&sort=1' },
+      { text: '自拍', id: '/video/list?keyword=&searchType=1&category=%E8%87%AA%E6%8B%8D&origin=&tag=&sort=1' },
+      { text: '人妖伪娘', id: '/video/list?keyword=&searchType=1&category=%E4%BA%BA%E5%A6%96%E4%BC%AA%E5%A8%98&origin=&tag=&sort=1' },
+      { text: '主播福利', id: '/video/list?keyword=&searchType=1&category=%E4%B8%BB%E6%92%AD%E7%A6%8F%E5%88%A9&origin=&tag=&sort=1' },
+      { text: '里番', id: '/video/list?keyword=&searchType=1&category=%E9%87%8C%E7%95%AA&origin=&tag=&sort=1' },
+      { text: '泡面番', id: '/video/list?keyword=&searchType=1&category=%E6%B3%A1%E9%9D%A2%E7%95%AA&origin=&tag=&sort=1' },
     ]
   }
 
   async getHome() {
-    const cate = env.get<string>('category') || '/video/list'
+    const cate = env.get<string>('category') || '/video/list?keyword=&searchType=1&category=&origin=&tag=&sort=1'
     const page = env.get<number>('page') || 1
     let url = `${env.baseUrl}${cate}`
     if (page > 1) url += `&page=${page}`
@@ -32,10 +45,7 @@ export default class Uaa implements Handle {
       const title = $(el).find('.brief_box .title a').text().trim()
       let cover = $(el).find('img.cover').attr('src') ?? ''
       if (cover.startsWith('//')) cover = 'https:' + cover
-
-      // 取最后一个 view 的数值（通常是播放量）
       const remark = $(el).find('.info_box .view span').last().text().trim()
-
       return { id, title, cover, desc: '', remark, playlist: [] }
     })
   }
@@ -75,7 +85,6 @@ export default class Uaa implements Handle {
       const title = $(el).find('.brief_box .title a').text().trim()
       let cover = $(el).find('img.cover').attr('src') ?? ''
       if (cover.startsWith('//')) cover = 'https:' + cover
-
       return { id, title, cover, desc: '', remark: '搜索结果', playlist: [] }
     })
   }

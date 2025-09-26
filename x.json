@@ -455,53 +455,42 @@
         "category": [
           {
             "text": "TV动漫",
-            "id": "4",
-            "type": "category"
+            "id": "/index.php/vod/type/id/4.html"
           },
           {
             "text": "剧场版动漫",
-            "id": "20",
-            "type": "category"
+            "id": "/index.php/vod/type/id/20.html"
           },
           {
             "text": "电影",
-            "id": "1",
-            "type": "category"
+            "id": "/index.php/vod/type/id/1.html"
           },
           {
             "text": "连续剧",
-            "id": "2",
-            "type": "category"
+            "id": "/index.php/vod/type/id/2.html"
           },
           {
             "text": "短剧",
-            "id": "3",
-            "type": "category"
+            "id": "/index.php/vod/type/id/3.html"
           },
           {
             "text": "热榜",
-            "id": "hot",
-            "type": "label"
+            "id": "/index.php/label/hot.html"
           },
           {
             "text": "今日更新",
-            "id": "new",
-            "type": "label"
+            "id": "/index.php/label/new.html"
           },
           {
             "text": "周表",
-            "id": "week",
-            "type": "label"
+            "id": "/index.php/label/week.html"
           }
         ],
-        "home": "try{const cate=env.get(\"category\")||\"4\";const page=env.get(\"page\")||1;const baseUrl=env.config.api;console.log(`加载樱花动漫分类: ${cate}, 页码: ${page}`);let url=\"\";if([\"hot\",\"new\",\"week\"].includes(cate)){url=`${baseUrl}/index.php/label/${cate}.html`;if(page>1)url+=`?page=${page}`}else{url=`${baseUrl}/index.php/vod/type/id/${cate}.html`;if(page>1)url+=`?page=${page}`}const response=await req(url,{headers:this._getHeaders(),timeout:env.config.extra.timeout,responseType:\"full\"});if(!response||response.status&&!String(response.status).startsWith(\"2\")){console.error(`樱花动漫请求失败，状态码: ${response?.status||\"\\u65E0\\u54CD\\u5E94\"}`);if(page===1){const simpleUrl=url.replace(\"?page=1\",\"\");console.log(`尝试简化URL: ${simpleUrl}`);const simpleResponse=await req(simpleUrl,{headers:this._getHeaders()});if(simpleResponse){const $=kitty.load(simpleResponse.data||simpleResponse);return this._parseList($,this._getTypeName(cate))}}return[]}const html=response.data||response;if(!html||typeof html!==\"string\"||html.length<1000){console.error(\"\\u6A31\\u82B1\\u52A8\\u6F2B\\u5185\\u5BB9\\u4E3A\\u7A7A\\u6216\\u65E0\\u6548\");return[]}const $=kitty.load(html);return this._parseList($,this._getTypeName(cate))}catch(error){console.error(\"\\u6A31\\u82B1\\u52A8\\u6F2B\\u83B7\\u53D6\\u5185\\u5BB9\\u5931\\u8D25:\",error);return[]}",
-        "detail": "try{const movieId=env.get(\"movieId\")||\"\";if(!movieId){console.error(\"\\u7F3A\\u5C11\\u5F71\\u7247ID\");return{id:\"\",title:\"\",cover:\"\",desc:\"\\u7F3A\\u5C11\\u5F71\\u7247ID\",playlist:[]}}const url=movieId.startsWith(\"http\")?movieId:`${env.baseUrl}${movieId.startsWith(\"/\")?movieId:\"/\"+movieId}`;console.log(`加载樱花动漫详情页: ${url}`);const html=await req(url,{headers:this._getHeaders(),timeout:env.config.extra.timeout});if(!html){console.error(\"\\u8BE6\\u60C5\\u9875\\u5185\\u5BB9\\u4E3A\\u7A7A\");return{id:movieId,title:\"\",cover:\"\",desc:\"\\u65E0\\u6CD5\\u52A0\\u8F7D\\u8BE6\\u60C5\",playlist:[]}}const $=kitty.load(html);const title=$(\".module-info-heading .module-info-title\").first().text().trim()||$(\"h1\").first().text().trim()||$(\"title\").text().split(\"-\")[0].trim()||\"\\u672A\\u77E5\\u5F71\\u7247\";let cover=$(\".module-info-poster img\").attr(\"data-original\")||$(\".module-info-poster img\").attr(\"src\")||$(\"meta[property=\\\"og:image\\\"]\").attr(\"content\")||\"\";if(cover&&cover.startsWith(\"//\"))cover=`https:${cover}`;if(cover&&!/^https?:\\/\\//.test(cover)){cover=cover.startsWith(\"/\")?`${env.baseUrl}${cover}`:`${env.baseUrl}/${cover}`}const desc=$(\".module-info-intro\").text().trim()||$(\".info-desc\").text().trim()||\"\";const info={};$(\".module-info-item\").each((_,el)=>{const text=$(el).text().trim();const[key,value]=text.split(\"\\uFF1A\").map(t=>t.trim());if(key&&value)info[key]=value});const playlist=[];const episodeGroups=$(\".module-play-list\");if(episodeGroups.length>0){const episodes=[];episodeGroups.find(\"a\").each((__,el)=>{const $el=$(el);const text=$el.text().trim()||`第${episodes.length+1}集`;let href=$el.attr(\"href\")||\"\";if(href&&!/^https?:\\/\\//.test(href)){href=href.startsWith(\"/\")?`${env.baseUrl}${href}`:`${env.baseUrl}/${href}`}if(href)episodes.push({text,id:href})});if(episodes.length>0){playlist.push({title:info[\"\\u7C7B\\u578B\"]||\"\\u64AD\\u653E\\u5217\\u8868\",videos:episodes})}}let directUrl=this._extractPlayUrl(html);if(directUrl){playlist.unshift({title:\"\\u76F4\\u63A5\\u64AD\\u653E\",videos:[{text:\"\\u7ACB\\u5373\\u64AD\\u653E\",url:directUrl}]})}if(playlist.length===0){playlist.push({title:\"\\u64AD\\u653E\",videos:[{text:\"\\u70B9\\u51FB\\u64AD\\u653E\",id:url}]})}return{id:url,title,cover,desc:desc||`类型: ${info[\"\\u7C7B\\u578B\"]||\"\\u672A\\u77E5\"}\\n地区: ${info[\"\\u5730\\u533A\"]||\"\\u672A\\u77E5\"}\\n年份: ${info[\"\\u5E74\\u4EFD\"]||\"\\u672A\\u77E5\"}`,remark:`更新: ${info[\"\\u66F4\\u65B0\\u81F3\"]||\"\\u672A\\u77E5\"}`,playlist,info}}catch(error){console.error(\"\\u6A31\\u82B1\\u52A8\\u6F2B\\u83B7\\u53D6\\u8BE6\\u60C5\\u5931\\u8D25:\",error);return{id:\"\",title:\"\",cover:\"\",desc:\"\\u83B7\\u53D6\\u8BE6\\u60C5\\u5931\\u8D25\",playlist:[]}}",
-        "search": "try{const keyword=env.get(\"keyword\")||\"\";const page=env.get(\"page\")||1;if(!keyword||keyword.length<2){console.log(\"\\u641C\\u7D22\\u5173\\u952E\\u8BCD\\u8FC7\\u77ED\");return[]}console.log(`樱花动漫搜索: ${keyword}, 页码: ${page}`);const url=`${env.baseUrl}/index.php/vod/search.html?wd=${encodeURIComponent(keyword)}&page=${page}`;const html=await req(url,{headers:this._getHeaders(),timeout:env.config.extra.timeout});if(!html){console.error(\"\\u641C\\u7D22\\u7ED3\\u679C\\u4E3A\\u7A7A\");return[]}const $=kitty.load(html);return this._parseList($,\"\\u641C\\u7D22\\u7ED3\\u679C\").map(item=>({...item,remark:`搜索: ${keyword} ${item.remark?\"\\xB7 \"+item.remark:\"\"}`}))}catch(error){console.error(\"\\u6A31\\u82B1\\u52A8\\u6F2B\\u641C\\u7D22\\u5931\\u8D25:\",error);return[]}",
-        "parseIframe": "try{const iframeUrl=env.get(\"iframe\")||\"\";if(!iframeUrl){throw new Error(\"\\u7F3A\\u5C11\\u64AD\\u653E\\u5730\\u5740\")}console.log(`解析樱花动漫播放地址: ${iframeUrl}`);let url=iframeUrl;if(!url.startsWith(\"http\")&&env.baseUrl){url=url.startsWith(\"/\")?`${env.baseUrl}${url}`:`${env.baseUrl}/${url}`}const html=await req(url,{headers:this._getHeaders(),timeout:env.config.extra.timeout});if(!html){throw new Error(\"\\u64AD\\u653E\\u9875\\u5185\\u5BB9\\u4E3A\\u7A7A\")}const playUrl=this._extractPlayUrl(html);if(playUrl){console.log(`提取到樱花动漫播放地址: ${playUrl}`);return playUrl}const iframeMatch=html.match(/<iframe[^>]+src=[\"']([^\"']+)[\"']/i);if(iframeMatch&&iframeMatch[1]){console.log(\"\\u53D1\\u73B0\\u5D4C\\u5957iframe\\uFF0C\\u5C1D\\u8BD5\\u4E8C\\u6B21\\u89E3\\u6790\");let nestedIframeUrl=iframeMatch[1];if(!nestedIframeUrl.startsWith(\"http\")){nestedIframeUrl=new URL(nestedIframeUrl,url).href}const nestedHtml=await req(nestedIframeUrl,{headers:this._getHeaders()});const nestedPlayUrl=this._extractPlayUrl(nestedHtml);if(nestedPlayUrl){console.log(`从嵌套iframe提取到播放地址: ${nestedPlayUrl}`);return nestedPlayUrl}}throw new Error(\"\\u672A\\u627E\\u5230\\u6709\\u6548\\u7684\\u64AD\\u653E\\u5730\\u5740\")}catch(error){console.error(\"\\u89E3\\u6790\\u6A31\\u82B1\\u52A8\\u6F2B\\u64AD\\u653E\\u5730\\u5740\\u5931\\u8D25:\",error);return\"\"}"
+        "home": "const cate=env.get(\"category\")||\"/index.php/vod/type/id/4.html\";const page=env.get(\"page\")||1;const hasQuery=/\\?/.test(cate);const url=`${env.baseUrl}${cate}${hasQuery?\"&\":\"?\"}page=${page}`;const html=await req(url);const $=kitty.load(html);return this._parseList($)",
+        "detail": "const id=env.get(\"movieId\")||\"\";const url=id.startsWith(\"http\")?id:`${env.baseUrl}${id}`;const html=await req(url,{headers:{\"User-Agent\":\"Mozilla/5.0\",\"Referer\":env.baseUrl}});const $=kitty.load(html);const title=$(\".module-info-heading .module-info-title\").first().text().trim()||$(\"h1\").first().text().trim()||$(\"title\").text().trim();let cover=$(\".module-info-poster img\").attr(\"data-original\")||$(\".module-info-poster img\").attr(\"src\")||$(\"img\").first().attr(\"src\")||\"\";if(cover&&cover.startsWith(\"//\"))cover=\"https:\"+cover;const episodes=[];$(\".module-play-list a, .module-play-list-link a\").each((_,el)=>{const $a=$(el);const text=($a.text()||\"\").trim();let href=$a.attr(\"href\")||\"\";if(!href)return;if(!/^https?:/.test(href))href=`${env.baseUrl}${href}`;episodes.push({text,id:href})});let directUrl=\"\";$(\"script\").each((_,el)=>{const t=$(el).html()||\"\";if(!t)return;const m=t.match(/https?:[^\\s'\"<>]+\\.m3u8[^\\s'\"<>]*/i)||t.match(/[\"'](https?:\\/\\/[^\"']+\\.m3u8[^\"']*)[\"']/i)||t.match(/url\\s*[:=]\\s*[\"'](https?:\\/\\/[^\"']+)[\"']/i);if(m){directUrl=m[1]||m[0]}});const playlist=[];if(directUrl){playlist.push({title:\"\\u9ED8\\u8BA4\",videos:[{text:\"\\u5728\\u7EBF\\u64AD\\u653E\",url:directUrl}]})}else if(episodes.length>0){playlist.push({title:\"\\u9ED8\\u8BA4\",videos:episodes})}else{playlist.push({title:\"\\u9ED8\\u8BA4\",videos:[{text:\"\\u6253\\u5F00\\u8BE6\\u60C5\\u9875\",id:url}]})}return{id:url,title,cover,desc:\"\",playlist}",
+        "search": "const wd=env.get(\"keyword\")||\"\";const page=env.get(\"page\")||1;if(!wd)return[];const url=`${env.baseUrl}/index.php/vod/search.html?wd=${encodeURIComponent(wd)}&page=${page}`;const html=await req(url);const $=kitty.load(html);return this._parseList($).map(it=>({...it,remark:\"\\u641C\\u7D22\\u7ED3\\u679C\"}))"
       }
-    },
-    "logo": "https://picsum.photos/200/200?random=2",
-    "version": "1.0.1"
+    }
   },
   {
     "id": "ysttv$",

@@ -7,7 +7,7 @@ export default class rouvideo implements Handle {
       name: "肉视频",
       type: 1,
       nsfw: true,
-      api: "https://rou.video",
+      api: "https://rouvz6.xyz/",
     }
   }
 
@@ -16,8 +16,8 @@ export default class rouvideo implements Handle {
       { text: "全部", id: "v" },
       { text: "日本", id: "日本" },
       { text: "OnlyFans", id: "OnlyFans" },
-      { text: "自拍流出", id: "自拍流出" },
-      { text: "国产AV", id: "国产AV" },
+      { text: "自拍", id: "自拍流出" },
+      { text: "国产", id: "国产AV" },
       { text: "探花", id: "探花" },
     ]
   }

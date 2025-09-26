@@ -1,4 +1,4 @@
-export default class Maiyoux {
+export default class Maiyoux implements Handle {
   getConfig() {
     return {
       id: 'maiyoux',
@@ -9,51 +9,11 @@ export default class Maiyoux {
     }
   }
 
-  // 读取索引
+  // 缓存索引
+  private cateList: any = {}
+
   async _fetchIndex() {
-    const indexUrl = 'http://api.maiyoux.com:81/mf/json.txt'
-    const text = await req(indexUrl)
-    let data = {}
-    try {
-      data = JSON.parse(text)
-    } catch {
-      data = {}
-    }
-    const base = indexUrl.replace(/json\.txt$/, '') // => http://api.maiyoux.com:81/mf/
-    const list = Array.isArray(data.pingtai) ? data.pingtai : []
-    return { base, list }
-  }
-
-  async getCategory() {
-    const { base, list } = await this._fetchIndex()
-    return list.map(item => {
-      const addr = (item.address || '').trim()
-      const id = base + addr
-      // JSON.parse 已经会自动把 \uXXXX 转成中文
-      const text = item.title || addr || '未命名'
-      return { text, id }
-    })
-  }
-
-  async getHome() {
-    const cate = env.get('category')
-    const page = env.get('page') || 1
-
-    // 如果没有选择分类，就展示平台索引
-    if (!cate) {
-      const { base, list } = await this._fetchIndex()
-      return list.map(item => {
-        const addr = (item.address || '').trim()
-        const id = base + addr
-        const title = item.title || '未命名'
-        const cover = item.xinimg || ''
-        const remark = (item.Number || '').toString()
-        return { id, title, cover, desc: '', remark, playlist: [] }
-      })
-    }
-
-    // 已选择分类：加载对应的子 JSON
-    const url = cate
+    const url = 'http://api.maiyoux.com:81/mf/json.txt'
     const text = await req(url)
     let data = {}
     try {
@@ -61,81 +21,66 @@ export default class Maiyoux {
     } catch {
       data = {}
     }
-    const arr = data.zhubo || data.list || data.data || []
+    this.cateList = data
+    return data
+  }
 
-    // 分页
-    const size = 60
-    const start = (page - 1) * size
-    const slice = arr.slice(start, start + size)
+  async getCategory() {
+    if (!this.cateList || Object.keys(this.cateList).length === 0) {
+      await this._fetchIndex()
+    }
+    return Object.keys(this.cateList).map(key => ({
+      text: key,
+      id: key,
+    }))
+  }
 
-    return slice.map(row => {
-      const title = (row.title || '').trim()
-      const cover = row.img || ''
-      const play = row.address || row.url || ''
-      const id = play || ''
-      const playlist = [{
-        title: '默认',
-        videos: play ? [{ text: '在线播放', url: play }] : []
-      }]
-      return { id, title, cover, desc: '', remark: '', playlist }
+  async getHome() {
+    if (!this.cateList || Object.keys(this.cateList).length === 0) {
+      await this._fetchIndex()
+    }
+    // 默认展示第一个分类
+    const firstKey = Object.keys(this.cateList)[0]
+    const list = this.cateList[firstKey] || []
+    return list.map((item: any) => {
+      return {
+        id: item.address,
+        title: item.title,
+        cover: item.xinimg,
+        desc: '',
+        remark: item.Number?.toString() || '',
+        playlist: [],
+      }
     })
   }
 
   async getDetail() {
-    const id = env.get('movieId') || ''
-    const title = '详情'
-    const cover = ''
-    const desc = '直链播放源'
-    const playlist = [{
-      title: '默认',
-      videos: id && /^https?:/.test(id) ? [{ text: '在线播放', url: id }] : []
-    }]
-    return { id, title, cover, desc, playlist }
+    const id = env.get<string>('movieId')
+    const url = 'http://api.maiyoux.com:81/mf/' + id
+    const text = await req(url)
+    let data = {}
+    try {
+      data = JSON.parse(text)
+    } catch {
+      data = {}
+    }
+    const arr = (data as any).zhubo || []
+    const videos = arr.map((it: any) => ({
+      text: it.title,
+      url: it.address,
+    }))
+    const playlist = [{ title: 'Leospring', videos }]
+    return {
+      id,
+      title: '详情',
+      cover: '',
+      desc: '作者：Leospring 公众号：蚂蚁科技杂谈',
+      playlist,
+    }
   }
 
   async getSearch() {
-    const wd = (env.get('keyword') || '').toLowerCase()
-    const page = env.get('page') || 1
-    if (!wd) return []
-
-    const { base, list } = await this._fetchIndex()
-    const results = []
-
-    for (const it of list) {
-      const platUrl = base + (it.address || '')
-      const text = await req(platUrl)
-      let data = {}
-      try {
-        data = JSON.parse(text)
-      } catch {
-        data = {}
-      }
-      const arr = data.zhubo || data.list || data.data || []
-      const size = 60
-      const start = (page - 1) * size
-      const slice = arr.slice(start, start + size)
-
-      for (const row of slice) {
-        const title = (row.title || '').toLowerCase()
-        if (title.includes(wd)) {
-          const cover = row.img || ''
-          const play = row.address || row.url || ''
-          const id = play || ''
-          const playlist = [{
-            title: '默认',
-            videos: play ? [{ text: '在线播放', url: play }] : []
-          }]
-          results.push({
-            id,
-            title: row.title,
-            cover,
-            desc: '',
-            remark: it.title || '',
-            playlist
-          })
-        }
-      }
-    }
-    return results
+    // 这个源没有搜索，只返回空
+    return []
   }
 }

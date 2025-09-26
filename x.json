@@ -986,7 +986,7 @@
     "name": "肉视频",
     "type": 1,
     "nsfw": true,
-    "api": "https://rou.video",
+    "api": "https://rouvz6.xyz/",
     "extra": {
       "js": {
         "category": [
@@ -1003,11 +1003,11 @@
             "id": "OnlyFans"
           },
           {
-            "text": "自拍流出",
+            "text": "自拍",
             "id": "自拍流出"
           },
           {
-            "text": "国产AV",
+            "text": "国产",
             "id": "国产AV"
           },
           {

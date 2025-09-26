@@ -9,21 +9,23 @@ export default class UAA implements Handle {
     };
   }
 
-  // 分类列表
+  // 固定分类列表
   async getCategory() {
-    const url = `${env.baseUrl}/video`;
-    const html = await req(url);
-    const $ = kitty.load(html);
-
-    return $(".links_box a").map((i, el) => {
-      return <ICategory>{
-        id: $(el).attr("href"),
-        text: $(el).text().trim(),
-      };
-    }).get();
+    return [
+      { id: "/video/list", text: "全部视频" },
+      { id: "/video/rank?type=1", text: "排行榜" },
+      { id: "/actress", text: "AV女优" },
+      { id: "/authors", text: "片商排行" },
+      { id: "/chinese-av-porn", text: "国产视频" },
+      { id: "/jav", text: "日本AV" },
+      { id: "/video/list?category=无码流出&origin=2", text: "无码流出" },
+      { id: "/video/list?origin=3", text: "H动漫" },
+      { id: "/video/list?category=里番", text: "里番" },
+      { id: "/video/list?category=泡面番", text: "泡面番" },
+    ];
   }
 
-  // 视频列表
+  // 视频列表页
   async getHome() {
     const cate = env.get("category") || "/video/list";
     const page = env.get("page") || 1;
@@ -33,11 +35,18 @@ export default class UAA implements Handle {
 
     return $("li.video_li").map((i, el) => {
       const a = $(el).find(".cover_box a");
+      const title = $(el).find(".brief_box .title a").text().trim();
+      const cover = a.find("img.cover").attr("src");
+      const id = a.attr("href");
+      const remark = $(el).find(".info_box .view span").first().text().trim();
+      const author = $(el).find("a[href*='/video/author']").text().trim();
+
       return <IMovie>{
-        id: a.attr("href"),
-        title: $(el).find(".video_title").text().trim(),
-        cover: a.find("img").attr("src"),
-        remark: $(el).find(".video_time").text().trim(),
+        id,
+        title,
+        cover,
+        remark,
+        extra: author || "", // 显示作者名（可选）
       };
     }).get();
   }
@@ -51,25 +60,44 @@ export default class UAA implements Handle {
 
     return $("li.video_li").map((i, el) => {
       const a = $(el).find(".cover_box a");
+      const title = $(el).find(".brief_box .title a").text().trim();
+      const cover = a.find("img.cover").attr("src");
+      const id = a.attr("href");
+      const remark = $(el).find(".info_box .view span").first().text().trim();
+      const author = $(el).find("a[href*='/video/author']").text().trim();
+
       return <IMovie>{
-        id: a.attr("href"),
-        title: $(el).find(".video_title").text().trim(),
-        cover: a.find("img").attr("src"),
-        remark: $(el).find(".video_time").text().trim(),
+        id,
+        title,
+        cover,
+        remark,
+        extra: author || "",
       };
     }).get();
   }
 
-  // 详情页（支持 m3u8 和 iframe）
+  // 视频详情页（支持 m3u8 和 iframe fallback）
   async getDetail() {
     const id = env.get("movieId");
     const url = `${env.baseUrl}${id}`;
     const html = await req(url);
     const $ = kitty.load(html);
 
-    const title = $("h1").text().trim() || $("title").text().trim();
-    const poster = $("video").attr("poster") || $("meta[property='og:image']").attr("content") || "";
-    const m3u8 = $("video source[type='application/x-mpegURL']").attr("src");
+    const title =
+      $("#mui-player").attr("video_title") ||
+      $("#title-name").text().trim() ||
+      $("title").text().trim();
+
+    const m3u8 =
+      $("#mui-player").attr("src") ||
+      $("video").attr("src");
+
+    const poster =
+      $("#mui-player").attr("poster") ||
+      $(".mplayer-poster img").attr("src") ||
+      $("meta[property='og:image']").attr("content") ||
+      "";
+
     const iframe = $("iframe").attr("src");
 
     let playlist: IPlaylist[] = [];

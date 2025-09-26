@@ -4,7 +4,7 @@ export default class YHDM668 {
   getConfig() {
     return {
       id: 'yhdm668',
-      name: '樱花动漫(模拟浏览器)',
+      name: '樱花动漫',
       api: 'https://www.yhdm668.com',
       nsfw: false,
       type: 1,

@@ -1,33 +1,50 @@
-export default class MaiYouXJson implements Handle {
+export default class MaiYouX implements Handle {
   getConfig() {
     return <Iconfig>{
-      id: 'maiyoux-json',
-      name: 'MaiYouX直播频道',
-      api: 'http://api.maiyoux.com:81/mf/jsonweishizhibo.txt',
-      nsfw: false,
-      type: 3, // 类型3表示远程 JSON 源
+      id: 'maiyoux',
+      name: 'MaiYouX直播源',
+      api: 'http://api.maiyoux.com:81/mf',
+      nsfw: true,
+      type: 1,
     }
   }
 
-  async getHome() {
-    const json = await req(env.api).then(res => JSON.parse(res))
-    const list = json.zhubo || []
+  // 一级分类列表
+  async getCategory() {
+    const url = `${env.api}/json.txt`
+    const json = await req(url).then(res => JSON.parse(res))
 
-    return list.map<IMovie>((item: any) => {
+    return json.map<ICategory>((item: any) => {
+      const id = item.address?.replace(/\.txt$/, '') || ''
       return {
-        id: item.address || '',
-        title: item.title || '未命名频道',
-        cover: item.img || '',
-        desc: '',
-        remark: '',
-        playlist: [{
-          title: '直播',
-          videos: [{ text: '播放', id: item.address }]
-        }]
+        text: item.title || '未命名分类',
+        id,
+        cover: item.xinimg || ''
       }
     })
   }
 
+  // 分类频道列表
+  async getHome() {
+    const cate = env.get<string>('category') || ''
+    const url = `${env.api}/${cate}.txt`
+    const json = await req(url).then(res => JSON.parse(res))
+    const list = json.zhubo || []
+
+    return list.map<IMovie>((item: any) => ({
+      id: item.address || '',
+      title: item.title || '未命名频道',
+      cover: item.img || '',
+      desc: '',
+      remark: '',
+      playlist: [{
+        title: '直播',
+        videos: [{ text: '播放', id: item.address }]
+      }]
+    }))
+  }
+
+  // 详情页（直接播放）
   async getDetail() {
     const id = env.get<string>('movieId')
     return <IMovie>{
@@ -42,26 +59,38 @@ export default class MaiYouXJson implements Handle {
     }
   }
 
+  // 搜索频道（在所有分类中搜索）
   async getSearch() {
     const keyword = env.get<string>('keyword')?.toLowerCase() || ''
-    const json = await req(env.api).then(res => JSON.parse(res))
-    const list = json.zhubo || []
+    const mainJson = await req(`${env.api}/json.txt`).then(res => JSON.parse(res))
 
-    return list.filter((item: any) => {
-      const text = `${item.title || ''}`.toLowerCase()
-      return text.includes(keyword)
-    }).map<IMovie>((item: any) => {
-      return {
-        id: item.address || '',
-        title: item.title || '未命名频道',
-        cover: item.img || '',
-        desc: '',
-        remark: '',
-        playlist: [{
-          title: '直播',
-          videos: [{ text: '播放', id: item.address }]
-        }]
+    const results: IMovie[] = []
+
+    for (const cate of mainJson) {
+      const file = cate.address
+      if (!file) continue
+
+      const subJson = await req(`${env.api}/${file}`).then(res => JSON.parse(res))
+      const list = subJson.zhubo || []
+
+      for (const item of list) {
+        const text = `${item.title || ''}`.toLowerCase()
+        if (text.includes(keyword)) {
+          results.push({
+            id: item.address || '',
+            title: item.title || '未命名频道',
+            cover: item.img || '',
+            desc: '',
+            remark: cate.title || '',
+            playlist: [{
+              title: '直播',
+              videos: [{ text: '播放', id: item.address }]
+            }]
+          })
+        }
       }
-    })
+    }
+
+    return results
   }
 }

@@ -63,7 +63,7 @@
       padding: 0;
       margin: 1rem 0 0 0;
       display: grid;
-      grid-template-columns: repeat(6, 1fr); /* 一行6列 */
+      grid-template-columns: repeat(6, 1fr);
       gap: 1rem;
     }
     li {
@@ -103,6 +103,16 @@
       display: none;
       box-shadow: 0 2px 6px rgba(0,0,0,0.2);
     }
+    #loading {
+      text-align: center;
+      font-size: 1rem;
+      color: #0078d7;
+      margin-top: 2rem;
+    }
+    .error {
+      color: #d32f2f;
+      font-weight: bold;
+    }
     footer {
       text-align: center;
       padding: 1rem;
@@ -115,6 +125,7 @@
 <body>
   <h1>订阅源列表</h1>
   <input type="text" id="search-box" placeholder="🔍 输入关键字搜索源...">
+  <div id="loading">⏳ 正在加载订阅源...</div>
   <div id="lists"></div>
   <div id="toast">已复制订阅地址</div>
 
@@ -126,9 +137,11 @@
     const sources = [
       { name: "Kitty源", url: "https://cxiaoyun.github.io/kitty/all.json", showButton: true },
       { name: "影视vod", url: "https://cxiaoyun.github.io/kitty/vod.json", showButton: false },
-      { name: "福利vod", url: "https://cxiaoyun.github.io/kitty/xvod.json", showButton: false }
+      { name: "福利vod", url: "https://cxiaoyun.github.io/kitty/xvod.json", showButton: false },
       { name: "JS源", url: "https://cxiaoyun.github.io/kitty/x.json", showButton: false }
     ];
+
+    let pendingLoads = sources.length;
 
     async function loadJson(name, url, showButton) {
       try {
@@ -137,6 +150,10 @@
         renderList(name, data, url, showButton);
       } catch (err) {
         renderError(name, err);
+      } finally {
+        if (--pendingLoads === 0) {
+          document.getElementById("loading").style.display = "none";
+        }
       }
     }
 
@@ -202,7 +219,7 @@
 
       const ul = document.createElement("ul");
       const li = document.createElement("li");
-      li.textContent = "加载失败: " + err;
+      li.innerHTML = "⚠️ <span class='error'>加载失败:</span> " + err;
       ul.appendChild(li);
 
       section.appendChild(ul);

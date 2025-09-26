@@ -892,7 +892,7 @@
         "category": "const url=`${env.baseUrl}/zd/sp/getPlateLabelList?plateId=4`;const json=await req(url,{headers:this.makeHeaders()}).then(r=>JSON.parse(r));return json.data.map(v=>({id:v.id,text:v.name}))",
         "home": "const cate=env.get(\"category\")||1;const page=env.get(\"page\")||1;const url=`${env.baseUrl}/zd/sp/getLabelVideoList?plateId=4&labelId=${cate}&page=${page}&size=25`;const json=await req(url,{headers:this.makeHeaders()}).then(r=>JSON.parse(r));return json.data.records.map(v=>({id:v.id,title:v.title,cover:v.coverUrl,remark:v.updateTime}))",
         "detail": "const id=env.get(\"movieId\");const url=`${env.baseUrl}/zd/sp/getLovelyList?plateId=4&videoId=${id}`;const json=await req(url,{headers:this.makeHeaders()}).then(r=>JSON.parse(r));return{id,title:\"\\u5F71\\u7247\\u8BE6\\u60C5\",cover:\"\",desc:\"\",playlist:[{title:\"\\u9ED8\\u8BA4\\u7EBF\\u8DEF\",videos:json.data.map(v=>({text:v.title,id:v.playUrl}))}]}",
-        "parseIframe": "const url=env.get(\"iframe\");return url"
+        "parseIframe": "return env.get(\"iframe\")"
       }
     }
   },

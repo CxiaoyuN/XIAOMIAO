@@ -1148,31 +1148,31 @@
       "js": {
         "category": [
           {
-            "text": "热门推荐",
+            "text": "热门",
             "id": "/index.php/label/hot.html"
           },
           {
-            "text": "今日更新",
+            "text": "今日",
             "id": "/index.php/label/new.html"
           },
           {
-            "text": "周更新表",
+            "text": "周更",
             "id": "/index.php/label/week.html"
           },
           {
-            "text": "最近更新",
+            "text": "最近",
             "id": "/index.php/vod/show/id/4.html"
           },
           {
-            "text": "动漫电影",
+            "text": "电影",
             "id": "/index.php/vod/type/id/20.html"
           },
           {
-            "text": "连载动漫",
+            "text": "连载",
             "id": "/index.php/vod/type/id/4.html"
           },
           {
-            "text": "完结动漫",
+            "text": "完结",
             "id": "/index.php/vod/type/id/21.html"
           }
         ],

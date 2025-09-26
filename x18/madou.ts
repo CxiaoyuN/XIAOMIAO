@@ -53,15 +53,10 @@ export default class Madou implements Handle {
     if (cover.startsWith('//')) cover = 'https:' + cover
     const desc = $('article').text().slice(0, 200)
 
-    const iframe = $('iframe').attr('src') ?? ''
-
+    // 直接把详情页当播放器
     const playlist = [{
       title: '默认',
-      videos: [
-        iframe
-          ? { text: '在线播放', id: iframe }
-          : { text: '原页面播放', id: url }
-      ]
+      videos: [{ text: '原页面播放', id: url }]
     }]
 
     return <IMovie>{ id: url, title, cover, desc, playlist }
@@ -85,39 +80,7 @@ export default class Madou implements Handle {
   }
 
   async parseIframe() {
-    const iframeUrl = env.get<string>("iframe")
-
-    // 请求 share 页面
-    const html = await req(iframeUrl, {
-      headers: {
-        'User-Agent': 'Mozilla/5.0',
-        'Referer': iframeUrl
-      }
-    })
-
-    // 提取 token
-    const tokenMatch = html.match(/var token = "([^"]+)"/)
-    const token = tokenMatch ? tokenMatch[1] : ""
-
-    // 提取 m3u8 路径
-    const m3u8Match = html.match(/var m3u8 = '([^']+)'/)
-    let m3u8Path = m3u8Match ? m3u8Match[1] : ""
-
-    if (m3u8Path && token) {
-      const realUrl = `https://dash.madou.club${m3u8Path}?token=${token}`
-
-      // 自动检测 token 是否过期
-      try {
-        const headResp = await req(realUrl, { method: "HEAD" })
-        if (headResp && !headResp.includes("403")) {
-          return [{ text: "播放", url: realUrl }]
-        }
-      } catch (e) {
-        // 请求失败，继续 fallback
-      }
-    }
-
-    // fallback：直接加载详情页
+    // 不再解析，直接返回详情页
     const detailUrl = env.get<string>("movieId")
     return [{
       text: "原页面播放",

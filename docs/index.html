@@ -38,15 +38,18 @@
     }
     .section-header {
       margin-bottom: 1rem;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      gap: 1rem;
+      flex-wrap: wrap;
     }
     .section-header h2 {
       margin: 0;
       font-size: 1.3rem;
       color: #0078d7;
-      display: inline-block;
     }
-    .copy-btn {
-      margin-left: 1rem;
+    .copy-btn, .more-btn {
       padding: 0.4rem 0.8rem;
       font-size: 0.9rem;
       border: none;
@@ -55,7 +58,7 @@
       color: #fff;
       cursor: pointer;
     }
-    .copy-btn:hover {
+    .copy-btn:hover, .more-btn:hover {
       background: #005a9e;
     }
     ul {
@@ -63,8 +66,10 @@
       padding: 0;
       margin: 1rem 0 0 0;
       display: grid;
-      grid-template-columns: repeat(6, 1fr); /* 一行6列 */
+      grid-template-columns: repeat(6, 1fr);
       gap: 1rem;
+      overflow: hidden;
+      transition: max-height 0.3s ease;
     }
     li {
       background: #f9f9f9;
@@ -124,39 +129,38 @@
 
   <script>
     const sources = [
-      { name: "Kitty源", url: "https://cxiaoyun.github.io/kitty/all.json", showButton: true },
-      { name: "影视vod", url: "https://cxiaoyun.github.io/kitty/vod.json", showButton: false },
-      { name: "福利vod", url: "https://cxiaoyun.github.io/kitty/xvod.json", showButton: false },
-      { name: "JS源", url: "https://cxiaoyun.github.io/kitty/x.json", showButton: false }
+      { name: "Kitty源", url: "https://cxiaoyun.github.io/kitty/all.json" },
+      { name: "影视vod", url: "https://cxiaoyun.github.io/kitty/vod.json" },
+      { name: "福利vod", url: "https://cxiaoyun.github.io/kitty/xvod.json" },
+      { name: "JS源", url: "https://cxiaoyun.github.io/kitty/x.json" }
     ];
 
-    async function loadJson(name, url, showButton) {
+    async function loadJson(name, url) {
       try {
         const res = await fetch(url);
         const data = await res.json();
-        renderList(name, data, url, showButton);
+        renderList(name, data, url);
       } catch (err) {
         renderError(name, err);
       }
     }
 
-    function renderList(name, data, fileUrl, showButton) {
+    function renderList(name, data, fileUrl) {
       const container = document.getElementById("lists");
       const section = document.createElement("section");
 
       const header = document.createElement("div");
       header.className = "section-header";
+
       const title = document.createElement("h2");
-      title.textContent = name;
+      title.textContent = `${name} (${Array.isArray(data) ? data.length : 0})`;
       header.appendChild(title);
 
-      if (showButton) {
-        const copyBtn = document.createElement("button");
-        copyBtn.textContent = "订阅";
-        copyBtn.className = "copy-btn";
-        copyBtn.onclick = () => copyToClipboard(fileUrl);
-        header.appendChild(copyBtn);
-      }
+      const copyBtn = document.createElement("button");
+      copyBtn.textContent = "订阅";
+      copyBtn.className = "copy-btn";
+      copyBtn.onclick = () => copyToClipboard(fileUrl);
+      header.appendChild(copyBtn);
 
       section.appendChild(header);
 
@@ -186,6 +190,28 @@
         ul.appendChild(li);
       }
 
+      // 限制高度，超过4行隐藏
+      const rowHeight = 180; // 每行大约高度
+      const maxRows = 4;
+      const maxHeight = rowHeight * maxRows;
+      if (ul.children.length > 24) {
+        ul.style.maxHeight = maxHeight + "px";
+
+        const moreBtn = document.createElement("button");
+        moreBtn.textContent = "更多";
+        moreBtn.className = "more-btn";
+        moreBtn.onclick = () => {
+          if (ul.style.maxHeight === "none") {
+            ul.style.maxHeight = maxHeight + "px";
+            moreBtn.textContent = "更多";
+          } else {
+            ul.style.maxHeight = "none";
+            moreBtn.textContent = "收起";
+          }
+        };
+        section.appendChild(moreBtn);
+      }
+
       section.appendChild(ul);
       container.appendChild(section);
     }
@@ -196,8 +222,15 @@
       const header = document.createElement("div");
       header.className = "section-header";
       const title = document.createElement("h2");
-      title.textContent = name;
+      title.textContent = name + " (加载失败)";
       header.appendChild(title);
+
+      const copyBtn = document.createElement("button");
+      copyBtn.textContent = "订阅";
+      copyBtn.className = "copy-btn";
+      copyBtn.onclick = () => copyToClipboard("#");
+      header.appendChild(copyBtn);
+
       section.appendChild(header);
 
       const ul = document.createElement("ul");
@@ -217,17 +250,4 @@
       });
     }
 
-    // 搜索功能
-    document.getElementById("search-box").addEventListener("input", function() {
-      const keyword = this.value.toLowerCase();
-      document.querySelectorAll("#lists li").forEach(li => {
-        const text = li.dataset.search ? li.dataset.search.toLowerCase() : "";
-        li.style.display = text.includes(keyword) ? "" : "none";
-      });
-    });
-
-    // 加载四个 JSON
-    sources.forEach(src => loadJson(src.name, src.url, src.showButton));
-  </script>
-</body>
-</html>
+    //

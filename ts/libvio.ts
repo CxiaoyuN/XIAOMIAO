@@ -1,104 +1,87 @@
 // import { kitty, req, createTestEnv } from 'utils'
 
-export default class Libvio implements Handle {
+export default class libvio implements Handle {
   getConfig() {
     return <Iconfig>{
       id: 'libvio',
-      name: 'LIBVIO',
+      name: 'LIBVIO影院',
       api: 'https://www.libvio.cc',
-      type: 1,
       nsfw: false,
+      type: 1,
     }
   }
 
   async getCategory() {
     return <ICategory[]>[
       { text: '电影', id: '1' },
-      { text: '剧集', id: '2' },
+      { text: '电视剧', id: '2' },
       { text: '综艺', id: '3' },
       { text: '动漫', id: '4' },
-      { text: '韩剧', id: '15' },,
-      { text: '美剧', id: '16' },
     ]
   }
 
   async getHome() {
-    const cate = env.get('category') || '1'
-    const page = env.get('page') || 1
-    const url = `${env.baseUrl}/type/${cate}-${page}.html`
+    const cate = env.get('category')
+    const page = env.get('page')
+    const url = `${env.baseUrl}/vodshow/${cate}--------${page}---.html`
     const html = await req(url)
     const $ = kitty.load(html)
 
-    return $('a.module-poster-item').toArray().map(item => {
-      const $a = $(item)
-      const id = $a.attr('href') ?? ''
-      const title =
-        $a.find('.module-poster-item-title').text().trim() ||
-        $a.attr('title') ||
-        ''
-      const remark = $a.find('.module-item-note').text().trim()
-      const cover =
-        $a.find('img').attr('data-original') ||
-        $a.find('img').attr('data-src') ||
-        $a.find('img').attr('src') ||
-        ''
-      return <IMovie>{ id, title, cover, remark, playlist: [] }
+    return $('.stui-vodlist li').toArray().map<IMovie>(item => {
+      const a = $(item).find('a.stui-vodlist__thumb')
+      const id = a.attr('href') ?? ''
+      const title = a.attr('title') ?? ''
+      const cover = a.attr('data-original') ?? ''
+      const remark = a.find('.pic-text.text-right').text() ?? ''
+      return <IMovie>{ id, title, cover, remark }
     })
   }
 
   async getDetail() {
     const id = env.get('movieId')
-    const url = id.startsWith('http') ? id : `${env.baseUrl}${id}`
+    const url = `${env.baseUrl}${id}`
     const html = await req(url)
     const $ = kitty.load(html)
 
-    const title =
-      $('.module-info-heading h1').text().trim() ||
-      $('title').text().trim()
-    const cover =
-      $('.module-info-poster img').attr('data-original') ||
-      $('.module-info-poster img').attr('src') ||
-      ''
-    const desc = $('.module-info-introduction-content').text().trim()
-
-    const player: IPlaylistVideo[] = $('.module-play-list a').toArray().map(item => {
-      const $a = $(item)
-      const text = $a.text().trim()
-      const id = $a.attr('href') ?? ''
-      return { text, id }
+    const tabs = $('.nav.nav-tabs li').toArray().map(item => {
+      return $(item).text().trim()
     })
 
-    return <IMovie>{
-      id: url,
-      title,
-      cover,
-      desc,
-      remark: '',
-      playlist: [{ title: 'LIBVIO', videos: player }],
-    }
+    const map = $('.stui-panel_bd div.tab-pane').toArray().map(item => {
+      return $(item).find('a').toArray().map(_ => {
+        const text = $(_).text().trim()
+        const id = $(_).attr('href') ?? ''
+        return <IPlaylistVideo>{ id, text }
+      })
+    })
+
+    const playlist = tabs.map((title, index) => {
+      const videos = map[index]
+      return <IPlaylist>{ title, videos }
+    })
+
+    const a = $('.stui-pannel-box .stui-vodlist__thumb.picture.v-thumb')
+    const title = a.attr('title') ?? ''
+    const cover = a.find('img').attr('data-original') ?? ''
+    const desc = $('.detail.col-pd').text().trim()
+
+    return <IMovie>{ id, title, cover, desc, playlist }
   }
 
   async getSearch() {
-    const wd = env.get('keyword')
-    const page = env.get('page') || 1
-    const url = `${env.baseUrl}/search/${encodeURIComponent(wd)}----------${page}---.html`
+    const page = env.get<string>('page')
+    const wd = env.get<string>('keyword')
+    const url = `${env.baseUrl}/vodsearch/${wd}----------${page}---.html`
     const html = await req(url)
     const $ = kitty.load(html)
 
-    return $('a.module-poster-item').toArray().map(item => {
-      const $a = $(item)
-      const id = $a.attr('href') ?? ''
-      const title =
-        $a.find('.module-poster-item-title').text().trim() ||
-        $a.attr('title') ||
-        ''
-      const cover =
-        $a.find('img').attr('data-original') ||
-        $a.find('img').attr('data-src') ||
-        $a.find('img').attr('src') ||
-        ''
-      const remark = $a.find('.module-item-note').text().trim()
-      return <IMovie>{ id, title, cover, remark, playlist: [] }
+    return $('.stui-vodlist__media li').toArray().map(item => {
+      const a = $(item).find('.v-thumb.stui-vodlist__thumb')
+      const title = a.attr('title') ?? ''
+      const cover = a.attr('data-original') ?? ''
+      const id = a.attr('href') ?? ''
+      const remark = a.find('.pic-text.text-right').text() ?? ''
+      return <IMovie>{ id, title, cover, remark }
     })
   }
 
@@ -109,15 +92,17 @@ export default class Libvio implements Handle {
 
 // TEST
 // const env = createTestEnv("https://www.libvio.cc")
-// const call = new Libvio()
+// const tv = new libvio()
 // ;(async () => {
-//   const cates = await call.getCategory()
+//   const cates = await tv.getCategory()
 //   env.set("category", cates[0].id)
 //   env.set("page", 1)
-//   const home = await call.getHome()
-//   env.set("movieId", home[0].id)
-//   const detail = await call.getDetail()
-//   env.set("keyword", "复仇者联盟")
-//   const search = await call.getSearch()
+//   const home = await tv.getHome()
+//   env.set("keyword", "我能")
+//   const search = await tv.getSearch()
+//   env.set("movieId", search[0].id)
+//   const detail = await tv.getDetail()
+//   env.set("iframe", detail.playlist![0].videos[0].id)
+//   const realM3u8 = await tv.parseIframe()
 //   debugger
 // })()

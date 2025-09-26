@@ -68,22 +68,20 @@ export default class rouvideo implements Handle {
     })
     const apiObj: any = JSON.parse(apiText)
 
-    // 取出 videoUrl
-    let realUrl = apiObj.video?.videoUrl || apiObj.video?.playUrl || apiObj.video?.hlsUrl || ""
+    let realUrl = ""
 
-    // 如果缺少 auth 参数，尝试拼接
-    if (realUrl && !realUrl.includes("&auth=")) {
-      if (apiObj.video?.auth) {
+    // 优先从 HTML 提取完整 m3u8（带 auth）
+    const html = await req(url, {
+      headers: { 'User-Agent': 'Mozilla/5.0', 'Referer': url }
+    })
+    const match = html.match(/"(https:[^"]+\.m3u8[^"]*auth=[^"]+)"/)
+    if (match) {
+      realUrl = match[1]
+    } else {
+      // fallback: 用 API 返回的
+      realUrl = apiObj.video?.videoUrl || apiObj.video?.playUrl || apiObj.video?.hlsUrl || ""
+      if (realUrl && !realUrl.includes("&auth=") && apiObj.video?.auth) {
         realUrl += `&auth=${apiObj.video.auth}`
-      } else {
-        // fallback: 从 HTML 里提取完整地址
-        const html = await req(url, {
-          headers: { 'User-Agent': 'Mozilla/5.0', 'Referer': url }
-        })
-        const match = html.match(/"(https:[^"]+\.m3u8[^"]*auth=[^"]+)"/)
-        if (match) {
-          realUrl = match[1]
-        }
       }
     }
 
@@ -92,9 +90,7 @@ export default class rouvideo implements Handle {
       videos: [{ text: "😍播放", url: realUrl }]
     }]
 
-    const $ = kitty.load(await req(url, {
-      headers: { 'User-Agent': 'Mozilla/5.0', 'Referer': url }
-    }))
+    const $ = kitty.load(html)
     const title = $("title").text()
     const cover = $("video").attr("poster") ?? ""
 

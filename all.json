@@ -919,7 +919,7 @@
             "id": "1"
           },
           {
-            "text": "电视剧",
+            "text": "电视",
             "id": "2"
           },
           {
@@ -929,6 +929,14 @@
           {
             "text": "动漫",
             "id": "4"
+          },
+          {
+            "text": "韩剧",
+            "id": "15"
+          },
+          {
+            "text": "美剧",
+            "id": "16"
           }
         ],
         "home": "const cate=env.get(\"category\");const page=env.get(\"page\");const url=`${env.baseUrl}/vodshow/${cate}--------${page}---.html`;const html=await req(url);const $=kitty.load(html);return $(\".stui-vodlist li\").toArray().map(item=>{const a=$(item).find(\"a.stui-vodlist__thumb\");const id=a.attr(\"href\")??\"\";const title=a.attr(\"title\")??\"\";const cover=a.attr(\"data-original\")??\"\";const remark=a.find(\".pic-text.text-right\").text()??\"\";return{id,title,cover,remark}})",

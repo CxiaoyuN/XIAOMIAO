@@ -4,7 +4,7 @@ export default class JvLook implements Handle {
       id: 'jvlook',
       name: 'JvLook影视',
       api: 'https://jvlook.com',
-      nsfw: false,
+      nsfw: true,
       type: 1,
     }
   }

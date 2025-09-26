@@ -63,7 +63,7 @@
       padding: 0;
       margin: 1rem 0 0 0;
       display: grid;
-      grid-template-columns: repeat(6, 1fr); /* 一行6列 */
+      grid-template-columns: repeat(6, 1fr);
       gap: 1rem;
     }
     li {
@@ -108,6 +108,10 @@
       font-size: 1rem;
       color: #0078d7;
       margin-top: 2rem;
+    }
+    .error {
+      color: #d32f2f;
+      font-weight: bold;
     }
     footer {
       text-align: center;
@@ -215,7 +219,7 @@
 
       const ul = document.createElement("ul");
       const li = document.createElement("li");
-      li.textContent = "加载失败: " + err;
+      li.innerHTML = "⚠️ <span class='error'>加载失败:</span> " + err;
       ul.appendChild(li);
 
       section.appendChild(ul);

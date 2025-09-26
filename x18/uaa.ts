@@ -32,7 +32,6 @@ export default class Uaa implements Handle {
       { text: '白虎', id: '/video/list?keyword=&searchType=1&category=&origin=&tag=%E7%99%BD%E8%99%8E&sort=1' },
       { text: '巨乳', id: '/video/list?keyword=&searchType=1&category=&origin=&tag=%E5%B7%A8%E4%B9%B3&sort=1' },
       { text: '69型', id: '/video/list?keyword=&searchType=1&category=&origin=&tag=69&sort=1' },
-
       { text: '百合', id: '/video/list?keyword=&searchType=1&category=&origin=&tag=%E7%99%BE%E5%90%88&sort=1' },
       { text: '吞精', id: '/video/list?keyword=&searchType=1&category=&origin=&tag=%E5%90%9E%E7%B2%BE&sort=1' },
       { text: '颜面', id: '/video/list?keyword=&searchType=1&category=&origin=&tag=%E9%A2%9C%E9%9D%A2%E9%AA%91%E4%B9%98&sort=1' },
@@ -49,7 +48,7 @@ export default class Uaa implements Handle {
   }
 
   async getHome() {
-    const cate = env.get<string>('category') || '/video/list?keyword=&searchType=1&category=&origin=&tag=&sort=1'
+    const cate = env.get<string>('category') || '/video/list'
     const page = env.get<number>('page') || 1
     let url = `${env.baseUrl}${cate}`
     if (page > 1) url += `&page=${page}`
@@ -63,7 +62,10 @@ export default class Uaa implements Handle {
       const title = $(el).find('.brief_box .title a').text().trim()
       let cover = $(el).find('img.cover').attr('src') ?? ''
       if (cover.startsWith('//')) cover = 'https:' + cover
+
+      // 取最后一个 view 的数值（通常是播放量）
       const remark = $(el).find('.info_box .view span').last().text().trim()
+
       return { id, title, cover, desc: '', remark, playlist: [] }
     })
   }
@@ -102,4 +104,9 @@ export default class Uaa implements Handle {
       const id = a.attr('href') ?? ''
       const title = $(el).find('.brief_box .title a').text().trim()
       let cover = $(el).find('img.cover').attr('src') ?? ''
-      if (cover.startsWith('//')) cover = 'https
+      if (cover.startsWith('//')) cover = 'https:' + cover
+
+      return { id, title, cover, desc: '', remark: '搜索结果', playlist: [] }
+    })
+  }
+}

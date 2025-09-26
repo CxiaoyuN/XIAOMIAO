@@ -882,6 +882,21 @@
     }
   },
   {
+    "id": "jvlook",
+    "name": "JvLook影视",
+    "api": "https://jvlook.com",
+    "nsfw": false,
+    "type": 1,
+    "extra": {
+      "js": {
+        "category": "const url=`${env.api}/index`;const html=await req(url);const $=kitty.load(html);return $(\"ul.nav li a\").toArray().map(el=>{const a=$(el);return{text:a.text().trim(),id:a.attr(\"href\")||\"\",cover:\"\"}})",
+        "home": "const cate=env.get(\"category\")||\"\";const page=env.get(\"page\")||1;let url=`${env.api}${cate}`;if(page>1)url+=`?page=${page}`;const html=await req(url);const $=kitty.load(html);return $(\"div.video-card\").toArray().map(el=>{const a=$(el).find(\"a\");const id=a.attr(\"href\")||\"\";const title=a.attr(\"title\")||a.text().trim();const cover=$(el).find(\"img\").attr(\"src\")||\"\";return{id,title,cover,desc:\"\",remark:\"\",playlist:[]}})",
+        "detail": "const id=env.get(\"movieId\");const url=id.startsWith(\"http\")?id:`${env.api}${id}`;const html=await req(url);const $=kitty.load(html);const title=$(\"h1\").text().trim();const cover=$(\"div.player img, div.player video\").attr(\"src\")||\"\";const iframe=$(\"iframe\").attr(\"src\")||\"\";const playlist=[{title:\"\\u9ED8\\u8BA4\",videos:iframe?[{text:\"\\u5728\\u7EBF\\u64AD\\u653E\",id:iframe}]:[{text:\"\\u539F\\u9875\\u9762\\u64AD\\u653E\",id:url}]}];return{id:url,title,cover,desc:\"\",playlist}",
+        "search": "const wd=env.get(\"keyword\")||\"\";const page=env.get(\"page\")||1;const url=`${env.api}/search/${encodeURIComponent(wd)}?page=${page}`;const html=await req(url);const $=kitty.load(html);return $(\"div.video-card\").toArray().map(el=>{const a=$(el).find(\"a\");const id=a.attr(\"href\")||\"\";const title=a.attr(\"title\")||a.text().trim();const cover=$(el).find(\"img\").attr(\"src\")||\"\";return{id,title,cover,desc:\"\",remark:\"\\u641C\\u7D22\\u7ED3\\u679C\",playlist:[]}})"
+      }
+    }
+  },
+  {
     "id": "madou",
     "name": "麻豆社",
     "api": "https://madou.club",

@@ -1,4 +1,3 @@
-// 请注意, 必须是默认导出的类
 export default class Madou implements Handle {
   getConfig() {
     return <Iconfig>{
@@ -53,10 +52,10 @@ export default class Madou implements Handle {
     if (cover.startsWith('//')) cover = 'https:' + cover
     const desc = $('article').text().slice(0, 200)
 
-    // 直接把详情页当播放器
+    // 直接把详情页当成“播放入口”
     const playlist = [{
-      title: '默认',
-      videos: [{ text: '原页面播放', id: url }]
+      title: '网页模式',
+      videos: [{ text: '打开详情页', id: url }]
     }]
 
     return <IMovie>{ id: url, title, cover, desc, playlist }
@@ -83,7 +82,7 @@ export default class Madou implements Handle {
     // 不再解析，直接返回详情页
     const detailUrl = env.get<string>("movieId")
     return [{
-      text: "原页面播放",
+      text: "打开详情页",
       id: detailUrl
     }]
   }

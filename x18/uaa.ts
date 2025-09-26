@@ -9,7 +9,7 @@ export default class UAA implements Handle {
     };
   }
 
-  // ✅ 固定分类列表
+  // ✅ 固定分类
   async getCategory() {
     return [
       { id: "/video/list", text: "全部视频" },
@@ -38,16 +38,19 @@ export default class UAA implements Handle {
       const img = a.find("img.cover");
       const title = $(el).find(".brief_box .title a").text().trim();
       const id = a.attr("href");
-      const cover = img.attr("src");
-      const remark = $(el).find(".info_box .view span").first().text().trim();
+      const cover = img.attr("src") || img.attr("data-cfsrc") || "";
+      const spans = $(el).find(".info_box .view span");
+      const time = spans.eq(0).text().trim();
+      const favs = spans.eq(1).text().trim();
+      const views = spans.eq(2).text().trim();
       const author = $(el).find("a[href*='/video/author']").text().trim();
 
       return <IMovie>{
         id,
         title,
         cover,
-        remark,
-        extra: author || "", // 显示作者名（可选）
+        remark: `${time} | ❤${favs} | 👁${views}`,
+        extra: author || "",
       };
     }).get();
   }
@@ -64,21 +67,24 @@ export default class UAA implements Handle {
       const img = a.find("img.cover");
       const title = $(el).find(".brief_box .title a").text().trim();
       const id = a.attr("href");
-      const cover = img.attr("src");
-      const remark = $(el).find(".info_box .view span").first().text().trim();
+      const cover = img.attr("src") || img.attr("data-cfsrc") || "";
+      const spans = $(el).find(".info_box .view span");
+      const time = spans.eq(0).text().trim();
+      const favs = spans.eq(1).text().trim();
+      const views = spans.eq(2).text().trim();
       const author = $(el).find("a[href*='/video/author']").text().trim();
 
       return <IMovie>{
         id,
         title,
         cover,
-        remark,
+        remark: `${time} | ❤${favs} | 👁${views}`,
         extra: author || "",
       };
     }).get();
   }
 
-  // ✅ 视频详情页（m3u8 + 描述 + 封面）
+  // ✅ 视频详情页
   async getDetail() {
     const id = env.get("movieId");
     const url = `${env.baseUrl}${id}`;

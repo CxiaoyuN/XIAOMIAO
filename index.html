@@ -244,10 +244,4 @@
 
     function copyToClipboard(text) {
       navigator.clipboard.writeText(text).then(() => {
-        const toast = document.getElementById("toast");
-        toast.style.display = "block";
-        setTimeout(() => toast.style.display = "none", 1500);
-      });
-    }
-
-    //
+        const toast = document.get

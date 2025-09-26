@@ -276,6 +276,15 @@
           {
             "text": "动漫",
             "id": "4"
+          },
+          {
+            "text": "韩剧",
+            "id": "15"
+          },
+          null,
+          {
+            "text": "美剧",
+            "id": "16"
           }
         ],
         "home": "const cate=env.get(\"category\")||\"1\";const page=env.get(\"page\")||1;const url=`${env.baseUrl}/type/${cate}-${page}.html`;const html=await req(url);const $=kitty.load(html);return $(\"a.module-poster-item\").toArray().map(item=>{const $a=$(item);const id=$a.attr(\"href\")??\"\";const title=$a.find(\".module-poster-item-title\").text().trim()||$a.attr(\"title\")||\"\";const remark=$a.find(\".module-item-note\").text().trim();const cover=$a.find(\"img\").attr(\"data-original\")||$a.find(\"img\").attr(\"data-src\")||$a.find(\"img\").attr(\"src\")||\"\";return{id,title,cover,remark,playlist:[]}})",

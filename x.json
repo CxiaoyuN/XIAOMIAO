@@ -455,40 +455,41 @@
         "category": [
           {
             "text": "TV动漫",
-            "id": "/index.php/vod/type/id/4.html"
+            "id": "4"
           },
           {
             "text": "剧场版动漫",
-            "id": "/index.php/vod/type/id/20.html"
+            "id": "20"
           },
           {
             "text": "电影",
-            "id": "/index.php/vod/type/id/1.html"
+            "id": "1"
           },
           {
             "text": "连续剧",
-            "id": "/index.php/vod/type/id/2.html"
+            "id": "2"
           },
           {
             "text": "短剧",
-            "id": "/index.php/vod/type/id/3.html"
+            "id": "3"
           },
           {
             "text": "热榜",
-            "id": "/index.php/label/hot.html"
+            "id": "hot"
           },
           {
             "text": "今日更新",
-            "id": "/index.php/label/new.html"
+            "id": "new"
           },
           {
             "text": "周表",
-            "id": "/index.php/label/week.html"
+            "id": "week"
           }
         ],
-        "home": "const cate=env.get(\"category\")||\"/index.php/vod/type/id/4.html\";const page=env.get(\"page\")||1;const hasQuery=/\\?/.test(cate);const url=`${env.baseUrl}${cate}${hasQuery?\"&\":\"?\"}page=${page}`;const html=await req(url);const $=kitty.load(html);return this._parseList($)",
-        "detail": "const id=env.get(\"movieId\")||\"\";const url=id.startsWith(\"http\")?id:`${env.baseUrl}${id}`;const html=await req(url,{headers:{\"User-Agent\":\"Mozilla/5.0\",\"Referer\":env.baseUrl}});const $=kitty.load(html);const title=$(\".module-info-heading .module-info-title\").first().text().trim()||$(\"h1\").first().text().trim()||$(\"title\").text().trim();let cover=$(\".module-info-poster img\").attr(\"data-original\")||$(\".module-info-poster img\").attr(\"src\")||$(\"img\").first().attr(\"src\")||\"\";if(cover&&cover.startsWith(\"//\"))cover=\"https:\"+cover;const episodes=[];$(\".module-play-list a, .module-play-list-link a\").each((_,el)=>{const $a=$(el);const text=($a.text()||\"\").trim();let href=$a.attr(\"href\")||\"\";if(!href)return;if(!/^https?:/.test(href))href=`${env.baseUrl}${href}`;episodes.push({text,id:href})});let directUrl=\"\";$(\"script\").each((_,el)=>{const t=$(el).html()||\"\";if(!t)return;const m=t.match(/https?:[^\\s'\"<>]+\\.m3u8[^\\s'\"<>]*/i)||t.match(/[\"'](https?:\\/\\/[^\"']+\\.m3u8[^\"']*)[\"']/i)||t.match(/url\\s*[:=]\\s*[\"'](https?:\\/\\/[^\"']+)[\"']/i);if(m){directUrl=m[1]||m[0]}});const playlist=[];if(directUrl){playlist.push({title:\"\\u9ED8\\u8BA4\",videos:[{text:\"\\u5728\\u7EBF\\u64AD\\u653E\",url:directUrl}]})}else if(episodes.length>0){playlist.push({title:\"\\u9ED8\\u8BA4\",videos:episodes})}else{playlist.push({title:\"\\u9ED8\\u8BA4\",videos:[{text:\"\\u6253\\u5F00\\u8BE6\\u60C5\\u9875\",id:url}]})}return{id:url,title,cover,desc:\"\",playlist}",
-        "search": "const wd=env.get(\"keyword\")||\"\";const page=env.get(\"page\")||1;if(!wd)return[];const url=`${env.baseUrl}/index.php/vod/search.html?wd=${encodeURIComponent(wd)}&page=${page}`;const html=await req(url);const $=kitty.load(html);return this._parseList($).map(it=>({...it,remark:\"\\u641C\\u7D22\\u7ED3\\u679C\"}))"
+        "home": "try{const cate=env.get(\"category\")||\"4\";const page=env.get(\"page\")||1;let url=\"\";if([\"hot\",\"new\",\"week\"].includes(cate)){url=`${env.baseUrl}/index.php/label/${cate}.html${page>1?`?page=${page}`:\"\"}`}else{url=`${env.baseUrl}/index.php/vod/type/id/${cate}.html${page>1?`?page=${page}`:\"\"}`}console.log(\"\\u8BF7\\u6C42URL:\",url);const html=await req(url,{headers:{\"User-Agent\":\"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/114.0.0.0 Safari/537.36\",\"Referer\":env.baseUrl,\"Accept\":\"text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,*/*;q=0.8\",\"Accept-Language\":\"zh-CN,zh;q=0.8,zh-TW;q=0.7,zh-HK;q=0.5,en-US;q=0.3,en;q=0.2\"}});if(!html){console.error(\"\\u83B7\\u53D6\\u9875\\u9762\\u5185\\u5BB9\\u4E3A\\u7A7A\");return[]}const $=kitty.load(html);const result=this._parseList($);console.log(`分类${cate}第${page}页解析到${result.length}个内容`);return result}catch(error){console.error(\"getHome\\u9519\\u8BEF:\",error);return[]}",
+        "detail": "try{const id=env.get(\"movieId\")||\"\";if(!id){console.error(\"\\u7F3A\\u5C11movieId\\u53C2\\u6570\");return{id:\"\",title:\"\",cover:\"\",desc:\"\\u7F3A\\u5C11\\u89C6\\u9891ID\",playlist:[]}}const url=id.startsWith(\"http\")?id:`${env.baseUrl}${id.startsWith(\"/\")?id:\"/\"+id}`;console.log(\"\\u8BE6\\u60C5\\u9875URL:\",url);const html=await req(url,{headers:{\"User-Agent\":\"Mozilla/5.0\",\"Referer\":env.baseUrl}});if(!html){console.error(\"\\u83B7\\u53D6\\u8BE6\\u60C5\\u9875\\u5185\\u5BB9\\u4E3A\\u7A7A\");return{id,title:\"\",cover:\"\",desc:\"\\u65E0\\u6CD5\\u83B7\\u53D6\\u8BE6\\u60C5\\u5185\\u5BB9\",playlist:[]}}const $=kitty.load(html);const title=$(\".module-info-heading .module-info-title\").first().text().trim()||$(\"h1\").first().text().trim()||$(\"title\").text().trim();let cover=$(\".module-info-poster img\").attr(\"data-original\")||$(\".module-info-poster img\").attr(\"src\")||$(\"meta[property=\\\"og:image\\\"]\").attr(\"content\")||\"\";if(cover&&cover.startsWith(\"//\"))cover=\"https:\"+cover;if(cover&&!/^https?:/.test(cover)){cover=cover.startsWith(\"/\")?`${env.baseUrl}${cover}`:`${env.baseUrl}/${cover}`}const desc=$(\".module-info-intro\").text().trim()||$(\".info-desc\").text().trim()||\"\";const episodes=[];const episodeSelectors=[\".module-play-list a\",\".module-play-list-link a\",\".stui-content__playlist a\",\".playlist a\"];let episodeFound=false;for(const selector of episodeSelectors){if($(selector).length>0){$(selector).each((_,el)=>{const $a=$(el);const text=($a.text()||\"\").trim();let href=$a.attr(\"href\")||\"\";if(!href||!text)return;if(!/^https?:/.test(href)){href=href.startsWith(\"/\")?`${env.baseUrl}${href}`:`${env.baseUrl}/${href}`}episodes.push({text,id:href})});episodeFound=true;break}}let directUrl=\"\";$(\"script\").each((_,el)=>{const t=$(el).html()||\"\";if(!t)return;const m=t.match(/https?:[^\\s'\"<>]+\\.m3u8[^\\s'\"<>]*/i)||t.match(/[\"'](https?:\\/\\/[^\"']+\\.m3u8[^\"']*)[\"']/i)||t.match(/url\\s*[:=]\\s*[\"'](https?:\\/\\/[^\"']+)[\"']/i);if(m){directUrl=m[1]||m[0]}});const playlist=[];if(directUrl){playlist.push({title:\"\\u9ED8\\u8BA4\",videos:[{text:\"\\u5728\\u7EBF\\u64AD\\u653E\",url:directUrl}]})}else if(episodes.length>0){playlist.push({title:\"\\u9ED8\\u8BA4\",videos:episodes})}else{playlist.push({title:\"\\u9ED8\\u8BA4\",videos:[{text:\"\\u6253\\u5F00\\u8BE6\\u60C5\\u9875\",id:url}]})}return{id:url,title,cover,desc,playlist}}catch(error){console.error(\"getDetail\\u9519\\u8BEF:\",error);return{id:\"\",title:\"\",cover:\"\",desc:\"\\u83B7\\u53D6\\u8BE6\\u60C5\\u5931\\u8D25\",playlist:[]}}",
+        "search": "try{const wd=env.get(\"keyword\")||\"\";const page=env.get(\"page\")||1;if(!wd)return[];const url=`${env.baseUrl}/index.php/vod/search.html?wd=${encodeURIComponent(wd)}&page=${page}`;console.log(\"\\u641C\\u7D22URL:\",url);const html=await req(url,{headers:{\"User-Agent\":\"Mozilla/5.0\",\"Referer\":env.baseUrl}});if(!html)return[];const $=kitty.load(html);const result=this._parseList($).map(it=>({...it,remark:\"\\u641C\\u7D22\\u7ED3\\u679C\"}));console.log(`搜索\"${wd}\"第${page}页找到${result.length}个结果`);return result}catch(error){console.error(\"getSearch\\u9519\\u8BEF:\",error);return[]}",
+        "parseIframe": "try{const iframeUrl=env.get(\"iframe\");if(!iframeUrl)throw new Error(\"\\u7F3A\\u5C11iframe\\u5730\\u5740\");console.log(\"\\u89E3\\u6790iframe:\",iframeUrl);let url=iframeUrl;if(!url.startsWith(\"http\")&&env.baseUrl){url=url.startsWith(\"/\")?`${env.baseUrl}${url}`:`${env.baseUrl}/${url}`}const html=await req(url,{headers:{\"User-Agent\":\"Mozilla/5.0\",\"Referer\":env.baseUrl}});if(!html)throw new Error(\"\\u83B7\\u53D6iframe\\u5185\\u5BB9\\u5931\\u8D25\");const m3u8Match=html.match(/https?:\\/\\/[^\\s'\"<>]+\\.m3u8[^\\s'\"<>]*/i);if(m3u8Match&&m3u8Match[0]){console.log(\"\\u627E\\u5230m3u8\\u5730\\u5740:\",m3u8Match[0]);return m3u8Match[0]}const videoMatch=html.match(/https?:\\/\\/[^\\s'\"<>]+\\.(mp4|flv|mkv)[^\\s'\"<>]*/i);if(videoMatch&&videoMatch[0]){console.log(\"\\u627E\\u5230\\u89C6\\u9891\\u5730\\u5740:\",videoMatch[0]);return videoMatch[0]}throw new Error(\"\\u672A\\u627E\\u5230\\u89C6\\u9891\\u64AD\\u653E\\u5730\\u5740\")}catch(error){console.error(\"\\u89E3\\u6790iframe\\u9519\\u8BEF:\",error);return\"\"}"
       }
     }
   },

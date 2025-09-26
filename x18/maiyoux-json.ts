@@ -9,7 +9,7 @@ export default class MaiYouX implements Handle {
     }
   }
 
-  // 一级分类列表
+  // 一级分类
   async getCategory() {
     const url = `${env.api}/json.txt`
     const json = await req(url).then(res => JSON.parse(res))
@@ -24,9 +24,11 @@ export default class MaiYouX implements Handle {
     })
   }
 
-  // 分类频道列表
+  // 分类下的频道列表
   async getHome() {
     const cate = env.get<string>('category') || ''
+    if (!cate) return []
+
     const url = `${env.api}/${cate}.txt`
     const json = await req(url).then(res => JSON.parse(res))
     const list = json.zhubo || []
@@ -59,7 +61,7 @@ export default class MaiYouX implements Handle {
     }
   }
 
-  // 搜索频道（在所有分类中搜索）
+  // 搜索（跨分类）
   async getSearch() {
     const keyword = env.get<string>('keyword')?.toLowerCase() || ''
     const mainJson = await req(`${env.api}/json.txt`).then(res => JSON.parse(res))

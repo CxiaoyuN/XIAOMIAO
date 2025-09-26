@@ -17,6 +17,8 @@ export default class Libvio implements Handle {
       { text: '剧集', id: '2' },
       { text: '综艺', id: '3' },
       { text: '动漫', id: '4' },
+      { text: '韩剧', id: '15' },,
+      { text: '美剧', id: '16' },
     ]
   }
 

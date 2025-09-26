@@ -496,29 +496,37 @@
       "js": {
         "category": [
           {
-            "text": "TV动漫",
-            "id": "4"
+            "text": "热门推荐",
+            "id": "/index.php/label/hot.html"
           },
           {
-            "text": "剧场版动漫",
-            "id": "20"
+            "text": "今日更新",
+            "id": "/index.php/label/new.html"
           },
           {
-            "text": "电影",
-            "id": "1"
+            "text": "周更新表",
+            "id": "/index.php/label/week.html"
           },
           {
-            "text": "连续剧",
-            "id": "2"
+            "text": "最近更新",
+            "id": "/index.php/vod/show/id/4.html"
           },
           {
-            "text": "短剧",
-            "id": "3"
+            "text": "动漫电影",
+            "id": "/index.php/vod/type/id/20.html"
+          },
+          {
+            "text": "连载动漫",
+            "id": "/index.php/vod/type/id/4.html"
+          },
+          {
+            "text": "完结动漫",
+            "id": "/index.php/vod/type/id/21.html"
           }
         ],
-        "home": "const cate=env.get(\"category\")||\"4\";const page=env.get(\"page\")||1;const url=`${env.baseUrl}/vodshow/${cate}-----------${page}---.html`;const html=await req(url);const $=kitty.load(html);return $(\"a.module-poster-item\").toArray().map(item=>{const $a=$(item);const id=$a.attr(\"href\")??\"\";const title=$a.find(\".module-poster-item-title\").text().trim()||$a.attr(\"title\")||\"\";const remark=$a.find(\".module-item-note\").text().trim();const cover=$a.find(\"img\").attr(\"data-original\")||$a.find(\"img\").attr(\"data-src\")||$a.find(\"img\").attr(\"src\")||\"\";return{id,title,cover,remark,playlist:[]}})",
-        "detail": "const id=env.get(\"movieId\");const url=id.startsWith(\"http\")?id:`${env.baseUrl}${id}`;const html=await req(url);const $=kitty.load(html);const title=$(\".module-info-heading h1\").text().trim()||$(\"title\").text().trim();const cover=$(\".module-info-poster img\").attr(\"data-original\")||$(\".module-info-poster img\").attr(\"src\")||\"\";const desc=$(\".module-info-introduction-content\").text().trim();const player=$(\".module-play-list a\").toArray().map(item=>{const $a=$(item);const text=$a.text().trim();const id=$a.attr(\"href\")??\"\";return{text,id}});return{id:url,title,cover,desc,remark:\"\",playlist:[{title:\"\\u6A31\\u82B1\\u52A8\\u6F2B\",videos:player}]}",
-        "search": "const wd=env.get(\"keyword\");const page=env.get(\"page\")||1;if(!wd)return[];const url=`${env.baseUrl}/vodsearch/${encodeURIComponent(wd)}----------${page}---.html`;const html=await req(url);const $=kitty.load(html);return $(\"a.module-poster-item\").toArray().map(item=>{const $a=$(item);const id=$a.attr(\"href\")??\"\";const title=$a.find(\".module-poster-item-title\").text().trim()||$a.attr(\"title\")||\"\";const cover=$a.find(\"img\").attr(\"data-original\")||$a.find(\"img\").attr(\"data-src\")||$a.find(\"img\").attr(\"src\")||\"\";const remark=$a.find(\".module-item-note\").text().trim();return{id,title,cover,remark,playlist:[]}})",
+        "home": "const cate=env.get(\"category\");const page=env.get(\"page\");const hasQuery=cate.includes(\"?\")||cate.includes(\"&\");const url=`${env.baseUrl}${cate}${hasQuery?\"&\":\"?\"}page=${page}`;const html=await req(url);const $=kitty.load(html);return $(\".module-items .module-item\").toArray().map(item=>{const a=$(item).find(\"a\");const id=a.attr(\"href\")??\"\";const cover=a.find(\"img\").attr(\"data-original\")||a.find(\"img\").attr(\"src\")||\"\";const title=a.attr(\"title\")||a.find(\".module-poster-item-title\").text().trim();const remark=$(item).find(\".module-item-note\").text().trim();return{id,title,cover,remark}})",
+        "detail": "const id=env.get(\"movieId\");const url=`${env.baseUrl}${id}`;const html=await req(url);const $=kitty.load(html);const title=$(\".module-info-heading h1\").text().trim()||$(\"title\").text().trim();const cover=$(\".module-info-poster img\").attr(\"data-original\")||$(\".module-info-poster img\").attr(\"src\")||\"\";const desc=$(\".module-info-introduction-content\").text().trim();const tabs=$(\".module-tab-items-box .module-tab-item\").toArray().map(item=>{return $(item).text().trim()});const _videos=$(\".module-play-list\").toArray().map(item=>{return $(item).find(\"a\").toArray().map(a=>{const id=$(a).attr(\"href\")??\"\";const text=$(a).text().trim();return{id,text}})});const playlist=tabs.map((title,index)=>{const videos=_videos[index];return{title,videos}});return{id,title,cover,desc,playlist}",
+        "search": "const wd=env.get(\"keyword\");const page=env.get(\"page\");const url=`${env.baseUrl}/index.php/vod/search/page/${page}/wd/${wd}.html`;const html=await req(url);const $=kitty.load(html);return $(\".module-items .module-search-item\").toArray().map(item=>{const a=$(item).find(\"a\");const id=a.attr(\"href\")??\"\";const cover=a.find(\"img\").attr(\"data-original\")||a.find(\"img\").attr(\"src\")||\"\";const title=a.attr(\"title\")||a.text().trim();const remark=$(item).find(\".video-remarks\").text().trim();return{id,cover,title,remark}})",
         "parseIframe": "return kitty.utils.getM3u8WithIframe(env)"
       }
     }

@@ -1,14 +1,16 @@
-name: Build & Deploy vod/xvod/x/all JSON
+name: Auto Build JSON on Repo Change
 
 on:
-  workflow_dispatch:   # 手动触发
-  schedule:
-    - cron: "0 2 * * *"   # 每天凌晨 2 点自动运行
   push:
-    branches: [ main ]
+    paths:
+      - 'vod.ts'
+      - 'x18/**.ts'
+      - 'kitty.config.*.ts'
+      - '.github/workflows/**'
+  workflow_dispatch:
 
 jobs:
-  build-vod:
+  auto-build:
     runs-on: ubuntu-latest
     permissions:
       contents: write

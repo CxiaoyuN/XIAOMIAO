@@ -1,8 +1,8 @@
 export default class libvio implements Handle {
   getConfig(): Iconfig {
     return {
-      id: 'libvio',
-      name: 'LIBVIO',
+      id: 'libvio2',
+      name: 'LIBVIO测试',
       api: 'https://www.libvio.cc',
       nsfw: false,
       type: 1,
@@ -53,16 +53,22 @@ export default class libvio implements Handle {
     const cover = a.find('img').attr('data-original') ?? '';
     const desc = $('.detail.col-pd').text().trim() ?? '';
 
-    const playlist: IPlaylist[] = $('.stui-content__playlist').toArray().map<IPlaylist>((ul, i) => {
-      const title = $(ul).prev('h3').text().trim() || `线路${i + 1}`;
-      const videos = $(ul).find('a').toArray().map<IPlaylistVideo>(el => {
-        return {
-          text: $(el).text().trim(),
-          url: $(el).attr('href') ?? '', // 注意：这里是 iframe 路径，parseIframe 会处理
-        };
-      });
-      return { title, videos };
-    });
+    const originalPageUrl = `${env.baseUrl}${id}`;
+    const firstPlayPath = $('.stui-content__playlist a').first().attr('href') ?? '';
+
+    const playlist: IPlaylist[] = [{
+      title: '播放选项',
+      videos: [
+        {
+          text: '🔗 原网页播放',
+          url: originalPageUrl,
+        },
+        {
+          text: '▶️ MP4直链播放',
+          url: firstPlayPath,
+        },
+      ],
+    }];
 
     return { id, title, cover, desc, remark: '', playlist };
   }

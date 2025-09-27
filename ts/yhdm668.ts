@@ -1,4 +1,3 @@
-// js/yhdm668.ts
 export default class YHDM668 implements Handle {
   getConfig(): Iconfig {
     return {
@@ -12,11 +11,11 @@ export default class YHDM668 implements Handle {
 
   async getCategory(): Promise<ICategory[]> {
     return [
-      { text: 'TV动漫', id: '4' },
-      { text: '剧场版动漫', id: '20' },
-      { text: '电影', id: '1' },
-      { text: '连续剧', id: '2' },
-      { text: '短剧', id: '3' },
+      { id: '4', text: 'TV动漫' },
+      { id: '20', text: '剧场版动漫' },
+      { id: '1', text: '电影' },
+      { id: '2', text: '连续剧' },
+      { id: '3', text: '短剧' },
     ]
   }
 
@@ -27,56 +26,70 @@ export default class YHDM668 implements Handle {
     const html = await req(url)
     const $ = kitty.load(html)
 
-    return $('a.module-poster-item.module-item').toArray().map(item => {
-      const id = $(item).attr('href') ?? ''
-      const title = $(item).attr('title') ?? ''
-      const cover = $(item).find('img.lazy.lazyload').attr('data-original') ?? ''
-      const remark = $(item).find('.module-item-note').text() ?? ''
-      return { id, title, cover, remark, playlist: [] }
+    return $('a.module-poster-item.module-item').toArray().map(el => {
+      const href = $(el).attr('href') ?? ''
+      const title = $(el).attr('title') ?? ''
+      const cover = $(el).find('img.lazy.lazyload').attr('data-original') ?? ''
+      const remark = $(el).find('.module-item-note').text().trim()
+      return { id: href, title, cover, remark, playlist: [] }
     })
   }
 
   async getDetail(): Promise<IMovie> {
-    const id = env.get('movieId')
-    const url = `${env.baseUrl}${id}`
+    const detailPath = env.get('detailPath')
+    if (!detailPath) throw new Error('缺少 detailPath 参数')
+
+    const url = `${env.baseUrl}${detailPath}`
     const html = await req(url)
     const $ = kitty.load(html)
 
-    const title = $('h1').text()
+    const title = $('h1').text().trim()
     const cover = $('img.lazy.lazyload').attr('data-original') ?? ''
     const desc = $('.module-info-introduction-content').text().trim()
 
-    const playlist: IPlaylist[] = [{
-      title: '默认线路',
-      videos: $('.player-box-main script').toArray().map(script => {
-        const content = $(script).html() ?? ''
-        const match = content.match(/"url":"(.*?)"/)
-        const m3u8 = match ? match[1].replace(/\\/g, '') : ''
-        return { text: '播放', url: m3u8 }
-      })
-    }]
+    const playlist: IPlaylist[] = []
 
-    return { id, title, cover, desc, remark: '', playlist }
+    $('.module-play-list').each((i, el) => {
+      const lineTitle = $(el).prev('.module-tab-item').text().trim() || `线路${i + 1}`
+      const videos: IVideo[] = []
+
+      $(el).find('a').each((_, a) => {
+        const text = $(a).text().trim()
+        const href = $(a).attr('href') ?? ''
+        videos.push({ text, url: href })
+      })
+
+      playlist.push({ title: lineTitle, videos })
+    })
+
+    return { id: detailPath, title, cover, desc, remark: '', playlist }
   }
 
   async getSearch(): Promise<IMovie[]> {
-    const wd = env.get('keyword')
+    const keyword = env.get('keyword')
     const page = env.get('page', '1')
-    const url = `${env.baseUrl}/index.php/vod/search/page/${page}/wd/${wd}.html`
+    const url = `${env.baseUrl}/index.php/vod/search/page/${page}/wd/${encodeURIComponent(keyword)}.html`
     const html = await req(url)
     const $ = kitty.load(html)
 
-    return $('a.module-poster-item.module-item').toArray().map(item => {
-      const id = $(item).attr('href') ?? ''
-      const title = $(item).attr('title') ?? ''
-      const cover = $(item).find('img.lazy.lazyload').attr('data-original') ?? ''
-      const remark = $(item).find('.module-item-note').text() ?? ''
-      return { id, title, cover, remark, playlist: [] }
+    return $('a.module-poster-item.module-item').toArray().map(el => {
+      const href = $(el).attr('href') ?? ''
+      const title = $(el).attr('title') ?? ''
+      const cover = $(el).find('img.lazy.lazyload').attr('data-original') ?? ''
+      const remark = $(el).find('.module-item-note').text().trim()
+      return { id: href, title, cover, remark, playlist: [] }
     })
   }
 
   async parseIframe(): Promise<string> {
-    const iframe = env.get('iframe')
-    return kitty.utils.getM3u8WithIframe(env)
+    const playPath = env.get('playPath')
+    if (!playPath) throw new Error('缺少 playPath 参数')
+
+    const url = `${env.baseUrl}${playPath}`
+    const html = await req(url)
+
+    const match = html.match(/"url":"(.*?)"/)
+    const m3u8 = match ? match[1].replace(/\\/g, '') : ''
+    return m3u8
   }
 }

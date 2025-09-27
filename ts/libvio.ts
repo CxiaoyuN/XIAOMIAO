@@ -30,14 +30,14 @@ export default class libvio implements Handle {
     const html = await req(url);
     const $ = kitty.load(html);
 
-    return $('.stui-vodlist__box').toArray().map<IMovie>(item => {
+    return $('ul.stui-vodlist li').toArray().map<IMovie>(item => {
       const a = $(item).find('a.stui-vodlist__thumb');
       return {
         id: a.attr('href') ?? '',
         title: a.attr('title') ?? '',
         cover: a.attr('data-original') ?? '',
         desc: '',
-        remark: a.find('.pic-text.text-right').text() ?? '',
+        remark: $(item).find('.pic-text.text-right').text().trim() ?? '',
         playlist: [],
       };
     });
@@ -82,7 +82,7 @@ export default class libvio implements Handle {
         title: a.attr('title') ?? '',
         cover: a.attr('data-original') ?? '',
         desc: '',
-        remark: a.find('.pic-text.text-right').text() ?? '',
+        remark: a.find('.pic-text.text-right').text().trim() ?? '',
         playlist: [],
       };
     });

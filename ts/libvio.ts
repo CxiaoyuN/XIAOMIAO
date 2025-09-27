@@ -28,12 +28,15 @@ export default class libvio implements Handle {
 
     return $('.stui-vodlist__box').toArray().map<IMovie>(item => {
       const a = $(item).find('a.stui-vodlist__thumb');
+      const title = a.attr('title') ?? '';
+      const remark = a.find('.pic-text.text-right').text().trim() ?? '';
+      const quality = title.match(/(1080P|720P|蓝光|HD|清晰)/)?.[1] ?? '';
       return {
         id: a.attr('href') ?? '',
-        title: a.attr('title') ?? '',
+        title,
         cover: a.attr('data-original') ?? '',
         desc: '',
-        remark: a.find('.pic-text.text-right').text() ?? '',
+        remark: quality || remark,
         playlist: [],
       };
     });
@@ -73,12 +76,15 @@ export default class libvio implements Handle {
 
     return $('.stui-vodlist__media li').toArray().map<IMovie>(item => {
       const a = $(item).find('.v-thumb.stui-vodlist__thumb');
+      const title = a.attr('title') ?? '';
+      const remark = $(item).find('.pic-text.text-right').text().trim() ?? '';
+      const quality = title.match(/(1080P|720P|蓝光|HD|清晰)/)?.[1] ?? '';
       return {
         id: a.attr('href') ?? '',
-        title: a.attr('title') ?? '',
+        title,
         cover: a.attr('data-original') ?? '',
         desc: '',
-        remark: a.find('.pic-text.text-right').text().trim() ?? '',
+        remark: quality || remark,
         playlist: [],
       };
     });
@@ -103,7 +109,6 @@ export default class libvio implements Handle {
 
     let url = player.url;
 
-    // 解码逻辑你可以自己重建，这里保留结构
     if (player.encrypt === 1) {
       url = decodeURIComponent(url);
     } else if (player.encrypt === 2) {
@@ -112,17 +117,15 @@ export default class libvio implements Handle {
       url = decodeURIComponent(utf8to16(base64decode(url)));
     }
 
-    // 如果是 mp4 地址，拼接 v2.php 接口
-    if (url.endsWith('.mp4')) {
+    // 拼接 v2.php 接口
+    if (!url.startsWith('http') || url.endsWith('.mp4')) {
       return `${env.baseUrl}/hd/play/v2.php?url=${encodeURIComponent(url)}&next=${iframe}&t=${player.sid || ''}`;
     }
 
-    // 如果是 m3u8 地址，直接返回
     if (url.endsWith('.m3u8')) {
       return url;
     }
 
-    // 兜底：尝试从页面脚本中提取 m3u8
     const m3u8Match = scriptText.match(/["'](https?:\/\/.*?\.m3u8.*?)["']/);
     if (m3u8Match) return m3u8Match[1];
 

@@ -1,4 +1,8 @@
+// import { kitty, req, createTestEnv } from 'utils'
+
 export default class libvio implements Handle {
+  private env = createTestEnv(this.getConfig().api);
+
   getConfig(): Iconfig {
     return {
       id: 'libvio',
@@ -20,9 +24,9 @@ export default class libvio implements Handle {
   }
 
   async getHome(): Promise<IMovie[]> {
-    const cate = env.get('category');
-    const page = env.get('page') || 1;
-    const url = `${env.baseUrl}/type/${cate}.html?page=${page}`;
+    const cate = this.env.get('category');
+    const page = this.env.get('page') || 1;
+    const url = `${this.env.baseUrl}/type/${cate}.html?page=${page}`;
     const html = await req(url);
     const $ = kitty.load(html);
 
@@ -40,8 +44,8 @@ export default class libvio implements Handle {
   }
 
   async getDetail(): Promise<IMovie> {
-    const id = env.get('movieId');
-    const url = `${env.baseUrl}${id}`;
+    const id = this.env.get('movieId');
+    const url = `${this.env.baseUrl}${id}`;
     const html = await req(url);
     const $ = kitty.load(html);
 
@@ -68,9 +72,9 @@ export default class libvio implements Handle {
   }
 
   async getSearch(): Promise<IMovie[]> {
-    const page = env.get('page') || '1';
-    const wd = env.get('keyword');
-    const url = `${env.baseUrl}/vodsearch/${wd}----------${page}---.html`;
+    const page = this.env.get('page') || '1';
+    const wd = this.env.get('keyword');
+    const url = `${this.env.baseUrl}/vodsearch/${wd}----------${page}---.html`;
     const html = await req(url);
     const $ = kitty.load(html);
 
@@ -88,8 +92,8 @@ export default class libvio implements Handle {
   }
 
   async parseIframe(): Promise<string> {
-    const iframe = env.get('iframe');
-    const playUrl = `${env.baseUrl}${iframe}`;
+    const iframe = this.env.get('iframe');
+    const playUrl = `${this.env.baseUrl}${iframe}`;
     const html = await req(playUrl);
     const $ = kitty.load(html);
 
@@ -97,16 +101,16 @@ export default class libvio implements Handle {
     if (playerScriptSrc) {
       const fullUrl = playerScriptSrc.startsWith('http')
         ? playerScriptSrc
-        : `${env.baseUrl}${playerScriptSrc.startsWith('/') ? '' : '/'}${playerScriptSrc}`;
+        : `${this.env.baseUrl}${playerScriptSrc.startsWith('/') ? '' : '/'}${playerScriptSrc}`;
       const js = await req(fullUrl);
-      const match = js.match(/["'](https?:\/\/.*?\.m3u8)["']/i);
+      const match = js.match(/["'](https?:\/\/[^"']+\.m3u8)["']/i);
       if (match) return match[1];
     }
 
     const inlineScript = $('script').toArray().find(s => $(s).text().includes('.m3u8'));
     if (inlineScript) {
       const text = $(inlineScript).text();
-      const match = text.match(/["'](https?:\/\/.*?\.m3u8)["']/i);
+      const match = text.match(/["'](https?:\/\/[^"']+\.m3u8)["']/i);
       if (match) return match[1];
     }
 

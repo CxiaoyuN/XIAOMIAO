@@ -111,7 +111,7 @@ const vods = <Iconfig[]>[
   },
   {
     id: "aiqiyiziyuan",
-    name: "爱奇艺资源",
+    name: "奇艺资源",
     api: "https://iqiyizyapi.com/api.php/provide/vod",
     nsfw: false,
     type: 0,
@@ -290,7 +290,7 @@ const vods = <Iconfig[]>[
 const nsfwVods = [
   {
     id: "Xxibaoziyuan",
-    name: "X细胞资源",
+    name: "细胞资源",
     api: "https://www.xxibaozyw.com/api.php/provide/vod",
     nsfw: true,
     type: 0,
@@ -320,7 +320,7 @@ const nsfwVods = [
   },
   {
     id: "danaiziziyuan",
-    name: "大奶子资源",
+    name: "奶子资源",
     api: "https://apidanaizi.com/api.php/provide/vod",
     nsfw: true,
     type: 0,
@@ -350,7 +350,7 @@ const nsfwVods = [
   },
   {
     id: "yinshuiji",
-    name: "淫水机",
+    name: "淫水资源",
     api: "https://www.xrbsp.com/api/json.php",
     nsfw: true,
     type: 0,
@@ -360,7 +360,7 @@ const nsfwVods = [
   },
   {
     id: "xiangnaier",
-    name: "香奶儿",
+    name: "香奶资源",
     api: "https://www.gdlsp.com/api/json.php",
     nsfw: true,
     type: 0,
@@ -380,7 +380,7 @@ const nsfwVods = [
   },
   {
     id: "laosebiziyuan",
-    name: "老色逼资源",
+    name: "色逼资源",
     api: "https://apilsbzy1.com/api.php/provide/vod/",
     nsfw: true,
     type: 0,
@@ -400,7 +400,7 @@ const nsfwVods = [
   },
   {
     id: "huangsecangkuziyuan",
-    name: "黄色仓库资源",
+    name: "仓库资源",
     api: "https://hsckzy888.com/api.php/provide/vod/at/xml/",
     nsfw: true,
     type: 0,
@@ -440,7 +440,7 @@ const nsfwVods = [
   },
   {
     id: "️baipiao",
-    name: "️白嫖",
+    name: "️白嫖资源",
     api: "https://www.kxgav.com/api/json.php",
     nsfw: true,
     type: 0,
@@ -450,7 +450,7 @@ const nsfwVods = [
   },
   {
     id: "meishaonvziyuan",
-    name: "美少女资源",
+    name: "少女资源",
     api: "https://www.msnii.com/api/xml.php",
     nsfw: true,
     type: 0,
@@ -510,7 +510,7 @@ const nsfwVods = [
   },
   {
     id: "shileyuan",
-    name: "湿乐园",
+    name: "湿乐资源",
     api: "https://xxavs.com/api.php/provide/vod/",
     nsfw: true,
     type: 0,
@@ -520,7 +520,7 @@ const nsfwVods = [
   },
   {
     id: "️lebo",
-    name: "️乐播",
+    name: "️乐播资源",
     api: "https://lbapi9.com/api.php/provide/vod/",
     nsfw: true,
     type: 0,
@@ -530,7 +530,7 @@ const nsfwVods = [
   },
   {
     id: "naixiangxiangziyuan",
-    name: "奶香香资源",
+    name: "奶香资源",
     api: "https://naixxzy.com/api.php/provide/vod/",
     nsfw: true,
     type: 0,
@@ -540,7 +540,7 @@ const nsfwVods = [
   },
   {
     id: "huangAVziyuan",
-    name: "黄AV资源",
+    name: "黄仓资源",
     api: "https://www.pgxdy.com/api/xml.php",
     nsfw: true,
     type: 0,
@@ -560,7 +560,7 @@ const nsfwVods = [
   },
   {
     id: "senanguoziyuan",
-    name: "色南国资源",
+    name: "南国资源",
     api: "https://api.sexnguon.com/api.php/provide/vod/",
     nsfw: true,
     type: 0,
@@ -580,7 +580,7 @@ const nsfwVods = [
   },
   {
     id: "souavziyuan",
-    name: "souav",
+    name: "黄搜资源",
     api: "https://api.souavzy.vip/api.php/provide/vod",
     nsfw: true,
     type: 0,
@@ -610,7 +610,7 @@ const nsfwVods = [
   },
   {
     id: "91md18+",
-    name: "91麻豆",
+    name: "九一麻豆",
     api: "http://91md.me/api.php/provide/vod",
     nsfw: true,
     type: 0,
@@ -630,7 +630,7 @@ const nsfwVods = [
   },
   {
     id: "xzybb1",
-    name: "幸资源站",
+    name: "幸运资源",
     api: "https://xzybb1.com/api.php/provide/vod",
     nsfw: true,
     type: 0,
@@ -639,18 +639,8 @@ const nsfwVods = [
     },
   },
   {
-    id: "siwazyw.tv",
-    name: "丝袜资源",
-    api: "https://www.siwazyw.tv/api.php/provide/vod",
-    nsfw: true,
-    type: 0,
-    extra: {
-      gfw: false,
-    },
-  },
-  {
     id: "api.bwzyz.com",
-    name: "百万资源站",
+    name: "百万资源",
     api: "https://api.bwzyz.com/api.php/provide/vod/at/json",
     nsfw: true,
     type: 0,

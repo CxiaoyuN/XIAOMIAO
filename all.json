@@ -729,43 +729,6 @@
     }
   },
   {
-    "id": "libvio2",
-    "name": "LIBVIO测试",
-    "api": "https://www.libvio.cc",
-    "nsfw": false,
-    "type": 1,
-    "extra": {
-      "js": {
-        "category": [
-          {
-            "text": "电影",
-            "id": "1"
-          },
-          {
-            "text": "剧集",
-            "id": "2"
-          },
-          {
-            "text": "动漫",
-            "id": "4"
-          },
-          {
-            "text": "韩剧",
-            "id": "15"
-          },
-          {
-            "text": "美剧",
-            "id": "16"
-          }
-        ],
-        "home": "const cate=env.get(\"category\");const page=env.get(\"page\")||1;const url=`${env.baseUrl}/type/${cate}.html?page=${page}`;const html=await req(url);const $=kitty.load(html);return $(\".stui-vodlist__box\").toArray().map(item=>{const a=$(item).find(\"a.stui-vodlist__thumb\");const title=a.attr(\"title\")??\"\";const remark=a.find(\".pic-text.text-right\").text().trim()??\"\";const quality=title.match(/(1080P|720P|蓝光|HD|清晰)/)?.[1]??\"\";return{id:a.attr(\"href\")??\"\",title,cover:a.attr(\"data-original\")??\"\",desc:\"\",remark:quality||remark,playlist:[]}})",
-        "detail": "const id=env.get(\"movieId\");const url=`${env.baseUrl}${id}`;const html=await req(url);const $=kitty.load(html);const a=$(\".stui-pannel-box .stui-vodlist__thumb.picture.v-thumb\");const title=a.attr(\"title\")??\"\";const cover=a.find(\"img\").attr(\"data-original\")??\"\";const desc=$(\".detail.col-pd\").text().trim()??\"\";const originalPageUrl=`${env.baseUrl}${id}`;const firstPlayPath=$(\".stui-content__playlist a\").first().attr(\"href\")??\"\";const playlist=[{title:\"\\u64AD\\u653E\\u9009\\u9879\",videos:[{text:\"\\uD83D\\uDD17 \\u539F\\u7F51\\u9875\\u64AD\\u653E\",url:originalPageUrl},{text:\"\\u25B6\\uFE0F MP4\\u76F4\\u94FE\\u64AD\\u653E\",url:firstPlayPath}]}];return{id,title,cover,desc,remark:\"\",playlist}",
-        "search": "const page=env.get(\"page\")||\"1\";const wd=env.get(\"keyword\");const url=`${env.baseUrl}/vodsearch/${wd}----------${page}---.html`;const html=await req(url);const $=kitty.load(html);return $(\".stui-vodlist__media li\").toArray().map(item=>{const a=$(item).find(\".v-thumb.stui-vodlist__thumb\");const title=a.attr(\"title\")??\"\";const remark=$(item).find(\".pic-text.text-right\").text().trim()??\"\";const quality=title.match(/(1080P|720P|蓝光|HD|清晰)/)?.[1]??\"\";return{id:a.attr(\"href\")??\"\",title,cover:a.attr(\"data-original\")??\"\",desc:\"\",remark:quality||remark,playlist:[]}})",
-        "parseIframe": "try{const result=await kitty.utils.getM3u8WithIframe(env);if(result&&typeof result===\"object\"&&result.url)return result}catch(e){console.log(\"\\u81EA\\u52A8\\u89E3\\u6790\\u5931\\u8D25\\uFF0C\\u5C1D\\u8BD5\\u624B\\u52A8\\u5904\\u7406\")}const iframe=env.get(\"iframe\");const playUrl=`${env.baseUrl}${iframe}`;const html=await req(playUrl);const $=kitty.load(html);const scriptText=$(\"script\").toArray().map(s=>$(s).text()).find(t=>t.includes(\"player_aaaa\"));if(!scriptText){return{type:\"iframe\",url:playUrl,headers:{Referer:env.baseUrl}}}const match=scriptText.match(/player_aaaa\\s*=\\s*(\\{[\\s\\S]*?\\});/);if(!match){return{type:\"iframe\",url:playUrl,headers:{Referer:env.baseUrl}}}let raw=match[1];raw=raw.replace(/([\\w]+):/g,\"\\\"$1\\\":\");raw=raw.replace(/'/g,\"\\\"\");const player=JSON.parse(raw);let url=player.url;if(player.encrypt===1){url=decodeURIComponent(url)}else if(player.encrypt===2){url=decodeURIComponent(base64decode(url))}else if(player.encrypt===3){url=decodeURIComponent(utf8to16(base64decode(url)))}if(url.endsWith(\".mp4\")||url.endsWith(\".m3u8\")){return{url,headers:{Referer:\"https://www.libvio.cc/\"}}}const vr2Url=`${env.baseUrl}/vid/plyr/vr2.php?url=${encodeURIComponent(url)}&next=${player.link_next}&id=${player.id}&nid=${player.nid}`;const vr2Html=await req(vr2Url);const videoMatch=vr2Html.match(/[\"'](https?:\\/\\/[^\"']+\\.(mp4|m3u8|flv|ts))[\"']/);if(videoMatch){return{url:videoMatch[1],headers:{Referer:\"https://www.libvio.cc/\"}}}return{type:\"iframe\",url:playUrl,headers:{Referer:env.baseUrl}}"
-      }
-    }
-  },
-  {
     "id": "duonaovod",
     "name": "多瑙影院",
     "api": "https://www.duonaovod.com",

@@ -4,7 +4,7 @@ export default class Yise6324 implements Handle {
   getConfig() {
     return <Iconfig>{
       id: 'yise6324',
-      name: "一色",
+      name: "一色资源",
       api: "https://yise42.xyz",
       nsfw: true,
       type: 1,

@@ -13,12 +13,12 @@ export default class JS999tv implements Handle {
   async getCategory() {
     return <ICategory[]>[
       { text: "电影", id: "20" },
-      { text: "连续剧", id: "21" },
-      { text: "综艺片", id: "22" },
-      { text: "伦理片", id: "23" },
-      { text: "动漫片", id: "24" },
-      { text: "短剧大片", id: "25" },
-      { text: "体育赛事", id: "26" },
+      { text: "剧集", id: "21" },
+      { text: "综艺", id: "22" },
+      { text: "伦理", id: "23" },
+      { text: "动漫", id: "24" },
+      { text: "短剧", id: "25" },
+      { text: "体育", id: "26" },
     ]
   }
   async getHome() {

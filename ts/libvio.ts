@@ -50,15 +50,12 @@ export default class libvio implements Handle {
     const cover = a.find('img').attr('data-original') ?? '';
     const desc = $('.detail.col-pd').text().trim() ?? '';
 
-    const tabs = $('.nav.nav-tabs li').toArray().map(tab => $(tab).text().trim());
-    const panes = $('.stui-panel_bd .tab-pane').toArray();
-
-    const playlist: IPlaylist[] = tabs.map((title, i) => {
-      const videos = $(panes[i]).find('a').toArray().map<IPlaylistVideo>(el => {
-        const href = $(el).attr('href') ?? '';
+    const playlist: IPlaylist[] = $('.stui-content__playlist').toArray().map<IPlaylist>((ul, i) => {
+      const title = $(ul).prev('h3').text().trim() || `线路${i + 1}`;
+      const videos = $(ul).find('a').toArray().map<IPlaylistVideo>(el => {
         return {
           text: $(el).text().trim(),
-          id: href,
+          id: $(el).attr('href') ?? '',
         };
       });
       return { title, videos };
@@ -81,15 +78,15 @@ export default class libvio implements Handle {
         title: a.attr('title') ?? '',
         cover: a.attr('data-original') ?? '',
         desc: '',
-        remark: a.find('.pic-text.text-right').text() ?? '',
+        remark: a.find('.pic-text.text-right').text().trim() ?? '',
         playlist: [],
       };
     });
   }
 
   async parseIframe(): Promise<string> {
-    const iframe = this.env.get('iframe');
-    const playUrl = `${this.env.baseUrl}${iframe}`;
+    const iframe = env.get('iframe');
+    const playUrl = `${env.baseUrl}${iframe}`;
     const html = await req(playUrl);
     const $ = kitty.load(html);
 
@@ -106,6 +103,7 @@ export default class libvio implements Handle {
 
     let url = player.url;
 
+    // 解码逻辑你可以自己重建，这里保留结构
     if (player.encrypt === 1) {
       url = decodeURIComponent(url);
     } else if (player.encrypt === 2) {
@@ -114,11 +112,25 @@ export default class libvio implements Handle {
       url = decodeURIComponent(utf8to16(base64decode(url)));
     }
 
-    return url.startsWith('http') ? url : `https://${url}`;
+    // 如果是 mp4 地址，拼接 v2.php 接口
+    if (url.endsWith('.mp4')) {
+      return `${env.baseUrl}/hd/play/v2.php?url=${encodeURIComponent(url)}&next=${iframe}&t=${player.sid || ''}`;
+    }
+
+    // 如果是 m3u8 地址，直接返回
+    if (url.endsWith('.m3u8')) {
+      return url;
+    }
+
+    // 兜底：尝试从页面脚本中提取 m3u8
+    const m3u8Match = scriptText.match(/["'](https?:\/\/.*?\.m3u8.*?)["']/);
+    if (m3u8Match) return m3u8Match[1];
+
+    return '';
   }
 }
 
-// 解码函数
+// 解码函数（保留结构）
 function base64decode(str: string): string {
   const chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/";
   let out = "", c1, c2, c3, c4, i = 0;

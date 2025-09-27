@@ -1,8 +1,8 @@
 export default class libvio implements Handle {
   getConfig(): Iconfig {
     return {
-      id: 'libvio2',
-      name: 'LIBVIO2',
+      id: 'libvio',
+      name: 'LIBVIO',
       api: 'https://www.libvio.cc',
       nsfw: false,
       type: 1,
@@ -58,7 +58,7 @@ export default class libvio implements Handle {
       const videos = $(ul).find('a').toArray().map<IPlaylistVideo>(el => {
         return {
           text: $(el).text().trim(),
-          id: $(el).attr('href') ?? '',
+          url: $(el).attr('href') ?? '', // 注意：这里是 iframe 路径，parseIframe 会处理
         };
       });
       return { title, videos };
@@ -104,10 +104,26 @@ export default class libvio implements Handle {
     const $ = kitty.load(html);
 
     const scriptText = $('script').toArray().map(s => $(s).text()).find(t => t.includes('player_aaaa'));
-    if (!scriptText) return '';
+    if (!scriptText) {
+      return {
+        type: 'iframe',
+        url: playUrl,
+        headers: {
+          Referer: env.baseUrl,
+        },
+      };
+    }
 
     const match = scriptText.match(/player_aaaa\s*=\s*(\{[\s\S]*?\});/);
-    if (!match) return '';
+    if (!match) {
+      return {
+        type: 'iframe',
+        url: playUrl,
+        headers: {
+          Referer: env.baseUrl,
+        },
+      };
+    }
 
     let raw = match[1];
     raw = raw.replace(/([\w]+):/g, '"$1":');
@@ -144,7 +160,13 @@ export default class libvio implements Handle {
       };
     }
 
-    return '';
+    return {
+      type: 'iframe',
+      url: playUrl,
+      headers: {
+        Referer: env.baseUrl,
+      },
+    };
   }
 }
 

@@ -738,11 +738,11 @@
       "js": {
         "category": [
           {
-            "text": "最新电影",
+            "text": "电影",
             "id": "zuixindianying"
           },
           {
-            "text": "国产剧",
+            "text": "国剧",
             "id": "guochanju"
           },
           {

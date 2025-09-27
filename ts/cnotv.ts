@@ -13,10 +13,10 @@ export default class cnotv implements Handle {
   async getCategory() {
     return [
       { text: '电影', id: "1" },
-      { text: '电视剧', id: "2" },
+      { text: '电视', id: "2" },
       { text: '综艺', id: "3" },
       { text: '动漫', id: "4" },
-      { text: '体育记录', id: "5" },
+      { text: '体育', id: "5" },
       { text: '短剧', id: "51" },
     ]
   }

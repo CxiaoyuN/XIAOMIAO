@@ -11,10 +11,10 @@ export default class YHDM668 implements Handle {
 
   async getCategory(): Promise<ICategory[]> {
     return [
-      { id: '4', text: 'TV动漫' },
-      { id: '20', text: '剧场版动漫' },
+      { id: '4', text: '动漫' },
+      { id: '20', text: '剧场' },
       { id: '1', text: '电影' },
-      { id: '2', text: '连续剧' },
+      { id: '2', text: '电视' },
       { id: '3', text: '短剧' },
     ]
   }

@@ -13,11 +13,11 @@ export default class mxvod implements Handle {
   async getCategory() {
     return [
       { text: '电影', id: "dianyin" },
-      { text: '电视剧', id: "dianshiju" },
+      { text: '电视', id: "dianshiju" },
       { text: '综艺', id: "zongyi" },
       { text: '动漫', id: "dongman" },
       { text: '短剧', id: "duanju" },
-      { text: '电影解说', id: "dianyingjieshuo" },
+      { text: '解说', id: "dianyingjieshuo" },
       { text: '直播', id: "live" },
       { text: '体育', id: "tiyu" },
     ]

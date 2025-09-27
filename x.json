@@ -86,43 +86,39 @@
     }
   },
   {
-    "id": "cz4k",
-    "name": "厂长资源",
-    "api": "https://www.cz4k.com",
-    "type": 1,
+    "id": "libvio2",
+    "name": "LIBVIO2",
+    "api": "https://www.libvio.cc",
     "nsfw": false,
+    "type": 1,
     "extra": {
       "js": {
         "category": [
           {
-            "text": "最新电影",
-            "id": "zuixindianying"
+            "text": "电影",
+            "id": "1"
           },
           {
-            "text": "剧场版",
-            "id": "dongmanjuchangban"
+            "text": "剧集",
+            "id": "2"
           },
           {
-            "text": "国产剧",
-            "id": "gcj"
-          },
-          {
-            "text": "美剧",
-            "id": "meijutt"
+            "text": "动漫",
+            "id": "4"
           },
           {
             "text": "韩剧",
-            "id": "hanjutv"
+            "id": "15"
           },
           {
-            "text": "番剧",
-            "id": "fanju"
+            "text": "美剧",
+            "id": "16"
           }
         ],
-        "home": "const cate=env.get(\"category\")||\"zuixindianying\";const page=env.get(\"page\")||1;const url=`${env.baseUrl}/${cate}/page/${page}`;const html=await req(url);const $=kitty.load(html);return $(\"ul > li\").toArray().map(item=>{const el=$(item);const id=el.find(\"a\").attr(\"href\")??\"\";const title=el.find(\"h3.dytit a\").text().trim();let cover=el.find(\"img\").attr(\"data-original\")??\"\";if(cover.startsWith(\"//\"))cover=\"https:\"+cover;const desc=el.find(\"p.inzhuy\").text().replace(\"\\u4E3B\\u6F14\\uFF1A\",\"\").trim();const remark=el.find(\".hdinfo span\").text().trim();return{id,title,cover,desc,remark,playlist:[]}})",
-        "detail": "const id=env.get(\"movieId\");const url=`${env.baseUrl}${id}`;const html=await req(url);const $=kitty.load(html);const title=$(\".jujiinfo h3\").text().trim();const cover=$(\"meta[property=\\\"og:image\\\"]\").attr(\"content\")??\"\";const desc=$(\".ttmtiart\").text().replace(/\\s+/g,\" \").trim();const remark=$(\".ptit span\").text().trim();const iframe=$(\"iframe.viframe\").attr(\"src\")??\"\";const playlist=[{title:\"\\u9009\\u96C6\",videos:[{text:\"\\u64AD\\u653E\",url:iframe}]}];return{id,title,cover,desc,remark,playlist}",
-        "search": "const keyword=env.get(\"keyword\");const page=env.get(\"page\")||1;const url=`${env.baseUrl}/xsss1O1?q=${encodeURIComponent(keyword)}&page=${page}`;const html=await req(url);const $=kitty.load(html);return $(\"ul > li\").toArray().map(item=>{const el=$(item);const id=el.find(\"a\").attr(\"href\")??\"\";const title=el.find(\"h3.dytit a\").text().trim();let cover=el.find(\"img\").attr(\"data-original\")??\"\";if(cover.startsWith(\"//\"))cover=\"https:\"+cover;const desc=el.find(\"p.inzhuy\").text().replace(\"\\u4E3B\\u6F14\\uFF1A\",\"\").trim();const remark=el.find(\".hdinfo span\").text().trim();return{id,title,cover,desc,remark,playlist:[]}})",
-        "parseIframe": "try{const result=await kitty.utils.getM3u8WithIframe(env);if(result&&result.url)return result}catch(e){console.log(\"\\u81EA\\u52A8\\u89E3\\u6790\\u5931\\u8D25\\uFF0C\\u5C1D\\u8BD5\\u624B\\u52A8\\u5904\\u7406\")}const iframeUrl=env.get(\"iframe\");const html=await req(iframeUrl,{headers:{Referer:env.baseUrl}});const m3u8Match=html.match(/(https?:\\/\\/[^\"']+\\.m3u8[^\"']*)/);if(m3u8Match){return{type:\"hls\",url:m3u8Match[1]}}return{type:\"iframe\",url:iframeUrl,headers:{Referer:env.baseUrl}}"
+        "home": "const cate=env.get(\"category\");const page=env.get(\"page\")||1;const url=`${env.baseUrl}/type/${cate}.html?page=${page}`;const html=await req(url);const $=kitty.load(html);return $(\".stui-vodlist__box\").toArray().map(item=>{const a=$(item).find(\"a.stui-vodlist__thumb\");const title=a.attr(\"title\")??\"\";const remark=a.find(\".pic-text.text-right\").text().trim()??\"\";const quality=title.match(/(1080P|720P|蓝光|HD|清晰)/)?.[1]??\"\";return{id:a.attr(\"href\")??\"\",title,cover:a.attr(\"data-original\")??\"\",desc:\"\",remark:quality||remark,playlist:[]}})",
+        "detail": "const id=env.get(\"movieId\");const url=`${env.baseUrl}${id}`;const html=await req(url);const $=kitty.load(html);const a=$(\".stui-pannel-box .stui-vodlist__thumb.picture.v-thumb\");const title=a.attr(\"title\")??\"\";const cover=a.find(\"img\").attr(\"data-original\")??\"\";const desc=$(\".detail.col-pd\").text().trim()??\"\";const playlist=$(\".stui-content__playlist\").toArray().map((ul,i)=>{const title=$(ul).prev(\"h3\").text().trim()||`线路${i+1}`;const videos=$(ul).find(\"a\").toArray().map(el=>{return{text:$(el).text().trim(),id:$(el).attr(\"href\")??\"\"}});return{title,videos}});return{id,title,cover,desc,remark:\"\",playlist}",
+        "search": "const page=env.get(\"page\")||\"1\";const wd=env.get(\"keyword\");const url=`${env.baseUrl}/vodsearch/${wd}----------${page}---.html`;const html=await req(url);const $=kitty.load(html);return $(\".stui-vodlist__media li\").toArray().map(item=>{const a=$(item).find(\".v-thumb.stui-vodlist__thumb\");const title=a.attr(\"title\")??\"\";const remark=$(item).find(\".pic-text.text-right\").text().trim()??\"\";const quality=title.match(/(1080P|720P|蓝光|HD|清晰)/)?.[1]??\"\";return{id:a.attr(\"href\")??\"\",title,cover:a.attr(\"data-original\")??\"\",desc:\"\",remark:quality||remark,playlist:[]}})",
+        "parseIframe": "try{const result=await kitty.utils.getM3u8WithIframe(env);if(result&&typeof result===\"object\"&&result.url)return result}catch(e){console.log(\"\\u81EA\\u52A8\\u89E3\\u6790\\u5931\\u8D25\\uFF0C\\u5C1D\\u8BD5\\u624B\\u52A8\\u5904\\u7406\")}const iframe=env.get(\"iframe\");const playUrl=`${env.baseUrl}${iframe}`;const html=await req(playUrl);const $=kitty.load(html);const scriptText=$(\"script\").toArray().map(s=>$(s).text()).find(t=>t.includes(\"player_aaaa\"));if(!scriptText)return\"\";const match=scriptText.match(/player_aaaa\\s*=\\s*(\\{[\\s\\S]*?\\});/);if(!match)return\"\";let raw=match[1];raw=raw.replace(/([\\w]+):/g,\"\\\"$1\\\":\");raw=raw.replace(/'/g,\"\\\"\");const player=JSON.parse(raw);let url=player.url;if(player.encrypt===1){url=decodeURIComponent(url)}else if(player.encrypt===2){url=decodeURIComponent(base64decode(url))}else if(player.encrypt===3){url=decodeURIComponent(utf8to16(base64decode(url)))}if(url.endsWith(\".mp4\")||url.endsWith(\".m3u8\")){return{url,headers:{Referer:\"https://www.libvio.cc/\"}}}const vr2Url=`${env.baseUrl}/vid/plyr/vr2.php?url=${encodeURIComponent(url)}&next=${player.link_next}&id=${player.id}&nid=${player.nid}`;const vr2Html=await req(vr2Url);const videoMatch=vr2Html.match(/[\"'](https?:\\/\\/[^\"']+\\.(mp4|m3u8|flv|ts))[\"']/);if(videoMatch){return{url:videoMatch[1],headers:{Referer:\"https://www.libvio.cc/\"}}}return\"\""
       }
     }
   },

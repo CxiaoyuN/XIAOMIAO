@@ -11,8 +11,8 @@ export default class Cz4kSource implements Handle {
 
   async getCategory() {
     return [
-      { text: '最新电影', id: 'zuixindianying' },
-      { text: '国产剧', id: 'guochanju' },
+      { text: '电影', id: 'zuixindianying' },
+      { text: '国剧', id: 'guochanju' },
       { text: '美剧', id: 'meiju' },
       { text: '韩剧', id: 'hanju' },
     ];

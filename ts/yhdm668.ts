@@ -11,10 +11,10 @@ export default class YHDM668 implements Handle {
 
   async getCategory(): Promise<ICategory[]> {
     return [
-      { id: '4', text: '动漫' },
-      { id: '20', text: '剧场' },
+      { id: '4', text: 'TV动漫' },
+      { id: '20', text: '剧场版动漫' },
       { id: '1', text: '电影' },
-      { id: '2', text: '电视' },
+      { id: '2', text: '连续剧' },
       { id: '3', text: '短剧' },
     ]
   }
@@ -26,12 +26,12 @@ export default class YHDM668 implements Handle {
     const html = await req(url)
     const $ = kitty.load(html)
 
-    return $('a.module-poster-item.module-item').toArray().map(el => {
-      const href = $(el).attr('href') ?? ''
-      const title = $(el).attr('title') ?? ''
-      const cover = $(el).find('img.lazy.lazyload').attr('data-original') ?? ''
-      const remark = $(el).find('.module-item-note').text().trim()
-      return { id: href, title, cover, remark, playlist: [] }
+    return $('a.module-poster-item.module-item').toArray().map(item => {
+      const id = $(item).attr('href') ?? ''
+      const title = $(item).attr('title') ?? ''
+      const cover = $(item).find('img.lazy.lazyload').attr('data-original') ?? ''
+      const remark = $(item).find('.module-item-note').text().trim()
+      return { id, title, cover, remark, playlist: [] }
     })
   }
 
@@ -72,12 +72,12 @@ export default class YHDM668 implements Handle {
     const html = await req(url)
     const $ = kitty.load(html)
 
-    return $('a.module-poster-item.module-item').toArray().map(el => {
-      const href = $(el).attr('href') ?? ''
-      const title = $(el).attr('title') ?? ''
-      const cover = $(el).find('img.lazy.lazyload').attr('data-original') ?? ''
-      const remark = $(el).find('.module-item-note').text().trim()
-      return { id: href, title, cover, remark, playlist: [] }
+    return $('a.module-poster-item.module-item').toArray().map(item => {
+      const id = $(item).attr('href') ?? ''
+      const title = $(item).attr('title') ?? ''
+      const cover = $(item).find('img.lazy.lazyload').attr('data-original') ?? ''
+      const remark = $(item).find('.module-item-note').text().trim()
+      return { id, title, cover, remark, playlist: [] }
     })
   }
 
@@ -87,7 +87,6 @@ export default class YHDM668 implements Handle {
 
     const url = `${env.baseUrl}${playPath}`
     const html = await req(url)
-
     const match = html.match(/"url":"(.*?)"/)
     const m3u8 = match ? match[1].replace(/\\/g, '') : ''
     return m3u8

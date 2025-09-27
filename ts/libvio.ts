@@ -1,8 +1,8 @@
 export default class libvio implements Handle {
   getConfig(): Iconfig {
     return {
-      id: 'libvio',
-      name: 'LIBVIO',
+      id: 'libvio2',
+      name: 'LIBVIO测试',
       api: 'https://www.libvio.cc',
       nsfw: false,
       type: 1,
@@ -53,16 +53,22 @@ export default class libvio implements Handle {
     const cover = a.find('img').attr('data-original') ?? '';
     const desc = $('.detail.col-pd').text().trim() ?? '';
 
-    const playlist: IPlaylist[] = $('.stui-content__playlist').toArray().map<IPlaylist>((ul, i) => {
-      const title = $(ul).prev('h3').text().trim() || `线路${i + 1}`;
-      const videos = $(ul).find('a').toArray().map<IPlaylistVideo>(el => {
-        return {
-          text: $(el).text().trim(),
-          id: $(el).attr('href') ?? '',
-        };
-      });
-      return { title, videos };
-    });
+    const originalPageUrl = `${env.baseUrl}${id}`;
+    const firstPlayPath = $('.stui-content__playlist a').first().attr('href') ?? '';
+
+    const playlist: IPlaylist[] = [{
+      title: '播放选项',
+      videos: [
+        {
+          text: '🔗 原网页播放',
+          url: originalPageUrl,
+        },
+        {
+          text: '▶️ MP4直链播放',
+          url: firstPlayPath,
+        },
+      ],
+    }];
 
     return { id, title, cover, desc, remark: '', playlist };
   }
@@ -91,24 +97,46 @@ export default class libvio implements Handle {
   }
 
   async parseIframe(): Promise<string | IPlaySource> {
+    try {
+      const result = await kitty.utils.getM3u8WithIframe(env);
+      if (result && typeof result === 'object' && result.url) return result;
+    } catch (e) {
+      console.log('自动解析失败，尝试手动处理');
+    }
+
     const iframe = env.get('iframe');
     const playUrl = `${env.baseUrl}${iframe}`;
     const html = await req(playUrl);
     const $ = kitty.load(html);
 
     const scriptText = $('script').toArray().map(s => $(s).text()).find(t => t.includes('player_aaaa'));
-    if (!scriptText) return '';
+    if (!scriptText) {
+      return {
+        type: 'iframe',
+        url: playUrl,
+        headers: {
+          Referer: env.baseUrl,
+        },
+      };
+    }
 
     const match = scriptText.match(/player_aaaa\s*=\s*(\{[\s\S]*?\});/);
-    if (!match) return '';
+    if (!match) {
+      return {
+        type: 'iframe',
+        url: playUrl,
+        headers: {
+          Referer: env.baseUrl,
+        },
+      };
+    }
 
     let raw = match[1];
-    raw = raw.replace(/([\w]+):/g, '"$1":'); // 修复无引号的 key
-    raw = raw.replace(/'/g, '"'); // 单引号转双引号
+    raw = raw.replace(/([\w]+):/g, '"$1":');
+    raw = raw.replace(/'/g, '"');
     const player = JSON.parse(raw);
 
     let url = player.url;
-
     if (player.encrypt === 1) {
       url = decodeURIComponent(url);
     } else if (player.encrypt === 2) {
@@ -117,7 +145,6 @@ export default class libvio implements Handle {
       url = decodeURIComponent(utf8to16(base64decode(url)));
     }
 
-    // 如果是 mp4 或 m3u8，返回带 Referer 的对象
     if (url.endsWith('.mp4') || url.endsWith('.m3u8')) {
       return {
         url,
@@ -127,10 +154,9 @@ export default class libvio implements Handle {
       };
     }
 
-    // 如果是中转路径，访问 vr2.php 页面提取真实地址
     const vr2Url = `${env.baseUrl}/vid/plyr/vr2.php?url=${encodeURIComponent(url)}&next=${player.link_next}&id=${player.id}&nid=${player.nid}`;
     const vr2Html = await req(vr2Url);
-    const videoMatch = vr2Html.match(/["'](https?:\/\/[^"']+\.(mp4|m3u8))["']/);
+    const videoMatch = vr2Html.match(/["'](https?:\/\/[^"']+\.(mp4|m3u8|flv|ts))["']/);
     if (videoMatch) {
       return {
         url: videoMatch[1],
@@ -140,7 +166,13 @@ export default class libvio implements Handle {
       };
     }
 
-    return '';
+    return {
+      type: 'iframe',
+      url: playUrl,
+      headers: {
+        Referer: env.baseUrl,
+      },
+    };
   }
 }
 

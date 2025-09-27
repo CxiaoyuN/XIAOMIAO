@@ -522,36 +522,44 @@
     "id": "yhdm668",
     "name": "樱花动漫",
     "api": "https://www.yhdm668.com",
-    "type": 1,
     "nsfw": false,
+    "type": 1,
     "extra": {
       "js": {
         "category": [
           {
-            "id": "4",
-            "text": "TV动漫"
+            "text": "热门",
+            "id": "/index.php/label/hot.html"
           },
           {
-            "id": "20",
-            "text": "剧场版动漫"
+            "text": "今日",
+            "id": "/index.php/label/new.html"
           },
           {
-            "id": "1",
-            "text": "电影"
+            "text": "周更",
+            "id": "/index.php/label/week.html"
           },
           {
-            "id": "2",
-            "text": "连续剧"
+            "text": "最近",
+            "id": "/index.php/vod/show/id/4.html"
           },
           {
-            "id": "3",
-            "text": "短剧"
+            "text": "电影",
+            "id": "/index.php/vod/type/id/20.html"
+          },
+          {
+            "text": "连载",
+            "id": "/index.php/vod/type/id/4.html"
+          },
+          {
+            "text": "完结",
+            "id": "/index.php/vod/type/id/21.html"
           }
         ],
-        "home": "const cate=env.get(\"category\",\"4\");const page=env.get(\"page\",\"1\");const url=`${env.baseUrl}/index.php/vod/type/id/${cate}/page/${page}.html`;const html=await req(url);const $=kitty.load(html);return $(\"a.module-poster-item.module-item\").toArray().map(item=>{const id=$(item).attr(\"href\")??\"\";const title=$(item).attr(\"title\")??\"\";const cover=$(item).find(\"img.lazy.lazyload\").attr(\"data-original\")??\"\";const remark=$(item).find(\".module-item-note\").text().trim();return{id,title,cover,remark,playlist:[]}})",
-        "detail": "const detailPath=env.get(\"detailPath\");if(!detailPath)throw new Error(\"\\u7F3A\\u5C11 detailPath \\u53C2\\u6570\");const url=`${env.baseUrl}${detailPath}`;const html=await req(url);const $=kitty.load(html);const title=$(\"h1\").text().trim();const cover=$(\"img.lazy.lazyload\").attr(\"data-original\")??\"\";const desc=$(\".module-info-introduction-content\").text().trim();const playlist=[];$(\".module-play-list\").each((i,el)=>{const lineTitle=$(el).prev(\".module-tab-item\").text().trim()||`线路${i+1}`;const videos=[];$(el).find(\"a\").each((_,a)=>{const text=$(a).text().trim();const href=$(a).attr(\"href\")??\"\";videos.push({text,url:href})});playlist.push({title:lineTitle,videos})});return{id:detailPath,title,cover,desc,remark:\"\",playlist}",
-        "search": "const keyword=env.get(\"keyword\");const page=env.get(\"page\",\"1\");const url=`${env.baseUrl}/index.php/vod/search/page/${page}/wd/${encodeURIComponent(keyword)}.html`;const html=await req(url);const $=kitty.load(html);return $(\"a.module-poster-item.module-item\").toArray().map(item=>{const id=$(item).attr(\"href\")??\"\";const title=$(item).attr(\"title\")??\"\";const cover=$(item).find(\"img.lazy.lazyload\").attr(\"data-original\")??\"\";const remark=$(item).find(\".module-item-note\").text().trim();return{id,title,cover,remark,playlist:[]}})",
-        "parseIframe": "const playPath=env.get(\"playPath\");if(!playPath)throw new Error(\"\\u7F3A\\u5C11 playPath \\u53C2\\u6570\");const url=`${env.baseUrl}${playPath}`;const html=await req(url);const match=html.match(/\"url\":\"(.*?)\"/);const m3u8=match?match[1].replace(/\\\\/g,\"\"):\"\";return m3u8"
+        "home": "const cate=this.env.get(\"category\");const page=this.env.get(\"page\")||1;const hasQuery=cate.includes(\"?\")||cate.includes(\"&\");const url=`${this.env.baseUrl}${cate}${hasQuery?\"&\":\"?\"}page=${page}`;try{const html=await req(url);const $=kitty.load(html);return $(\".module-items .module-item\").toArray().map(item=>{const a=$(item).find(\"a\");return{id:a.attr(\"href\")??\"\",title:a.attr(\"title\")||a.find(\".module-poster-item-title\").text().trim()||\"\",cover:a.find(\"img\").attr(\"data-original\")||a.find(\"img\").attr(\"src\")||\"\",remark:$(item).find(\".module-item-note\").text().trim()||\"\"}})}catch(error){console.error(\"\\u83B7\\u53D6\\u9996\\u9875\\u5185\\u5BB9\\u5931\\u8D25:\",error);return[]}",
+        "detail": "const id=this.env.get(\"movieId\");if(!id){throw new Error(\"\\u7535\\u5F71ID\\u4E0D\\u5B58\\u5728\")}try{const url=`${this.env.baseUrl}${id}`;const html=await req(url);const $=kitty.load(html);const title=$(\".module-info-heading h1\").text().trim()||$(\"title\").text().trim()||\"\";const cover=$(\".module-info-poster img\").attr(\"data-original\")||$(\".module-info-poster img\").attr(\"src\")||\"\";const desc=$(\".module-info-introduction-content\").text().trim()||\"\";const tabs=$(\".module-tab-items-box .module-tab-item\").toArray().map(item=>$(item).text().trim());const _videos=$(\".module-play-list\").toArray().map(item=>$(item).find(\"a\").toArray().map(a=>({id:$(a).attr(\"href\")??\"\",text:$(a).text().trim()||\"\"})));const playlist=tabs.map((tabTitle,index)=>({title:tabTitle,videos:_videos[index]||[]}));return{id,title,cover,desc,playlist}}catch(error){console.error(\"\\u83B7\\u53D6\\u8BE6\\u60C5\\u5931\\u8D25:\",error);return{id,title:\"\",cover:\"\",desc:\"\",playlist:[]}}",
+        "search": "const keyword=this.env.get(\"keyword\");const page=this.env.get(\"page\")||1;if(!keyword){throw new Error(\"\\u641C\\u7D22\\u5173\\u952E\\u8BCD\\u4E0D\\u5B58\\u5728\")}try{const url=`${this.env.baseUrl}/index.php/vod/search/page/${page}/wd/${encodeURIComponent(keyword)}.html`;const html=await req(url);const $=kitty.load(html);return $(\".module-items .module-search-item\").toArray().map(item=>{const a=$(item).find(\"a\");return{id:a.attr(\"href\")??\"\",cover:a.find(\"img\").attr(\"data-original\")||a.find(\"img\").attr(\"src\")||\"\",title:a.attr(\"title\")||a.text().trim()||\"\",remark:$(item).find(\".video-remarks\").text().trim()||\"\"}})}catch(error){console.error(\"\\u641C\\u7D22\\u5931\\u8D25:\",error);return[]}",
+        "parseIframe": "const iframePath=this.env.get(\"iframe\");if(!iframePath){throw new Error(\"\\u64AD\\u653E\\u5730\\u5740\\u4E0D\\u5B58\\u5728\")}try{const url=`${this.env.baseUrl}${iframePath}`;const html=await req(url);const $=kitty.load(html);const script=$(\"script\").toArray().find(item=>{const text=$(item).text().trim();return text.includes(\"m3u8\")||text.includes(\"player_config\")});if(!script){throw new Error(\"\\u672A\\u627E\\u5230\\u64AD\\u653E\\u914D\\u7F6E\\u811A\\u672C\")}const scriptContent=$(script).text().trim();const m3u8Match=scriptContent.match(/url\\s*[:=]\\s*[\"'](.*?\\.m3u8)[\"']/i);if(m3u8Match&&m3u8Match[1]){let url=m3u8Match[1];if(url.includes(\"%\")||url.length>100){url=this.customUnescape(url);if(scriptContent.includes(\"base64\")){url=this.base64Decode(url)}}if(url.startsWith(\"//\")){url=`https:${url}`}else if(!url.startsWith(\"http\")){url=`${this.env.baseUrl}${url}`}return url}throw new Error(\"\\u672A\\u627E\\u5230\\u6709\\u6548\\u7684m3u8\\u64AD\\u653E\\u5730\\u5740\")}catch(error){console.error(\"\\u89E3\\u6790\\u64AD\\u653E\\u5730\\u5740\\u5931\\u8D25:\",error);return\"\"}"
       }
     }
   },

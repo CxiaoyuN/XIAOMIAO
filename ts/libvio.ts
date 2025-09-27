@@ -54,15 +54,12 @@ export default class libvio implements Handle {
     const cover = a.find('img').attr('data-original') ?? '';
     const desc = $('.detail.col-pd').text().trim() ?? '';
 
-    const tabs = $('.nav.nav-tabs li').toArray().map(tab => $(tab).text().trim());
-    const panes = $('.stui-panel_bd .tab-pane').toArray();
-
-    const playlist: IPlaylist[] = tabs.map((title, i) => {
-      const videos = $(panes[i]).find('a').toArray().map<IPlaylistVideo>(el => {
-        const href = $(el).attr('href') ?? '';
+    const playlist: IPlaylist[] = $('.stui-content__playlist').toArray().map<IPlaylist>((ul, i) => {
+      const title = $(ul).prev('h3').text().trim() || `线路${i + 1}`;
+      const videos = $(ul).find('a').toArray().map<IPlaylistVideo>(el => {
         return {
           text: $(el).text().trim(),
-          id: href,
+          id: $(el).attr('href') ?? '',
         };
       });
       return { title, videos };

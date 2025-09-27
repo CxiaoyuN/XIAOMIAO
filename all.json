@@ -1179,7 +1179,7 @@
   },
   {
     "id": "qnys-zbkys",
-    "name": "真不卡影院",
+    "name": "不卡影院",
     "api": "https://m.dgytlt.com",
     "nsfw": false,
     "type": 1,
@@ -1191,7 +1191,7 @@
             "id": "1"
           },
           {
-            "text": "电视剧",
+            "text": "电视",
             "id": "2"
           },
           {

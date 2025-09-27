@@ -1,8 +1,4 @@
-// import { kitty, req, createTestEnv } from 'utils'
-
 export default class libvio implements Handle {
-  private env = createTestEnv(this.getConfig().api);
-
   getConfig(): Iconfig {
     return {
       id: 'libvio',
@@ -24,28 +20,28 @@ export default class libvio implements Handle {
   }
 
   async getHome(): Promise<IMovie[]> {
-    const cate = this.env.get('category');
-    const page = this.env.get('page') || 1;
-    const url = `${this.env.baseUrl}/type/${cate}.html?page=${page}`;
+    const cate = env.get('category');
+    const page = env.get('page') || 1;
+    const url = `${env.baseUrl}/type/${cate}.html?page=${page}`;
     const html = await req(url);
     const $ = kitty.load(html);
 
-    return $('ul.stui-vodlist li').toArray().map<IMovie>(item => {
+    return $('.stui-vodlist__box').toArray().map<IMovie>(item => {
       const a = $(item).find('a.stui-vodlist__thumb');
       return {
         id: a.attr('href') ?? '',
         title: a.attr('title') ?? '',
         cover: a.attr('data-original') ?? '',
         desc: '',
-        remark: $(item).find('.pic-text.text-right').text().trim() ?? '',
+        remark: a.find('.pic-text.text-right').text() ?? '',
         playlist: [],
       };
     });
   }
 
   async getDetail(): Promise<IMovie> {
-    const id = this.env.get('movieId');
-    const url = `${this.env.baseUrl}${id}`;
+    const id = env.get('movieId');
+    const url = `${env.baseUrl}${id}`;
     const html = await req(url);
     const $ = kitty.load(html);
 
@@ -54,12 +50,15 @@ export default class libvio implements Handle {
     const cover = a.find('img').attr('data-original') ?? '';
     const desc = $('.detail.col-pd').text().trim() ?? '';
 
-    const playlist: IPlaylist[] = $('.stui-content__playlist').toArray().map<IPlaylist>((ul, i) => {
-      const title = $(ul).prev('h3').text().trim() || `线路${i + 1}`;
-      const videos = $(ul).find('a').toArray().map<IPlaylistVideo>(el => {
+    const tabs = $('.nav.nav-tabs li').toArray().map(tab => $(tab).text().trim());
+    const panes = $('.stui-panel_bd .tab-pane').toArray();
+
+    const playlist: IPlaylist[] = tabs.map((title, i) => {
+      const videos = $(panes[i]).find('a').toArray().map<IPlaylistVideo>(el => {
+        const href = $(el).attr('href') ?? '';
         return {
           text: $(el).text().trim(),
-          id: $(el).attr('href') ?? '',
+          id: href,
         };
       });
       return { title, videos };
@@ -69,9 +68,9 @@ export default class libvio implements Handle {
   }
 
   async getSearch(): Promise<IMovie[]> {
-    const page = this.env.get('page') || '1';
-    const wd = this.env.get('keyword');
-    const url = `${this.env.baseUrl}/vodsearch/${wd}----------${page}---.html`;
+    const page = env.get('page') || '1';
+    const wd = env.get('keyword');
+    const url = `${env.baseUrl}/vodsearch/${wd}----------${page}---.html`;
     const html = await req(url);
     const $ = kitty.load(html);
 
@@ -82,7 +81,7 @@ export default class libvio implements Handle {
         title: a.attr('title') ?? '',
         cover: a.attr('data-original') ?? '',
         desc: '',
-        remark: a.find('.pic-text.text-right').text().trim() ?? '',
+        remark: a.find('.pic-text.text-right').text() ?? '',
         playlist: [],
       };
     });

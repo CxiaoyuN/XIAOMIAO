@@ -14,22 +14,15 @@ export default class yhdm668 implements Handle {
   }
 
   async getCategory() {
-    try {
-      const html = await req(`${this.env.baseUrl}/`);
-      const $ = kitty.load(html);
-
-      return $('.navbar-item').toArray().map(item => {
-        const a = $(item).find('a');
-        return <ICategory>{
-          text: a.find('span').text().trim(),
-          id: a.attr('href') ?? '',
-          cover: a.find('img').attr('data-original') || ''
-        };
-      }).filter(c => c.id?.includes('/index.php/vod/type/'));
-    } catch (error) {
-      console.error('获取分类失败:', error);
-      return [];
-    }
+    return <ICategory[]>[
+      { text: '热门', id: '/index.php/label/hot.html' },
+      { text: '今日', id: '/index.php/label/new.html' },
+      { text: '周更', id: '/index.php/label/week.html' },
+      { text: '最近', id: '/index.php/vod/show/id/4.html' },
+      { text: '电影', id: '/index.php/vod/type/id/20.html' },
+      { text: '连载', id: '/index.php/vod/type/id/4.html' },
+      { text: '完结', id: '/index.php/vod/type/id/21.html' },
+    ];
   }
 
   async getHome() {
@@ -42,13 +35,13 @@ export default class yhdm668 implements Handle {
       const html = await req(url);
       const $ = kitty.load(html);
 
-      return $('.module-poster-item.module-item').toArray().map(item => {
-        const a = $(item);
+      return $('.module-items .module-item').toArray().map(item => {
+        const a = $(item).find('a');
         return <IMovie>{
           id: a.attr('href') ?? '',
-          title: a.attr('title') || a.find('.module-poster-item-title').text().trim(),
+          title: a.attr('title') || a.find('.module-poster-item-title').text().trim() || '',
           cover: a.find('img').attr('data-original') || a.find('img').attr('src') || '',
-          remark: a.find('.module-item-note').text().trim() || ''
+          remark: $(item).find('.module-item-note').text().trim() || ''
         };
       });
     } catch (error) {
@@ -66,12 +59,19 @@ export default class yhdm668 implements Handle {
       const html = await req(url);
       const $ = kitty.load(html);
 
-      const title = $('.module-info-heading h1').text().trim();
-      const cover = $('.module-info-poster img').attr('data-original') || $('.module-info-poster img').attr('src') || '';
-      const desc = $('.module-info-introduction-content').text().trim();
+      const title = $('.module-info-heading h1').text().trim()
+        || $('.video-info-header h1').text().trim()
+        || $('title').text().trim();
+
+      const cover = $('.module-info-poster img').attr('data-original')
+        || $('.video-cover img').attr('src') || '';
+
+      const desc = $('.module-info-introduction-content').text().trim()
+        || $('.video-info-content').text().trim() || '';
 
       const tabs = $('.module-tab-item').toArray().map(item => $(item).text().trim());
-      const _videos = $('.module-play-list').toArray().map<IPlaylistVideo[]>((item) =>
+
+      const _videos = $('.module-play-list, .module-play-list-box').toArray().map<IPlaylistVideo[]>((item) =>
         $(item).find('a').toArray().map(a => ({
           id: $(a).attr('href') ?? '',
           text: $(a).text().trim()
@@ -100,7 +100,7 @@ export default class yhdm668 implements Handle {
       const html = await req(url);
       const $ = kitty.load(html);
 
-      return $('.module-search-item').toArray().map<IMovie>(item => {
+      return $('.module-items .module-search-item').toArray().map<IMovie>(item => {
         const a = $(item).find('a');
         return {
           id: a.attr('href') ?? '',
@@ -129,16 +129,21 @@ export default class yhdm668 implements Handle {
       const $ = kitty.load(html);
       const script = $("script").toArray().find(item => {
         const text = $(item).text().trim();
-        return text.includes('.m3u8') || text.includes('player_aaaa');
+        return text.includes('m3u8') || text.includes('player_config');
       });
 
       if (!script) throw new Error('未找到播放配置脚本');
 
       const scriptContent = $(script).text().trim();
-      const match = scriptContent.match(/\"url\"\s*:\s*\"(.*?\.m3u8.*?)\"/);
-      if (match && match[1]) return match[1].replace(/\\/g, '');
+      const m3u8Match = scriptContent.match(/url\s*[:=]\s*["'](.*?\.m3u8.*?)["']/i);
+      if (m3u8Match && m3u8Match[1]) {
+        let url = m3u8Match[1];
+        if (url.startsWith('//')) url = `https:${url}`;
+        else if (!url.startsWith('http')) url = `${this.env.baseUrl}${url}`;
+        return url;
+      }
 
-      throw new Error('未找到有效的播放地址');
+      throw new Error('未找到有效的m3u8播放地址');
     } catch (error) {
       console.error('解析播放地址失败:', error);
       return '';

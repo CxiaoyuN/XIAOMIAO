@@ -4,7 +4,7 @@ export default class zbkys implements Handle {
   getConfig() {
     return <Iconfig>{
       id: "qnys-zbkys",
-      name: "真不卡影院",
+      name: "不卡影院",
       api: "https://m.dgytlt.com",
       nsfw: false,
       type: 1
@@ -13,7 +13,7 @@ export default class zbkys implements Handle {
   async getCategory() {
     return <ICategory[]>[
       { text: "电影", id: "1" },
-      { text: "电视剧", id: "2" },
+      { text: "电视", id: "2" },
       { text: "综艺", id: "3" },
       { text: "综艺", id: "3" },
       { text: "动漫", id: "4" },

@@ -2,132 +2,104 @@
 <html lang="zh">
 <head>
   <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>小猫影视源</title>
-  <style>
-    body {
-      font-family: "Segoe UI", system-ui, sans-serif;
-      background: linear-gradient(135deg, #eef2f7, #ffffff);
-      margin: 0;
-      padding: 2rem;
-      color: #333;
+  <!-- 引入Tailwind CSS -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <!-- 引入Font Awesome -->
+  <link href="https://cdn.jsdelivr.net/npm/font-awesome@4.7.0/css/font-awesome.min.css" rel="stylesheet">
+  
+  <!-- 配置Tailwind自定义颜色和字体 -->
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            primary: '#3B82F6',
+            secondary: '#10B981',
+            dark: '#1E293B',
+            light: '#F8FAFC',
+            accent: '#8B5CF6'
+          },
+          fontFamily: {
+            sans: ['Inter', 'system-ui', 'sans-serif'],
+          },
+        },
+      }
     }
-    h1 {
-      text-align: center;
-      margin-bottom: 1rem;
-      color: #0078d7;
-    }
-    #search-box {
-      display: block;
-      margin: 0 auto 2rem auto;
-      padding: 0.6rem 1rem;
-      font-size: 1rem;
-      width: 80%;
-      max-width: 500px;
-      border: 1px solid #ccc;
-      border-radius: 6px;
-      box-shadow: 0 2px 4px rgba(0,0,0,0.05);
-    }
-    section {
-      margin: 2rem auto;
-      max-width: 1200px;
-      background: #fff;
-      border-radius: 12px;
-      padding: 1.5rem;
-      box-shadow: 0 4px 12px rgba(0,0,0,0.1);
-      text-align: center;
-    }
-    .section-header {
-      margin-bottom: 1rem;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      gap: 1rem;
-      flex-wrap: wrap;
-    }
-    .section-header h2 {
-      margin: 0;
-      font-size: 1.3rem;
-      color: #0078d7;
-    }
-    .copy-btn, .more-btn {
-      padding: 0.4rem 0.8rem;
-      font-size: 0.9rem;
-      border: none;
-      border-radius: 6px;
-      background: #0078d7;
-      color: #fff;
-      cursor: pointer;
-    }
-    .copy-btn:hover, .more-btn:hover {
-      background: #005a9e;
-    }
-    ul {
-      list-style: none;
-      padding: 0;
-      margin: 1rem 0 0 0;
-      display: grid;
-      grid-template-columns: repeat(6, 1fr);
-      gap: 1rem;
-      overflow: hidden;
-      transition: max-height 0.3s ease;
-    }
-    li {
-      background: #f9f9f9;
-      padding: 1rem;
-      border-radius: 10px;
-      box-shadow: 0 1px 4px rgba(0,0,0,0.08);
-      transition: transform 0.15s ease, box-shadow 0.15s ease;
-      text-align: center;
-    }
-    li:hover {
-      transform: translateY(-3px);
-      box-shadow: 0 4px 10px rgba(0,0,0,0.15);
-    }
-    a {
-      text-decoration: none;
-      color: #0078d7;
-      font-weight: bold;
-      font-size: 1rem;
-      display: block;
-    }
-    .desc {
-      display: block;
-      font-size: 0.8rem;
-      color: #666;
-      margin-top: 0.3rem;
-    }
-    #toast {
-      position: fixed;
-      bottom: 20px;
-      left: 50%;
-      transform: translateX(-50%);
-      background: #4caf50;
-      color: #fff;
-      padding: 0.6rem 1rem;
-      border-radius: 6px;
-      display: none;
-      box-shadow: 0 2px 6px rgba(0,0,0,0.2);
-    }
-    footer {
-      text-align: center;
-      padding: 1rem;
-      margin-top: 3rem;
-      font-size: 0.85rem;
-      color: #666;
+  </script>
+  
+  <style type="text/tailwindcss">
+    @layer utilities {
+      .content-auto {
+        content-visibility: auto;
+      }
+      .card-hover {
+        @apply transition-all duration-300 hover:shadow-lg hover:-translate-y-1;
+      }
+      .btn-effect {
+        @apply transition-all duration-200 transform hover:scale-105 active:scale-95;
+      }
+      .gradient-bg {
+        @apply bg-gradient-to-br from-light to-blue-50;
+      }
     }
   </style>
 </head>
-<body>
-  <h1>订阅源列表</h1>
-  <input type="text" id="search-box" placeholder="🔍 输入关键字搜索源...">
-  <div id="lists"></div>
-  <div id="toast">已复制订阅地址</div>
+<body class="gradient-bg min-h-screen font-sans text-dark">
+  <!-- 顶部导航 -->
+  <header class="py-4 px-6 bg-white/80 backdrop-blur-sm shadow-sm sticky top-0 z-50 transition-all duration-300">
+    <div class="max-w-7xl mx-auto flex justify-between items-center">
+      <div class="flex items-center space-x-2">
+        <i class="fa fa-play-circle text-primary text-2xl"></i>
+        <h1 class="text-[clamp(1.2rem,3vw,1.8rem)] font-bold text-primary">小猫影视源</h1>
+      </div>
+      <div class="hidden md:flex items-center space-x-4">
+        <a href="#" class="text-gray-600 hover:text-primary transition-colors">
+          <i class="fa fa-github text-xl"></i>
+        </a>
+        <a href="#" class="text-gray-600 hover:text-primary transition-colors">
+          <i class="fa fa-question-circle text-xl"></i>
+        </a>
+      </div>
+    </div>
+  </header>
 
-  <footer>
-    © 2025 小猫影视源 | Powered by GitHub Pages
+  <main class="max-w-7xl mx-auto px-4 py-8">
+    <!-- 搜索框 -->
+    <div class="relative max-w-2xl mx-auto mb-10">
+      <input 
+        type="text" 
+        id="search-box" 
+        placeholder="🔍 输入关键字搜索源..." 
+        class="w-full py-3 px-5 pr-12 rounded-xl border border-gray-200 shadow-md focus:outline-none focus:ring-2 focus:ring-primary/50 focus:border-primary transition-all"
+      >
+      <i class="fa fa-search absolute right-4 top-1/2 -translate-y-1/2 text-gray-400"></i>
+    </div>
+
+    <!-- 源列表容器 -->
+    <div id="lists" class="space-y-8"></div>
+  </main>
+
+  <!-- 复制提示 -->
+  <div id="toast" class="fixed bottom-6 left-1/2 -translate-x-1/2 bg-secondary text-white px-6 py-3 rounded-full shadow-lg transform translate-y-20 opacity-0 transition-all duration-300 flex items-center space-x-2 z-50">
+    <i class="fa fa-check-circle"></i>
+    <span>已复制订阅地址</span>
+  </div>
+
+  <!-- 页脚 -->
+  <footer class="mt-16 py-6 px-4 bg-white/80 backdrop-blur-sm border-t border-gray-100">
+    <div class="max-w-7xl mx-auto text-center text-gray-500 text-sm">
+      <div class="flex justify-center items-center space-x-2 mb-2">
+        <i class="fa fa-paw text-primary"></i>
+        <p>© 2025 小猫影视源 | 免费提供影视订阅源</p>
+      </div>
+      <p>使用前请遵守当地法律法规，支持正版内容</p>
+    </div>
   </footer>
 
   <script>
+    // 影视源数据 - Kitty源已放在最上方
     const sources = [
       { name: "Kitty源", url: "https://cxiaoyun.github.io/kitty/all.json" },
       { name: "影视vod", url: "https://cxiaoyun.github.io/kitty/vod.json" },
@@ -135,6 +107,37 @@
       { name: "JS源", url: "https://cxiaoyun.github.io/kitty/x.json" }
     ];
 
+    // 页面加载时获取所有源数据
+    document.addEventListener('DOMContentLoaded', () => {
+      // 按顺序加载源，确保Kitty源在最上方
+      sources.forEach(source => {
+        loadJson(source.name, source.url);
+      });
+
+      // 搜索功能
+      const searchBox = document.getElementById('search-box');
+      searchBox.addEventListener('input', (e) => {
+        const searchTerm = e.target.value.toLowerCase();
+        const items = document.querySelectorAll('li[data-search]');
+        
+        items.forEach(item => {
+          const text = item.dataset.search.toLowerCase();
+          if (text.includes(searchTerm)) {
+            item.classList.remove('hidden');
+            // 搜索高亮效果
+            if (searchTerm) {
+              highlightText(item, searchTerm);
+            } else {
+              resetHighlight(item);
+            }
+          } else {
+            item.classList.add('hidden');
+          }
+        });
+      });
+    });
+
+    // 加载JSON数据
     async function loadJson(name, url) {
       try {
         const res = await fetch(url);
@@ -145,103 +148,227 @@
       }
     }
 
+    // 渲染源列表
     function renderList(name, data, fileUrl) {
       const container = document.getElementById("lists");
       const section = document.createElement("section");
-
+      
+      // 卡片容器样式
+      section.className = "bg-white rounded-2xl shadow-md overflow-hidden transition-all duration-300 hover:shadow-lg";
+      
+      // 标题栏
       const header = document.createElement("div");
-      header.className = "section-header";
-
+      header.className = "bg-gradient-to-r from-primary/90 to-primary px-6 py-4 flex flex-wrap justify-between items-center gap-3";
+      
       const title = document.createElement("h2");
-      title.textContent = `${name} (${Array.isArray(data) ? data.length : 0})`;
+      title.className = "text-white font-bold text-lg md:text-xl flex items-center gap-2";
+      title.innerHTML = `<i class="fa fa-film"></i> ${name} <span class="bg-white/20 text-white text-sm px-2 py-0.5 rounded-full">${Array.isArray(data) ? data.length : 0}个源</span>`;
       header.appendChild(title);
-
+      
+      // 订阅按钮
       const copyBtn = document.createElement("button");
-      copyBtn.textContent = "订阅";
-      copyBtn.className = "copy-btn";
+      copyBtn.innerHTML = '<i class="fa fa-link mr-1"></i> 订阅';
+      copyBtn.className = "bg-white text-primary px-4 py-2 rounded-lg font-medium btn-effect flex items-center";
       copyBtn.onclick = () => copyToClipboard(fileUrl);
       header.appendChild(copyBtn);
-
+      
       section.appendChild(header);
-
+      
+      // 源列表
       const ul = document.createElement("ul");
-
+      ul.className = "p-4 grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-6 gap-4 overflow-hidden transition-all duration-500 ease-in-out";
+      
       if (Array.isArray(data)) {
         data.forEach(item => {
           const li = document.createElement("li");
+          li.className = "bg-gray-50 rounded-xl p-4 card-hover border border-gray-100";
           li.dataset.search = (item.name || item.title || "") + " " + (item.desc || item.remark || "");
+          
           const link = document.createElement("a");
           link.href = item.url || "#";
+          link.className = "font-medium text-primary hover:text-accent transition-colors mb-1 block line-clamp-1";
           link.textContent = item.name || item.title || "未命名源";
           li.appendChild(link);
-
+          
+          // 源描述
           if (item.desc || item.remark) {
             const desc = document.createElement("span");
-            desc.className = "desc";
+            desc.className = "text-gray-500 text-sm block line-clamp-2";
             desc.textContent = item.desc || item.remark;
             li.appendChild(desc);
           }
-
+          
+          // 已移除单个源的复制按钮
+          
           ul.appendChild(li);
         });
       } else {
         const li = document.createElement("li");
-        li.textContent = "JSON 格式不正确";
+        li.className = "col-span-full text-center py-8 text-gray-500";
+        li.innerHTML = '<i class="fa fa-exclamation-triangle text-yellow-500 mr-2"></i> JSON 格式不正确';
         ul.appendChild(li);
       }
-
-      // 限制高度，超过4行隐藏
-      const rowHeight = 180; // 每行大约高度
-      const maxRows = 4;
-      const maxHeight = rowHeight * maxRows;
-      if (ul.children.length > 24) {
-        ul.style.maxHeight = maxHeight + "px";
-
+      
+      // 处理长列表的展开/收起功能
+      const maxVisibleItems = 24;
+      if (ul.children.length > maxVisibleItems) {
+        // 先隐藏超出的项目
+        for (let i = maxVisibleItems; i < ul.children.length; i++) {
+          ul.children[i].classList.add('hidden');
+        }
+        
+        // 添加更多按钮
         const moreBtn = document.createElement("button");
-        moreBtn.textContent = "更多";
-        moreBtn.className = "more-btn";
+        moreBtn.innerHTML = '<i class="fa fa-chevron-down mr-1"></i> 显示更多';
+        moreBtn.className = "w-full mt-4 py-2 text-primary font-medium btn-effect";
         moreBtn.onclick = () => {
-          if (ul.style.maxHeight === "none") {
-            ul.style.maxHeight = maxHeight + "px";
-            moreBtn.textContent = "更多";
+          const hiddenItems = ul.querySelectorAll('li.hidden');
+          
+          if (hiddenItems.length > 0) {
+            hiddenItems.forEach(item => item.classList.remove('hidden'));
+            moreBtn.innerHTML = '<i class="fa fa-chevron-up mr-1"></i> 收起';
           } else {
-            ul.style.maxHeight = "none";
-            moreBtn.textContent = "收起";
+            for (let i = maxVisibleItems; i < ul.children.length; i++) {
+              ul.children[i].classList.add('hidden');
+            }
+            moreBtn.innerHTML = '<i class="fa fa-chevron-down mr-1"></i> 显示更多';
           }
         };
-        section.appendChild(moreBtn);
+        
+        const moreContainer = document.createElement("div");
+        moreContainer.className = "px-4 pb-4";
+        moreContainer.appendChild(moreBtn);
+        section.appendChild(ul);
+        section.appendChild(moreContainer);
+      } else {
+        section.appendChild(ul);
       }
-
-      section.appendChild(ul);
+      
       container.appendChild(section);
     }
 
+    // 渲染错误信息
     function renderError(name, err) {
       const container = document.getElementById("lists");
       const section = document.createElement("section");
+      
+      section.className = "bg-white rounded-2xl shadow-md overflow-hidden";
+      
       const header = document.createElement("div");
-      header.className = "section-header";
+      header.className = "bg-gradient-to-r from-red-500/90 to-red-600 px-6 py-4 flex justify-between items-center";
+      
       const title = document.createElement("h2");
-      title.textContent = name + " (加载失败)";
+      title.className = "text-white font-bold text-lg flex items-center gap-2";
+      title.innerHTML = `<i class="fa fa-exclamation-circle"></i> ${name} <span class="bg-white/20 text-white text-sm px-2 py-0.5 rounded-full">加载失败</span>`;
       header.appendChild(title);
-
+      
       const copyBtn = document.createElement("button");
-      copyBtn.textContent = "订阅";
-      copyBtn.className = "copy-btn";
+      copyBtn.innerHTML = '<i class="fa fa-link mr-1"></i> 订阅';
+      copyBtn.className = "bg-white text-red-600 px-4 py-2 rounded-lg font-medium btn-effect";
       copyBtn.onclick = () => copyToClipboard("#");
       header.appendChild(copyBtn);
-
+      
       section.appendChild(header);
-
+      
       const ul = document.createElement("ul");
+      ul.className = "p-6 text-center";
+      
       const li = document.createElement("li");
-      li.textContent = "加载失败: " + err;
+      li.className = "text-gray-500 flex flex-col items-center gap-3";
+      li.innerHTML = `
+        <i class="fa fa-wifi-slash text-3xl text-red-400"></i>
+        <p>无法加载源数据，请稍后重试</p>
+        <p class="text-xs text-gray-400">错误信息: ${err.message}</p>
+      `;
       ul.appendChild(li);
-
+      
       section.appendChild(ul);
       container.appendChild(section);
     }
 
+    // 复制到剪贴板
     function copyToClipboard(text) {
+      if (text === "#") {
+        showToast("无效的订阅地址", "error");
+        return;
+      }
+      
       navigator.clipboard.writeText(text).then(() => {
-        const toast = document.get
+        showToast("已复制订阅地址");
+      }).catch(err => {
+        showToast("复制失败，请手动复制", "error");
+        console.error('无法复制内容: ', err);
+      });
+    }
+
+    // 显示提示消息
+    function showToast(message, type = "success") {
+      const toast = document.getElementById("toast");
+      const icon = toast.querySelector("i");
+      const text = toast.querySelector("span");
+      
+      // 设置提示类型样式
+      if (type === "error") {
+        toast.classList.remove("bg-secondary");
+        toast.classList.add("bg-red-500");
+        icon.className = "fa fa-times-circle";
+      } else {
+        toast.classList.remove("bg-red-500");
+        toast.classList.add("bg-secondary");
+        icon.className = "fa fa-check-circle";
+      }
+      
+      text.textContent = message;
+      
+      // 显示提示
+      toast.classList.remove("translate-y-20", "opacity-0");
+      toast.classList.add("translate-y-0", "opacity-100");
+      
+      // 3秒后隐藏
+      setTimeout(() => {
+        toast.classList.remove("translate-y-0", "opacity-100");
+        toast.classList.add("translate-y-20", "opacity-0");
+      }, 3000);
+    }
+
+    // 搜索高亮功能
+    function highlightText(element, term) {
+      resetHighlight(element);
+      
+      const links = element.querySelectorAll('a');
+      links.forEach(link => {
+        const text = link.textContent;
+        const lowerText = text.toLowerCase();
+        const index = lowerText.indexOf(term);
+        
+        if (index !== -1) {
+          const before = text.substring(0, index);
+          const highlighted = text.substring(index, index + term.length);
+          const after = text.substring(index + term.length);
+          link.innerHTML = `${before}<span class="bg-yellow-200">${highlighted}</span>${after}`;
+        }
+      });
+    }
+
+    // 重置高亮
+    function resetHighlight(element) {
+      const links = element.querySelectorAll('a');
+      links.forEach(link => {
+        link.innerHTML = link.textContent;
+      });
+    }
+
+    // 滚动时改变导航栏样式
+    window.addEventListener('scroll', () => {
+      const header = document.querySelector('header');
+      if (window.scrollY > 50) {
+        header.classList.add('shadow');
+        header.classList.remove('shadow-sm');
+      } else {
+        header.classList.remove('shadow');
+        header.classList.add('shadow-sm');
+      }
+    });
+  </script>
+</body>
+</html>

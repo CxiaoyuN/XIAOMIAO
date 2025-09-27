@@ -117,17 +117,16 @@ export default class libvio implements Handle {
       url = decodeURIComponent(utf8to16(base64decode(url)));
     }
 
-    // 拼接 v2.php 接口
-    if (!url.startsWith('http') || url.endsWith('.mp4')) {
-      return `${env.baseUrl}/hd/play/v2.php?url=${encodeURIComponent(url)}&next=${iframe}&t=${player.sid || ''}`;
-    }
-
-    if (url.endsWith('.m3u8')) {
+    // 如果是 mp4 或 m3u8，直接返回
+    if (url.endsWith('.mp4') || url.endsWith('.m3u8')) {
       return url;
     }
 
-    const m3u8Match = scriptText.match(/["'](https?:\/\/.*?\.m3u8.*?)["']/);
-    if (m3u8Match) return m3u8Match[1];
+    // 如果是中转路径，访问 vr2.php 页面提取真实地址
+    const vr2Url = `${env.baseUrl}/vid/plyr/vr2.php?url=${encodeURIComponent(url)}&next=${player.link_next}&id=${player.id}&nid=${player.nid}`;
+    const vr2Html = await req(vr2Url);
+    const videoMatch = vr2Html.match(/["'](https?:\/\/[^"']+\.(mp4|m3u8))["']/);
+    if (videoMatch) return videoMatch[1];
 
     return '';
   }

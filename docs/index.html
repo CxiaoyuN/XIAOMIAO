@@ -181,12 +181,13 @@
       if (Array.isArray(data)) {
         data.forEach(item => {
           const li = document.createElement("li");
-          li.className = "bg-gray-50 rounded-xl p-4 card-hover border border-gray-100";
+          // 修改卡片样式，添加flex布局使内容居中
+          li.className = "bg-gray-50 rounded-xl p-6 card-hover border border-gray-100 flex flex-col items-center justify-center text-center";
           li.dataset.search = (item.name || item.title || "") + " " + (item.desc || item.remark || "");
           
           const link = document.createElement("a");
           link.href = item.url || "#";
-          link.className = "font-medium text-primary hover:text-accent transition-colors mb-1 block line-clamp-1";
+          link.className = "font-medium text-primary hover:text-accent transition-colors mb-2 block line-clamp-1";
           link.textContent = item.name || item.title || "未命名源";
           li.appendChild(link);
           
@@ -197,8 +198,6 @@
             desc.textContent = item.desc || item.remark;
             li.appendChild(desc);
           }
-          
-          // 已移除单个源的复制按钮
           
           ul.appendChild(li);
         });

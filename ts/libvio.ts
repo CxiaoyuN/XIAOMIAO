@@ -90,7 +90,7 @@ export default class libvio implements Handle {
     });
   }
 
-  async parseIframe(): Promise<string> {
+  async parseIframe(): Promise<string | IPlaySource> {
     const iframe = env.get('iframe');
     const playUrl = `${env.baseUrl}${iframe}`;
     const html = await req(playUrl);
@@ -117,22 +117,34 @@ export default class libvio implements Handle {
       url = decodeURIComponent(utf8to16(base64decode(url)));
     }
 
-    // 如果是 mp4 或 m3u8，直接返回
+    // 如果是 mp4 或 m3u8，返回带 Referer 的对象
     if (url.endsWith('.mp4') || url.endsWith('.m3u8')) {
-      return url;
+      return {
+        url,
+        headers: {
+          Referer: 'https://www.libvio.cc/',
+        },
+      };
     }
 
     // 如果是中转路径，访问 vr2.php 页面提取真实地址
     const vr2Url = `${env.baseUrl}/vid/plyr/vr2.php?url=${encodeURIComponent(url)}&next=${player.link_next}&id=${player.id}&nid=${player.nid}`;
     const vr2Html = await req(vr2Url);
     const videoMatch = vr2Html.match(/["'](https?:\/\/[^"']+\.(mp4|m3u8))["']/);
-    if (videoMatch) return videoMatch[1];
+    if (videoMatch) {
+      return {
+        url: videoMatch[1],
+        headers: {
+          Referer: 'https://www.libvio.cc/',
+        },
+      };
+    }
 
     return '';
   }
 }
 
-// 解码函数（保留结构）
+// 解码函数
 function base64decode(str: string): string {
   const chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/";
   let out = "", c1, c2, c3, c4, i = 0;

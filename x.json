@@ -89,36 +89,40 @@
     "id": "cz4k",
     "name": "厂长资源",
     "api": "https://www.cz4k.com",
-    "nsfw": false,
     "type": 1,
+    "nsfw": false,
     "extra": {
       "js": {
         "category": [
           {
-            "text": "电影",
+            "text": "最新电影",
             "id": "zuixindianying"
           },
           {
-            "text": "国剧",
-            "id": "guochanju"
+            "text": "剧场版",
+            "id": "dongmanjuchangban"
+          },
+          {
+            "text": "国产剧",
+            "id": "gcj"
           },
           {
             "text": "美剧",
-            "id": "meiju"
+            "id": "meijutt"
           },
           {
             "text": "韩剧",
-            "id": "hanju"
+            "id": "hanjutv"
           },
           {
-            "text": "动漫",
+            "text": "番剧",
             "id": "fanju"
           }
         ],
-        "home": "const cate=env.get(\"category\");const page=env.get(\"page\")||1;const url=`${env.baseUrl}/${cate}?page=${page}`;const html=await req(url);const $=kitty.load(html);return $(\".movie-item\").toArray().map(item=>{const title=$(item).find(\".title\").text();const id=$(item).find(\"a\").attr(\"href\")??\"\";let cover=$(item).find(\"img\").attr(\"data-src\")??\"\";if(cover.startsWith(\"//\"))cover=`https:${cover}`;return{id,title,cover,desc:\"\",remark:\"\",playlist:[]}})",
-        "detail": "const id=env.get(\"movieId\");const url=`${env.baseUrl}${id}`;const html=await req(url);const $=kitty.load(html);const title=$(\"h1\").text();const cover=$(\"img.cover\").attr(\"src\")??\"\";const remark=$(\".score\").text();const desc=$(\".desc\").text();const playlist=[{title:\"\\u9ED8\\u8BA4\",videos:[{text:\"\\u64AD\\u653E\",url:$(\"iframe\").attr(\"src\")}]}];return{id,title,cover,remark,desc,playlist}",
-        "search": "const keyword=env.get(\"keyword\");const page=env.get(\"page\")||1;const url=`${env.baseUrl}/search?wd=${encodeURIComponent(keyword)}&page=${page}`;const html=await req(url);const $=kitty.load(html);return $(\".movie-item\").toArray().map(item=>{const title=$(item).find(\".title\").text();const id=$(item).find(\"a\").attr(\"href\")??\"\";let cover=$(item).find(\"img\").attr(\"data-src\")??\"\";if(cover.startsWith(\"//\"))cover=`https:${cover}`;return{id,title,cover,desc:\"\",remark:\"\",playlist:[]}})",
-        "parseIframe": "const iframe=env.get(\"iframe\");return kitty.utils.getM3u8WithIframe(env)"
+        "home": "const cate=env.get(\"category\")||\"zuixindianying\";const page=env.get(\"page\")||1;const url=`${env.baseUrl}/${cate}/page/${page}`;const html=await req(url);const $=kitty.load(html);return $(\"ul > li\").toArray().map(item=>{const el=$(item);const id=el.find(\"a\").attr(\"href\")??\"\";const title=el.find(\"h3.dytit a\").text().trim();let cover=el.find(\"img\").attr(\"data-original\")??\"\";if(cover.startsWith(\"//\"))cover=\"https:\"+cover;const desc=el.find(\"p.inzhuy\").text().replace(\"\\u4E3B\\u6F14\\uFF1A\",\"\").trim();const remark=el.find(\".hdinfo span\").text().trim();return{id,title,cover,desc,remark,playlist:[]}})",
+        "detail": "const id=env.get(\"movieId\");const url=`${env.baseUrl}${id}`;const html=await req(url);const $=kitty.load(html);const title=$(\".jujiinfo h3\").text().trim();const cover=$(\"meta[property=\\\"og:image\\\"]\").attr(\"content\")??\"\";const desc=$(\".ttmtiart\").text().replace(/\\s+/g,\" \").trim();const remark=$(\".ptit span\").text().trim();const iframe=$(\"iframe.viframe\").attr(\"src\")??\"\";const playlist=[{title:\"\\u9009\\u96C6\",videos:[{text:\"\\u64AD\\u653E\",url:iframe}]}];return{id,title,cover,desc,remark,playlist}",
+        "search": "const keyword=env.get(\"keyword\");const page=env.get(\"page\")||1;const url=`${env.baseUrl}/xsss1O1?q=${encodeURIComponent(keyword)}&page=${page}`;const html=await req(url);const $=kitty.load(html);return $(\"ul > li\").toArray().map(item=>{const el=$(item);const id=el.find(\"a\").attr(\"href\")??\"\";const title=el.find(\"h3.dytit a\").text().trim();let cover=el.find(\"img\").attr(\"data-original\")??\"\";if(cover.startsWith(\"//\"))cover=\"https:\"+cover;const desc=el.find(\"p.inzhuy\").text().replace(\"\\u4E3B\\u6F14\\uFF1A\",\"\").trim();const remark=el.find(\".hdinfo span\").text().trim();return{id,title,cover,desc,remark,playlist:[]}})",
+        "parseIframe": "try{const result=await kitty.utils.getM3u8WithIframe(env);if(result&&result.url)return result}catch(e){console.log(\"\\u81EA\\u52A8\\u89E3\\u6790\\u5931\\u8D25\\uFF0C\\u5C1D\\u8BD5\\u624B\\u52A8\\u5904\\u7406\")}const iframeUrl=env.get(\"iframe\");const html=await req(iframeUrl,{headers:{Referer:env.baseUrl}});const m3u8Match=html.match(/(https?:\\/\\/[^\"']+\\.m3u8[^\"']*)/);if(m3u8Match){return{type:\"hls\",url:m3u8Match[1]}}return{type:\"iframe\",url:iframeUrl,headers:{Referer:env.baseUrl}}"
       }
     }
   },

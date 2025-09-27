@@ -4,7 +4,7 @@ export default class Yjbav implements Handle {
   getConfig() {
     return <Iconfig>{
       id: "yjbav",
-      name: "一级棒",
+      name: "一级资源",
       type: 1,
       nsfw: true,
       api: "https://yjb.one"

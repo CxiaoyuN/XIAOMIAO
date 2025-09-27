@@ -243,7 +243,7 @@ export default class VV99KK implements Handle {
           title: "默认",
           videos: [
             {
-              id: playUrl,
+              id: Url,
               text: "播放",
             }
           ]

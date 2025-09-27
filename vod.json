@@ -108,7 +108,7 @@
   },
   {
     "id": "aiqiyiziyuan",
-    "name": "爱奇艺资源",
+    "name": "奇艺资源",
     "api": "https://iqiyizyapi.com/api.php/provide/vod",
     "nsfw": false,
     "type": 0,

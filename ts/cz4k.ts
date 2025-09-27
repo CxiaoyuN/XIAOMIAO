@@ -15,6 +15,7 @@ export default class Cz4kSource implements Handle {
       { text: '国剧', id: 'guochanju' },
       { text: '美剧', id: 'meiju' },
       { text: '韩剧', id: 'hanju' },
+      { text: '动漫', id: 'fanju' },
     ];
   }
 

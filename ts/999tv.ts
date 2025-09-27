@@ -4,7 +4,7 @@ export default class JS999tv implements Handle {
   getConfig() {
     return <Iconfig>{
       id: '999tv',
-      name: '999tv',
+      name: '三九TV',
       api: "https://999tv.app",
       type: 1,
       nsfw: false,

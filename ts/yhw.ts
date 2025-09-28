@@ -39,7 +39,7 @@ export default class YHW implements Handle {
 
   async getCategoryDetail() {
     const cateId = env.get('cateId');
-    const page = env.get('page');
+    const page = env.get('page') ?? 1;
     const html = await reqBrowser(`${env.baseUrl}/show/${cateId}--------${page}---.html`);
     return this.parseItems(html);
   }
@@ -53,22 +53,24 @@ export default class YHW implements Handle {
   async getDetail() {
     const id = env.get('movieId');
     const html = await reqBrowser(`${env.baseUrl}${id}`);
+    const $ = kitty.load(html);
 
-    const title = html.match(/<h1[^>]*>([^<]+)<\/h1>/)?.[1]?.trim() ?? '';
-    const cover = html.match(/hl-item-thumb[^>]*data-original="([^"]+)"/)?.[1] ?? '';
-    const remark = html.match(/hl-item-sub[^>]*>([^<]+)<\/div>/)?.[1]?.trim() ?? '';
-    const desc = html.match(/hl-item-text[^>]*>([^<]+)<\/div>/)?.[1]?.trim() ?? '';
+    const title = $('h1').text().trim();
+    const cover = $('.hl-item-thumb img').attr('data-original') ?? '';
+    const desc = $('.hl-item-text').text().trim();
+    const remark = $('.hl-item-sub').text().trim();
 
     const playlist: Playlist[] = [];
-    const blockMatch = [...html.matchAll(/hl-plays-list[\s\S]*?hl-plays-title[^>]*>([^<]+)<[\s\S]*?<ul[^>]*>([\s\S]*?)<\/ul>/g)];
-
-    for (const [, name, ul] of blockMatch) {
-      const urls = [...ul.matchAll(/href="([^"]+)"[^>]*>([^<]+)<\/a>/g)].flatMap(m => [
-        { title: `${m[2]}（直链）`, url: `${m[1]}?real=1` },
-        { title: `${m[2]}（原页）`, url: `${m[1]}?raw=1` },
-      ]);
-      playlist.push({ name: name.trim(), urls });
-    }
+    $('.hl-plays-list').each((_, el) => {
+      const name = $(el).find('.hl-plays-title').text().trim();
+      const urls = [];
+      $(el).find('ul a').each((_, a) => {
+        const href = $(a).attr('href') ?? '';
+        const text = $(a).text().trim();
+        urls.push({ title: text, url: href });
+      });
+      playlist.push({ name, urls });
+    });
 
     return { id, title, cover, desc, remark, playlist };
   }

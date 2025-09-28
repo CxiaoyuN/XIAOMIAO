@@ -1,8 +1,8 @@
 export default class libvio implements Handle {
   getConfig(): Iconfig {
     return {
-      id: 'libvio2',
-      name: 'LIBVIO测试',
+      id: 'libvio',
+      name: 'LIBVIO_WEB',
       api: 'https://www.libvio.cc',
       nsfw: false,
       type: 1,

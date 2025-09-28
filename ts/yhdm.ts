@@ -25,7 +25,7 @@ export default class implements Handle {
 
     $('.item').each((_, el) => {
       const title = $(el).find('img').attr('alt') ?? '';
-      const cover = 'https:' + ($(el).find('img').attr('data-src') ?? '');
+      const cover = 'https:' + ($(el).find('img').attr('data-src') ?? $(el).find('img').attr('src') ?? '');
       const id = $(el).find('a').attr('href') ?? '';
       items.push({ id, title, cover, desc: '', remark: '', playlist: [] });
     });
@@ -43,7 +43,7 @@ export default class implements Handle {
 
     $('.item').each((_, el) => {
       const title = $(el).find('img').attr('alt') ?? '';
-      const cover = 'https:' + ($(el).find('img').attr('data-src') ?? '');
+      const cover = 'https:' + ($(el).find('img').attr('data-src') ?? $(el).find('img').attr('src') ?? '');
       const href = $(el).find('a').attr('href') ?? '';
       items.push({ id: href, title, cover, desc: '', remark: '', playlist: [] });
     });
@@ -56,19 +56,19 @@ export default class implements Handle {
     const html = await req(`${env.baseUrl}${id}`);
     const $ = kitty.load(html);
 
-    const title = $('div.detail-title h1').text().trim();
-    const cover = $('div.detail-pic img').attr('src') ?? '';
-    const desc = $('div.detail-desc').text().trim();
-    const remark = $('div.detail-info span').text().trim();
+    const title = $('h1').first().text().trim();
+    const cover = 'https:' + ($('img.lazyload').attr('data-src') ?? $('img.lazyload').attr('src') ?? '');
+    const desc = $('.info p').text().trim();
+    const remark = $('.info span').text().trim();
 
     const playlist: Playlist[] = [];
-    $('div.playlist').each((_, el) => {
+    $('.movurl').each((_, el) => {
       const name = $(el).find('h2').text().trim();
       const videos: Video[] = [];
 
-      $(el).find('li').each((_, li) => {
-        const text = $(li).text().trim();
-        const href = $(li).find('a').attr('href') ?? '';
+      $(el).find('li a').each((_, a) => {
+        const text = $(a).text().trim();
+        const href = $(a).attr('href') ?? '';
         videos.push({ id: href, name: text });
       });
 
@@ -86,7 +86,7 @@ export default class implements Handle {
 
     $('.item').each((_, el) => {
       const title = $(el).find('img').attr('alt') ?? '';
-      const cover = 'https:' + ($(el).find('img').attr('data-src') ?? '');
+      const cover = 'https:' + ($(el).find('img').attr('data-src') ?? $(el).find('img').attr('src') ?? '');
       const href = $(el).find('a').attr('href') ?? '';
       items.push({ id: href, title, cover, desc: '', remark: '', playlist: [] });
     });

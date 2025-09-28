@@ -23,7 +23,7 @@ export default class YHDM implements Handle {
   }
 
   async getHome() {
-    const html = await req(`${env.baseUrl}/`);
+    const html = await reqBrowser(`${env.baseUrl}/`);
     const $ = kitty.load(html);
     return this.parseItems($);
   }
@@ -38,24 +38,24 @@ export default class YHDM implements Handle {
   }
 
   async getCategoryDetail() {
-    const id = env.get('id');
+    const cateId = env.get('cateId');
     const page = env.get('page') ?? 1;
-    const url = `${env.baseUrl}/type/${id}${page > 1 ? `-${page}` : ''}.html`;
-    const html = await req(url);
+    const url = `${env.baseUrl}/type/${cateId}${page > 1 ? `-${page}` : ''}.html`;
+    const html = await reqBrowser(url);
     const $ = kitty.load(html);
     return this.parseItems($);
   }
 
   async getSearch() {
     const keyword = env.get('keyword');
-    const html = await req(`${env.baseUrl}/search/${keyword}`);
+    const html = await reqBrowser(`${env.baseUrl}/search/${keyword}`);
     const $ = kitty.load(html);
     return this.parseItems($);
   }
 
   async getDetail() {
     const id = env.get('movieId');
-    const html = await req(`${env.baseUrl}${id}`);
+    const html = await reqBrowser(`${env.baseUrl}${id}`);
     const $ = kitty.load(html);
 
     const title = $('h1').first().text().trim();

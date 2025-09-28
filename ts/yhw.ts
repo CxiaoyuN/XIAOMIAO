@@ -27,28 +27,39 @@ export default class YHW implements Handle {
     const html = await reqBrowser(url);
     const $ = kitty.load(html);
 
-    return $('.hl-item-thumb').toArray().map<Movie>(el => {
-      const a = $(el);
+    if (env.get('debug')) {
+      console.log('[DEBUG] 分类页 URL:', url);
+      console.log('[DEBUG] HTML 片段:', html.slice(0, 300));
+    }
+
+    return $('.hl-item').toArray().map<Movie>(el => {
+      const a = $(el).find('.hl-item-thumb');
       const id = a.attr('href') ?? '';
       const title = a.attr('title') ?? '';
       const cover = a.attr('data-original') ?? '';
-      const remark = $(el).next('.remarks').text().trim();
+      const remark = $(el).find('.remarks').text().trim();
       return { id, title, cover, remark, desc: '', playlist: [] };
     });
   }
 
   async getSearch() {
     const keyword = env.get('keyword');
+    if (!keyword) return [];
     const url = `${env.baseUrl}/search/${encodeURIComponent(keyword)}-------------.html`;
     const html = await reqBrowser(url);
     const $ = kitty.load(html);
 
-    return $('.hl-item-thumb').toArray().map<Movie>(el => {
-      const a = $(el);
+    if (env.get('debug')) {
+      console.log('[DEBUG] 搜索 URL:', url);
+      console.log('[DEBUG] HTML 片段:', html.slice(0, 300));
+    }
+
+    return $('.hl-item').toArray().map<Movie>(el => {
+      const a = $(el).find('.hl-item-thumb');
       const id = a.attr('href') ?? '';
       const title = a.attr('title') ?? '';
       const cover = a.attr('data-original') ?? '';
-      const remark = $(el).next('.remarks').text().trim();
+      const remark = $(el).find('.remarks').text().trim();
       return { id, title, cover, remark, desc: '', playlist: [] };
     });
   }
@@ -58,6 +69,11 @@ export default class YHW implements Handle {
     const url = `${env.baseUrl}${id}`;
     const html = await reqBrowser(url);
     const $ = kitty.load(html);
+
+    if (env.get('debug')) {
+      console.log('[DEBUG] 详情页 URL:', url);
+      console.log('[DEBUG] HTML 片段:', html.slice(0, 300));
+    }
 
     const title = $('h1').text().trim();
     const cover = $('.hl-item-thumb img').attr('data-original') ?? '';
@@ -82,11 +98,18 @@ export default class YHW implements Handle {
     const url = `${env.baseUrl}${playUrl.replace(/\?real=1|\?raw=1/, '')}`;
     const html = await reqBrowser(url);
 
+    if (env.get('debug')) {
+      console.log('[DEBUG] 播放页 URL:', url);
+      console.log('[DEBUG] HTML 片段:', html.slice(0, 300));
+    }
+
+    // 优先 iframe
     const iframe = html.match(/<iframe[^>]+src="([^"]+)"/)?.[1];
     if (iframe) {
       return kitty.utils.getM3u8WithIframe({ iframe });
     }
 
+    // 尝试 base64 解码
     const match = html.match(/player_aaaa\s*=\s*{[^}]*"url"\s*:\s*"([^"]+)"/);
     if (match) {
       try {

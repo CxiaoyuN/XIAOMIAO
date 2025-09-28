@@ -1,3 +1,5 @@
+import { Handle, Playlist } from '@/types';
+
 export default class YHW implements Handle {
   getConfig() {
     return {
@@ -9,9 +11,9 @@ export default class YHW implements Handle {
     };
   }
 
-  async getHome() {
-    const html = await reqBrowser(`${env.baseUrl}/`);
-    const items = [...html.matchAll(/hl-item-thumb[^>]*href="([^"]+)"[^>]*title="([^"]+)"[^>]*data-original="([^"]+)"[\s\S]*?remarks">([^<]*)</g)].map(m => ({
+  private parseItems(html: string) {
+    const regex = /hl-item-thumb[^>]*href="([^"]+)"[^>]*title="([^"]+)"[^>]*data-original="([^"]+)"[\s\S]*?remarks">([^<]*)</g;
+    return [...html.matchAll(regex)].map(m => ({
       id: m[1],
       title: m[2],
       cover: m[3],
@@ -19,7 +21,11 @@ export default class YHW implements Handle {
       desc: '',
       playlist: [],
     }));
-    return items;
+  }
+
+  async getHome() {
+    const html = await reqBrowser(`${env.baseUrl}/`);
+    return this.parseItems(html);
   }
 
   async getCategory() {
@@ -35,41 +41,27 @@ export default class YHW implements Handle {
     const cateId = env.get('cateId');
     const page = env.get('page');
     const html = await reqBrowser(`${env.baseUrl}/show/${cateId}--------${page}---.html`);
-    const items = [...html.matchAll(/hl-item-thumb[^>]*href="([^"]+)"[^>]*title="([^"]+)"[^>]*data-original="([^"]+)"[\s\S]*?remarks">([^<]*)</g)].map(m => ({
-      id: m[1],
-      title: m[2],
-      cover: m[3],
-      remark: m[4].trim(),
-      desc: '',
-      playlist: [],
-    }));
-    return items;
+    return this.parseItems(html);
   }
 
   async getSearch() {
     const keyword = env.get('keyword');
     const html = await reqBrowser(`${env.baseUrl}/search/${encodeURIComponent(keyword)}-------------.html`);
-    const items = [...html.matchAll(/hl-item-thumb[^>]*href="([^"]+)"[^>]*title="([^"]+)"[^>]*data-original="([^"]+)"[\s\S]*?remarks">([^<]*)</g)].map(m => ({
-      id: m[1],
-      title: m[2],
-      cover: m[3],
-      remark: m[4].trim(),
-      desc: '',
-      playlist: [],
-    }));
-    return items;
+    return this.parseItems(html);
   }
 
   async getDetail() {
     const id = env.get('movieId');
     const html = await reqBrowser(`${env.baseUrl}${id}`);
+
     const title = html.match(/<h1[^>]*>([^<]+)<\/h1>/)?.[1]?.trim() ?? '';
     const cover = html.match(/hl-item-thumb[^>]*data-original="([^"]+)"/)?.[1] ?? '';
     const remark = html.match(/hl-item-sub[^>]*>([^<]+)<\/div>/)?.[1]?.trim() ?? '';
     const desc = html.match(/hl-item-text[^>]*>([^<]+)<\/div>/)?.[1]?.trim() ?? '';
-    const playlist: Playlist[] = [];
 
+    const playlist: Playlist[] = [];
     const blockMatch = [...html.matchAll(/hl-plays-list[\s\S]*?hl-plays-title[^>]*>([^<]+)<[\s\S]*?<ul[^>]*>([\s\S]*?)<\/ul>/g)];
+
     for (const [, name, ul] of blockMatch) {
       const urls = [...ul.matchAll(/href="([^"]+)"[^>]*>([^<]+)<\/a>/g)].flatMap(m => [
         { title: `${m[2]}（直链）`, url: `${m[1]}?real=1` },
@@ -95,10 +87,14 @@ export default class YHW implements Handle {
 
     const match = html.match(/player_aaaa\s*=\s*{[^}]*"url"\s*:\s*"([^"]+)"/);
     if (match) {
-      const encoded = decodeURIComponent(match[1]);
-      const decoded = kitty.utils.base64Decode(encoded);
-      if (decoded.includes('.mp4') || decoded.includes('.m3u8')) {
-        return { url: decoded };
+      try {
+        const encoded = decodeURIComponent(match[1]);
+        const decoded = kitty.utils.base64Decode(encoded);
+        if (decoded.includes('.mp4') || decoded.includes('.m3u8')) {
+          return { url: decoded };
+        }
+      } catch (e) {
+        console.warn('base64 decode failed', e);
       }
     }
 

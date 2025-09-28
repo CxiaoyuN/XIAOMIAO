@@ -483,7 +483,7 @@
   },
   {
     "id": "yhdm",
-    "name": "樱花动漫",
+    "name": "樱花动漫_测试",
     "api": "https://www.857yhw.com",
     "type": 1,
     "nsfw": false,
@@ -491,19 +491,19 @@
       "js": {
         "category": [
           {
-            "id": "riben",
+            "id": "ribendongman",
             "text": "日本动漫"
           },
           {
-            "id": "guochan",
+            "id": "guochandongman",
             "text": "国产动漫"
           },
           {
-            "id": "dianying",
+            "id": "dongmandianying",
             "text": "动漫电影"
           },
           {
-            "id": "oumei",
+            "id": "oumeidongman",
             "text": "欧美动漫"
           }
         ],

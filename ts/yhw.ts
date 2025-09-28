@@ -11,6 +11,7 @@ export default class YHW implements Handle {
     };
   }
 
+  // 动态解析首页导航分类
   async getCategory() {
     const url = `${env.baseUrl}/`;
     const html = await reqBrowser(url);
@@ -18,7 +19,7 @@ export default class YHW implements Handle {
 
     if (env.get('debug')) {
       console.log('[DEBUG] 分类导航 URL:', url);
-      console.log('[DEBUG] HTML 片段:', html.slice(0, 300));
+      console.log('[DEBUG] HTML 片段:', html.slice(0, 200));
     }
 
     const categories: { id: string; text: string }[] = [];
@@ -33,6 +34,7 @@ export default class YHW implements Handle {
     return categories;
   }
 
+  // 分类详情页
   async getCategoryDetail() {
     const cateId = env.get('cateId') ?? env.get('id');
     const page = env.get('page') ?? 1;
@@ -55,6 +57,7 @@ export default class YHW implements Handle {
     });
   }
 
+  // 搜索
   async getSearch() {
     const keyword = env.get('keyword');
     if (!keyword) return [];
@@ -77,6 +80,7 @@ export default class YHW implements Handle {
     });
   }
 
+  // 详情页
   async getDetail() {
     const id = env.get('movieId');
     const url = `${env.baseUrl}${id}`;
@@ -106,6 +110,34 @@ export default class YHW implements Handle {
     return { id, title, cover, desc, remark, playlist };
   }
 
+  // 播放页解析
   async parsePlayUrl() {
     const playUrl = env.get('playUrl');
-    const url = `${env.baseUrl}${playUrl.replace(/\?real=1
+    const url = `${env.baseUrl}${playUrl.replace(/\?real=1|\?raw=1/, '')}`;
+    const html = await reqBrowser(url);
+
+    if (env.get('debug')) {
+      console.log('[DEBUG] 播放页 URL:', url);
+      console.log('[DEBUG] HTML 长度:', html.length);
+    }
+
+    // 优先 iframe
+    const iframe = html.match(/<iframe[^>]+src="([^"]+)"/)?.[1];
+    if (iframe) {
+      return kitty.utils.getM3u8WithIframe({ iframe });
+    }
+
+    // 尝试 base64 解码
+    const match = html.match(/player_aaaa\\s*=\\s*{[^}]*"url"\\s*:\\s*"([^"]+)"/);
+    if (match) {
+      try {
+        const decoded = kitty.utils.base64Decode(decodeURIComponent(match[1]));
+        return { url: decoded };
+      } catch (e) {
+        console.warn('[DEBUG] base64 解码失败:', e);
+      }
+    }
+
+    return { url: '' };
+  }
+}

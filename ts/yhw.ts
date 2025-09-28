@@ -92,20 +92,23 @@ export default class SakuraAnime implements Handle {
     const html = await req(`${env.baseUrl}${playUrl}`);
     const $ = kitty.load(html);
 
-    // 尝试从 iframe 中提取加密播放地址
+    // 尝试从 player_aaaa 变量中提取加密地址
+    const scriptText = $('script').toArray().map(s => $(s).html()).join('\n');
+    const encryptedMatch = scriptText.match(/player_aaaa\s*=\s*{[^}]*"url"\s*:\s*"([^"]+)"[^}]*}/);
+    if (encryptedMatch) {
+      const encoded = decodeURIComponent(encryptedMatch[1]);
+      const decoded = kitty.utils.base64Decode(encoded);
+      if (decoded.includes('.m3u8')) {
+        return { url: decoded };
+      }
+    }
+
+    // 尝试从 iframe 提取
     const iframeSrc = $('iframe').attr('src');
     if (iframeSrc) {
       return kitty.utils.getM3u8WithIframe({ iframe: iframeSrc });
     }
 
-    // 如果没有 iframe，尝试从 script 中提取加密变量
-    const scriptText = $('script').toArray().map(s => $(s).html()).join('\n');
-    const m3u8Match = scriptText.match(/src\s*=\s*["']([^"']+\.m3u8[^"']*)["']/);
-    if (m3u8Match) {
-      return { url: m3u8Match[1] };
-    }
-
-    // 如果仍然失败，返回空链接
     return { url: '' };
   }
 }

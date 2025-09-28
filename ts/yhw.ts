@@ -1,4 +1,4 @@
-import { Handle, Playlist } from '@/types';
+import { Handle, Movie, Playlist } from '@/types';
 
 export default class YHW implements Handle {
   getConfig() {
@@ -11,83 +11,54 @@ export default class YHW implements Handle {
     };
   }
 
-  private parseItems(html: string) {
-    const regex = /hl-item-thumb[^>]*href="([^"]+)"[^>]*title="([^"]+)"[^>]*data-original="([^"]+)"[\s\S]*?remarks">([^<]*)</g;
-    const items = [...html.matchAll(regex)].map(m => ({
-      id: m[1],
-      title: m[2],
-      cover: m[3],
-      remark: m[4].trim(),
-      desc: '',
-      playlist: [],
-    }));
-
-    if (env.get('debug')) {
-      console.log(`[DEBUG] 解析出 ${items.length} 个条目`);
-    }
-
-    return items;
-  }
-
-  async getHome() {
-    const url = `${env.baseUrl}/`;
-    const html = await reqBrowser(url);
-
-    if (env.get('debug')) {
-      console.log('[DEBUG] 首页请求地址:', url);
-      console.log('[DEBUG] 首页页面片段:', html.slice(0, 500));
-    }
-
-    return this.parseItems(html);
-  }
-
   async getCategory() {
     return [
-      { text: '日本动漫', id: 'ribendongman' },
-      { text: '国产动漫', id: 'guochandongman' },
-      { text: '动漫电影', id: 'dongmandianying' },
-      { text: '欧美动漫', id: 'omeidongman' },
+      { id: 'ribendongman', text: '日本动漫' },
+      { id: 'guochandongman', text: '国产动漫' },
+      { id: 'dongmandianying', text: '动漫电影' },
+      { id: 'oumeidongman', text: '欧美动漫' },
     ];
   }
 
   async getCategoryDetail() {
-    const cateId = env.get('cateId');
+    const cateId = env.get('cateId') ?? env.get('id');
     const page = env.get('page') ?? 1;
     const url = `${env.baseUrl}/show/${cateId}--------${page}---.html`;
     const html = await reqBrowser(url);
+    const $ = kitty.load(html);
 
-    if (env.get('debug')) {
-      console.log('[DEBUG] 分类页请求地址:', url);
-      console.log('[DEBUG] 分类页页面片段:', html.slice(0, 500));
-    }
-
-    return this.parseItems(html);
+    return $('.hl-item-thumb').toArray().map<Movie>(el => {
+      const a = $(el);
+      const id = a.attr('href') ?? '';
+      const title = a.attr('title') ?? '';
+      const cover = a.attr('data-original') ?? '';
+      const remark = $(el).next('.remarks').text().trim();
+      return { id, title, cover, remark, desc: '', playlist: [] };
+    });
   }
 
   async getSearch() {
     const keyword = env.get('keyword');
     const url = `${env.baseUrl}/search/${encodeURIComponent(keyword)}-------------.html`;
     const html = await reqBrowser(url);
+    const $ = kitty.load(html);
 
-    if (env.get('debug')) {
-      console.log('[DEBUG] 搜索请求地址:', url);
-      console.log('[DEBUG] 搜索页面片段:', html.slice(0, 500));
-    }
-
-    return this.parseItems(html);
+    return $('.hl-item-thumb').toArray().map<Movie>(el => {
+      const a = $(el);
+      const id = a.attr('href') ?? '';
+      const title = a.attr('title') ?? '';
+      const cover = a.attr('data-original') ?? '';
+      const remark = $(el).next('.remarks').text().trim();
+      return { id, title, cover, remark, desc: '', playlist: [] };
+    });
   }
 
   async getDetail() {
     const id = env.get('movieId');
     const url = `${env.baseUrl}${id}`;
     const html = await reqBrowser(url);
-
-    if (env.get('debug')) {
-      console.log('[DEBUG] 详情页请求地址:', url);
-      console.log('[DEBUG] 详情页页面片段:', html.slice(0, 500));
-    }
-
     const $ = kitty.load(html);
+
     const title = $('h1').text().trim();
     const cover = $('.hl-item-thumb img').attr('data-original') ?? '';
     const desc = $('.hl-item-text').text().trim();
@@ -96,12 +67,10 @@ export default class YHW implements Handle {
     const playlist: Playlist[] = [];
     $('.hl-plays-list').each((_, el) => {
       const name = $(el).find('.hl-plays-title').text().trim();
-      const urls = [];
-      $(el).find('ul a').each((_, a) => {
-        const href = $(a).attr('href') ?? '';
-        const text = $(a).text().trim();
-        urls.push({ title: text, url: href });
-      });
+      const urls = $(el).find('ul a').toArray().map(a => ({
+        title: $(a).text().trim(),
+        url: $(a).attr('href') ?? '',
+      }));
       playlist.push({ name, urls });
     });
 
@@ -110,14 +79,24 @@ export default class YHW implements Handle {
 
   async parsePlayUrl() {
     const playUrl = env.get('playUrl');
-    const cleanUrl = playUrl.replace(/\?real=1|\?raw=1/, '');
-    const url = `${env.baseUrl}${cleanUrl}`;
+    const url = `${env.baseUrl}${playUrl.replace(/\?real=1|\?raw=1/, '')}`;
     const html = await reqBrowser(url);
 
-    if (env.get('debug')) {
-      console.log('[DEBUG] 播放页请求地址:', url);
-      console.log('[DEBUG] 播放页页面片段:', html.slice(0, 500));
+    const iframe = html.match(/<iframe[^>]+src="([^"]+)"/)?.[1];
+    if (iframe) {
+      return kitty.utils.getM3u8WithIframe({ iframe });
     }
 
-    if (playUrl.includes('?raw=1')) {
-      return
+    const match = html.match(/player_aaaa\s*=\s*{[^}]*"url"\s*:\s*"([^"]+)"/);
+    if (match) {
+      try {
+        const decoded = kitty.utils.base64Decode(decodeURIComponent(match[1]));
+        return { url: decoded };
+      } catch (e) {
+        console.warn('[DEBUG] base64 解码失败:', e);
+      }
+    }
+
+    return { url: '' };
+  }
+}

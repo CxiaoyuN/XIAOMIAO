@@ -1,29 +1,28 @@
-export default class Xifan implements Handle {
+export default class XifanArea implements Handle {
   getConfig() {
     return <IConfig>{
-      id: "xifan",
-      name: "稀饭动漫",
+      id: "xifan_area",
+      name: "稀饭动漫(地区)",
       api: "https://dm.xifanacg.com",
       type: 1,
       nsfw: false,
     };
   }
 
+  // ✅ 分类：按地区
   async getCategory() {
     return [
-      { id: "/type/1.html", text: "日本动漫" },
-      { id: "/type/2.html", text: "国产动漫" },
-      { id: "/type/3.html", text: "剧场版" },
-      { id: "/type/4.html", text: "欧美动漫" },
-      { id: "/type/5.html", text: "其他动漫" },
+      { id: "/search/area/日本.html", text: "日本动漫" },
     ];
   }
 
+  // ✅ 列表页
   async getHome() {
-    const cate = env.get("category") || "/type/1.html";
+    const cate = env.get("category") || "/search/area/日本.html";
     const page = env.get("page") || 1;
-    const url = `${env.baseUrl}${cate.replace(".html", "")}-${page}.html`;
-    const html = await req(url);
+    // 稀饭动漫分页规则：/search/area/日本/page/2.html
+    const url = cate.replace(".html", `/page/${page}.html`);
+    const html = await req(`${env.baseUrl}${url}`);
     const $ = kitty.load(html);
 
     return $(".anime_list .anime_item").map((i, el) => {
@@ -36,6 +35,7 @@ export default class Xifan implements Handle {
     }).get();
   }
 
+  // ✅ 搜索
   async getSearch(keyword: string) {
     const page = env.get("page") || 1;
     const url = `${env.baseUrl}/search.html?wd=${encodeURIComponent(keyword)}&page=${page}`;
@@ -52,6 +52,7 @@ export default class Xifan implements Handle {
     }).get();
   }
 
+  // ✅ 详情页
   async getDetail() {
     const id = env.get("movieId");
     const url = `${env.baseUrl}${id}`;
@@ -60,6 +61,7 @@ export default class Xifan implements Handle {
 
     const title = $("h1").text().trim();
     const desc = $(".anime_detail .desc").text().trim();
+    const cover = $("meta[property='og:image']").attr("content") ?? "";
     const iframe = $("iframe").attr("src");
 
     let playlist: IPlaylist[] = [];
@@ -68,15 +70,10 @@ export default class Xifan implements Handle {
       playlist = [{ title: "默认线路", videos: [{ text: "播放", id: iframe }] }];
     }
 
-    return <IMovie>{
-      id,
-      title,
-      desc,
-      cover: $("meta[property='og:image']").attr("content") ?? "",
-      playlist,
-    };
+    return <IMovie>{ id, title, desc, cover, playlist };
   }
 
+  // ✅ iframe 播放支持
   async parseIframe() {
     return env.get<string>("iframe");
   }

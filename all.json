@@ -729,46 +729,6 @@
     }
   },
   {
-    "id": "czzy",
-    "name": "厂长资源",
-    "api": "https://www.cz4k.com",
-    "nsfw": false,
-    "type": 1,
-    "extra": {
-      "js": {
-        "category": [
-          {
-            "text": "最新电影",
-            "id": "最新电影"
-          },
-          {
-            "text": "剧场版",
-            "id": "剧场版"
-          },
-          {
-            "text": "国产剧",
-            "id": "国产剧"
-          },
-          {
-            "text": "美剧",
-            "id": "美剧"
-          },
-          {
-            "text": "韩剧",
-            "id": "韩剧"
-          },
-          {
-            "text": "番剧",
-            "id": "番剧"
-          }
-        ],
-        "home": "const cate=utils_1.env.get(\"category\");const page=utils_1.env.get(\"page\")||1;const url=`${utils_1.env.baseUrl}/xsss1O1?q=${encodeURIComponent(cate)}&page=${page}`;const html=await(0,utils_1.req)(url);const $=utils_1.kitty.load(html);return $(\".bt_img li\").toArray().map(item=>{const a=$(item).find(\"a\").first();const id=a.attr(\"href\")?.replace(utils_1.env.baseUrl,\"\")??\"\";const title=$(item).find(\"h3.dytit a\").text().trim();const cover=a.find(\"img\").attr(\"data-original\")??\"\";const desc=$(item).find(\"p.inzhuy\").text().trim();const remark=$(item).find(\".rating\").text().trim();return{id,title,cover,desc,remark,playlist:[]}})",
-        "search": "const keyword=utils_1.env.get(\"keyword\");const page=utils_1.env.get(\"page\")||1;const url=`${utils_1.env.baseUrl}/xsss1O1?q=${encodeURIComponent(keyword)}&page=${page}`;const html=await(0,utils_1.req)(url);const $=utils_1.kitty.load(html);return $(\".bt_img li\").toArray().map(item=>{const a=$(item).find(\"a\").first();const id=a.attr(\"href\")?.replace(utils_1.env.baseUrl,\"\")??\"\";const title=$(item).find(\"h3.dytit a\").text().trim();const cover=a.find(\"img\").attr(\"data-original\")??\"\";const desc=$(item).find(\"p.inzhuy\").text().trim();const remark=$(item).find(\".rating\").text().trim();return{id,title,cover,desc,remark,playlist:[]}})",
-        "detail": "const id=utils_1.env.get(\"movieId\");const url=`${utils_1.env.baseUrl}${id}`;const html=await(0,utils_1.req)(url);const $=utils_1.kitty.load(html);const title=$(\"h1, h3\").first().text().trim();const cover=$(\".video_box img\").attr(\"data-original\")??\"\";const desc=$(\".ttmtiart\").text().trim();const iframeUrl=$(\"iframe.viframe\").attr(\"src\")??\"\";const realUrl=iframeUrl.includes(\"url=\")?decodeURIComponent(iframeUrl.split(\"url=\")[1]):\"\";const simulatedPlayUrl=iframeUrl;const episodes=$(\".stui-content__playlist a\").toArray().map(el=>{const text=$(el).text().trim();const href=$(el).attr(\"href\")??\"\";return{text,url:`${utils_1.env.baseUrl}${href}`}});const playlist=[{title:\"\\u64AD\\u653E\\u9009\\u9879\",videos:[{text:\"\\uD83D\\uDD17 \\u539F\\u7F51\\u9875\\u64AD\\u653E\",url},{text:\"\\u25B6\\uFE0F \\u6A21\\u62DF\\u5B98\\u7F51\\u64AD\\u653E\",url:simulatedPlayUrl},{text:\"\\uD83C\\uDF9E\\uFE0F \\u771F\\u5B9E\\u94FE\\u63A5\\uFF08\\u53EF\\u80FD\\u53D7\\u9650\\uFF09\",url:realUrl},...episodes]}];return{id,title,cover,desc,remark:\"\",playlist}"
-      }
-    }
-  },
-  {
     "id": "duonaovod",
     "name": "多瑙影院",
     "api": "https://www.duonaovod.com",
@@ -1161,6 +1121,39 @@
         ],
         "home": "const cate=env.get(\"category\");const page=env.get(\"page\");const url=`${env.baseUrl}/cat/${cate}-${page}.html`;const html=await req(url);const $=kitty.load(html);return $(\".m4-list .item\").toArray().map(item=>{const img=$(item).find(\"img.img\");const id=$(item).find(\"a.link\").attr(\"href\")??\"\";const title=img.attr(\"alt\")??\"\";let cover=img.attr(\"data-src\")??\"\";if(!!cover&&cover.startsWith(\"//\")){cover=`https:${cover}`}const remark=$(item).find(\".tag1\").text()??\"\";return{id,title,cover,remark,playlist:[]}})",
         "detail": "const id=env.get(\"movieId\");const url=`${env.baseUrl}${id}`;const html=await req(url);const $=kitty.load(html);const div=$(\".m4-vod\");const img=div.find(\"img.img\");let cover=img.attr(\"src\")??\"\";if(!!cover&&cover.startsWith(\"//\")){cover=`https:${cover}`}const title=img.attr(\"alt\")??\"\";let desc=$(\".more .info:last-of-type\").text()??\"\";const kPrefix=\"\\u7B80\\u4ECB\\uFF1A\";if(desc.startsWith(kPrefix)){desc=desc.replace(kPrefix,\"\")}else{desc=\"\"}const playlist=[];for(const script of $(\"body script\").toArray()){let cx=$(script).text()??\"\";if(!cx||!cx.includes(\"var pp\"))continue;cx=cx.replace(\"var pp=\",\"\");if(cx.endsWith(\";\"))cx=cx.slice(0,-1);const unsafeJSObj=eval(`(${cx})`);for(const line of unsafeJSObj.lines){const _id=line[0];const text=line[1];const urls=line[3];const videos=$(`div[data-vod='${_id}'] .list a`).toArray().map((item,index)=>{const text=$(item).text().trim();const idx=+($(item).attr(\"data-sou_idx\")??\"0\");const realUrl=urls[idx];return{text,url:realUrl}});playlist.push({title:text,videos})}}return{id,title,cover,desc,playlist}"
+      }
+    }
+  },
+  {
+    "id": "yhdm",
+    "name": "樱花动漫",
+    "api": "https://www.857yhw.com",
+    "type": 1,
+    "nsfw": false,
+    "extra": {
+      "js": {
+        "category": [
+          {
+            "id": "riben",
+            "text": "日本动漫"
+          },
+          {
+            "id": "guochan",
+            "text": "国产动漫"
+          },
+          {
+            "id": "dianying",
+            "text": "动漫电影"
+          },
+          {
+            "id": "oumei",
+            "text": "欧美动漫"
+          }
+        ],
+        "home": "const html=await req(`${env.baseUrl}/`);const $=kitty.load(html);const items=[];$(\".item\").each((_,el)=>{const title=$(el).find(\"img\").attr(\"alt\")??\"\";const cover=\"https:\"+($(el).find(\"img\").attr(\"data-src\")??\"\");const id=$(el).find(\"a\").attr(\"href\")??\"\";items.push({id,title,cover,desc:\"\",remark:\"\",playlist:[]})});return items",
+        "detail": "const id=env.get(\"movieId\");const html=await req(`${env.baseUrl}${id}`);const $=kitty.load(html);const title=$(\"h1\").text().trim();const cover=$(\"div.img > img\").attr(\"src\")??\"\";const desc=$(\"div.info > p\").text().trim();const remark=$(\"div.info > span\").text().trim();const playlist=[];$(\"div.playlist\").each((_,el)=>{const name=$(el).find(\"h2\").text().trim();const videos=[];$(el).find(\"li\").each((_,li)=>{const text=$(li).text().trim();const href=$(li).find(\"a\").attr(\"href\")??\"\";videos.push({id:href,name:text})});playlist.push({name,videos})});return{id,title,cover,desc,remark,playlist}",
+        "search": "const keyword=env.get(\"keyword\");const html=await req(`${env.baseUrl}/search/${keyword}`);const $=kitty.load(html);const items=[];$(\".item\").each((_,el)=>{const title=$(el).find(\"img\").attr(\"alt\")??\"\";const cover=\"https:\"+($(el).find(\"img\").attr(\"data-src\")??\"\");const href=$(el).find(\"a\").attr(\"href\")??\"\";items.push({id:href,title,cover,desc:\"\",remark:\"\",playlist:[]})});return items",
+        "parseIframe": "return kitty.utils.getM3u8WithIframe(env)"
       }
     }
   },

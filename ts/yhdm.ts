@@ -1,8 +1,8 @@
 export default class implements Handle {
   getConfig() {
     return {
-      id: 'yhw',
-      name: '樱花动漫_测试',
+      id: 'yhdm',
+      name: '樱花动漫_旧',
       api: 'https://www.857yhw.com',
       type: 1,
       nsfw: false

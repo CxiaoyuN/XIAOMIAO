@@ -1132,7 +1132,6 @@
     "nsfw": false,
     "extra": {
       "js": {
-        "home": "const url=`${env.baseUrl}/`;const html=await reqBrowser(url);if(env.get(\"debug\")){console.log(\"[DEBUG] \\u9996\\u9875\\u8BF7\\u6C42\\u5730\\u5740:\",url);console.log(\"[DEBUG] \\u9996\\u9875\\u9875\\u9762\\u7247\\u6BB5:\",html.slice(0,500))}const $=kitty.load(html);return this.parseItems($)",
         "category": [
           {
             "id": "ribendongman",
@@ -1151,9 +1150,9 @@
             "text": "欧美动漫"
           }
         ],
-        "search": "const keyword=env.get(\"keyword\");const url=`${env.baseUrl}/search/${keyword}`;const html=await reqBrowser(url);if(env.get(\"debug\")){console.log(\"[DEBUG] \\u641C\\u7D22\\u8BF7\\u6C42\\u5730\\u5740:\",url);console.log(\"[DEBUG] \\u641C\\u7D22\\u9875\\u9762\\u7247\\u6BB5:\",html.slice(0,500))}const $=kitty.load(html);return this.parseItems($)",
-        "detail": "const id=env.get(\"movieId\");const url=`${env.baseUrl}${id}`;const html=await reqBrowser(url);if(env.get(\"debug\")){console.log(\"[DEBUG] \\u8BE6\\u60C5\\u9875\\u8BF7\\u6C42\\u5730\\u5740:\",url);console.log(\"[DEBUG] \\u8BE6\\u60C5\\u9875\\u9875\\u9762\\u7247\\u6BB5:\",html.slice(0,500))}const $=kitty.load(html);const title=$(\"h1\").first().text().trim();const cover=\"https:\"+($(\"img.lazyload\").attr(\"data-src\")??$(\"img.lazyload\").attr(\"src\")??\"\");const desc=$(\".info p\").text().trim();const remark=$(\".info span\").text().trim();const playlist=[];$(\".movurl\").each((_,el)=>{const name=$(el).find(\"h2\").text().trim();const videos=[];$(el).find(\"li a\").each((_,a)=>{const text=$(a).text().trim();const href=$(a).attr(\"href\")??\"\";videos.push({id:href,name:text})});playlist.push({name,videos})});return{id,title,cover,desc,remark,playlist}",
-        "parseIframe": "try{return await kitty.utils.getM3u8WithIframe(env)}catch(e){console.warn(\"[DEBUG] parseIframe \\u5F02\\u5E38:\",e);return{url:\"\"}}"
+        "search": "const keyword=env.get(\"keyword\");const url=`${env.baseUrl}/search/${encodeURIComponent(keyword)}`;const html=await reqBrowser(url);const $=kitty.load(html);return $(\".item\").toArray().map(el=>{const a=$(el).find(\"a\");const img=$(el).find(\"img\");const id=a.attr(\"href\")??\"\";const title=img.attr(\"alt\")??\"\";const cover=\"https:\"+(img.attr(\"data-src\")??img.attr(\"src\")??\"\");return{id,title,cover,desc:\"\",remark:\"\",playlist:[]}})",
+        "detail": "const id=env.get(\"movieId\");const url=`${env.baseUrl}${id}`;const html=await reqBrowser(url);const $=kitty.load(html);const title=$(\"h1\").text().trim();const cover=\"https:\"+($(\"img.lazyload\").attr(\"data-src\")??\"\");const desc=$(\".info p\").text().trim();const remark=$(\".info span\").text().trim();const playlist=[];$(\".movurl\").each((_,el)=>{const name=$(el).find(\"h2\").text().trim();const videos=$(el).find(\"li a\").toArray().map(a=>({id:$(a).attr(\"href\")??\"\",name:$(a).text().trim()}));playlist.push({name,videos})});return{id,title,cover,desc,remark,playlist}",
+        "parseIframe": "return kitty.utils.getM3u8WithIframe(env)"
       }
     }
   },

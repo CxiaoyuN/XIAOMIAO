@@ -75,13 +75,13 @@ export default class YHW implements Handle {
     const playlist: Playlist[] = [];
 
     $('.hl-plays-list').each((_, el) => {
-      const name = $(el).find('.hl-plays-title').text().trim();
+      const name = $(el).find('.hl-plays-title').text().trim() || '默认线路';
       const urls = $(el).find('a').toArray().map(a => {
         const rawUrl = $(a).attr('href') ?? '';
-        const title = $(a).text().trim();
+        const epTitle = $(a).text().trim();
         return [
-          { title: `${title}（直链）`, url: `${rawUrl}?real=1` },
-          { title: `${title}（原页）`, url: `${rawUrl}?raw=1` },
+          { title: `${epTitle}（直链）`, url: `${rawUrl}?real=1` },
+          { title: `${epTitle}（原页）`, url: `${rawUrl}?raw=1` },
         ];
       }).flat();
       playlist.push({ name, urls });
@@ -92,20 +92,18 @@ export default class YHW implements Handle {
 
   async parsePlayUrl() {
     const playUrl = env.get('playUrl');
+    const cleanUrl = playUrl.replace(/\?real=1|\?raw=1/, '');
+    const html = await req(`${env.baseUrl}${cleanUrl}`);
+    const $ = kitty.load(html);
 
-    // 原网页跳转播放
     if (playUrl.includes('?raw=1')) {
       return {
-        url: `${env.baseUrl}${playUrl.replace('?raw=1', '')}`,
+        url: `${env.baseUrl}${cleanUrl}`,
         headers: { Referer: env.baseUrl },
       };
     }
 
-    // 真实播放链接解析
-    const html = await req(`${env.baseUrl}${playUrl.replace('?real=1', '')}`);
-    const $ = kitty.load(html);
     const scriptText = $('script').toArray().map(s => $(s).html()).join('\n');
-
     const match = scriptText.match(/player_aaaa\s*=\s*{[^}]*"url"\s*:\s*"([^"]+)"[^}]*}/);
     if (match) {
       const encoded = decodeURIComponent(match[1]);
@@ -115,7 +113,6 @@ export default class YHW implements Handle {
       }
     }
 
-    // iframe 备用方案
     const iframeSrc = $('iframe').attr('src');
     if (iframeSrc) {
       return kitty.utils.getM3u8WithIframe({ iframe: iframeSrc });

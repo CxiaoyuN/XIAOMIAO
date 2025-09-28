@@ -515,7 +515,7 @@
     }
   },
   {
-    "id": "sakura295yhw",
+    "id": "yhw",
     "name": "樱花动漫",
     "api": "https://www.295yhw.com",
     "type": 1,
@@ -538,7 +538,7 @@
           }
         ],
         "search": "const keyword=env.get(\"keyword\");const url=`${env.baseUrl}/search/${encodeURIComponent(keyword)}-------------.html`;const html=await req(url);const $=kitty.load(html);const items=$(\"ul.hl-vod-list li\").toArray().map(el=>{const a=$(el).find(\"a.hl-item-thumb\");const id=a.attr(\"href\")??\"\";const title=a.attr(\"title\")??\"\";const cover=a.attr(\"data-original\")??\"\";const remark=$(el).find(\".remarks\").text().trim();return{id,title,cover,desc:\"\",remark,playlist:[]}});return items",
-        "detail": "const id=env.get(\"movieId\");const html=await req(`${env.baseUrl}${id}`);const $=kitty.load(html);const title=$(\"h1\").text().trim();const cover=$(\".hl-item-thumb\").attr(\"data-original\")??\"\";const remark=$(\".hl-item-sub\").text().trim();const desc=$(\".hl-item-text\").text().trim();const playlist=[];$(\".hl-plays-list\").each((_,el)=>{const name=$(el).find(\".hl-plays-title\").text().trim();const urls=$(el).find(\"a\").toArray().map(a=>{const url=$(a).attr(\"href\")??\"\";const title=$(a).text().trim();return{title,url}});playlist.push({name,urls})});return{id,title,cover,desc,remark,playlist}"
+        "detail": "const id=env.get(\"movieId\");const html=await req(`${env.baseUrl}${id}`);const $=kitty.load(html);const title=$(\"h1\").text().trim();const cover=$(\".hl-item-thumb\").attr(\"data-original\")??\"\";const remark=$(\".hl-item-sub\").text().trim();const desc=$(\".hl-item-text\").text().trim();const playlist=[];$(\".hl-plays-list\").each((_,el)=>{const name=$(el).find(\".hl-plays-title\").text().trim();const urls=$(el).find(\"a\").toArray().map(a=>{const url=$(a).attr(\"href\")??\"\";const title=$(a).text().trim();return[{title:`${title}（直链）`,url:`${url}?real=1`},{title:`${title}（原页）`,url:`${url}?raw=1`}]}).flat();playlist.push({name,urls})});return{id,title,cover,desc,remark,playlist}"
       }
     }
   },

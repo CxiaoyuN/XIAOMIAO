@@ -27,14 +27,14 @@ export default class YHW implements Handle {
     return [
       { text: '日本动漫', id: 'ribendongman' },
       { text: '国产动漫', id: 'guochandongman' },
-      { text: '欧美动漫', id: 'oumeidongman' },
+      { text: '欧美动漫', id: 'omeidongman' },
     ];
   }
 
   async getCategoryDetail() {
     const cateId = env.get('cateId');
     const page = env.get('page');
-    const url = `${env.baseUrl}/show/${cateId}--------${page}---.html`;
+    const url = `${env.baseUrl}/type/${cateId}.html?page=${page}`;
     const html = await req(url);
     const $ = kitty.load(html);
     const items = $('ul.hl-vod-list li').toArray().map(el => {

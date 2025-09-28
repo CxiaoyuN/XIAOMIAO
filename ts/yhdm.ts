@@ -12,12 +12,25 @@ export default class YHDM implements Handle {
   }
 
   async getCategory() {
-    return [
-      { id: 'ribendongman', text: '日本动漫' },
-      { id: 'guochandongman', text: '国产动漫' },
-      { id: 'dongmandianying', text: '动漫电影' },
-      { id: 'oumeidongman', text: '欧美动漫' },
-    ];
+    const url = `${env.baseUrl}/`;
+    const html = await reqBrowser(url);
+    const $ = kitty.load(html);
+
+    if (env.get('debug')) {
+      console.log('[DEBUG] 分类导航 URL:', url);
+      console.log('[DEBUG] HTML 片段:', html.slice(0, 300));
+    }
+
+    const categories: { id: string; text: string }[] = [];
+    $('.myui-header__menu a').each((_, el) => {
+      const href = $(el).attr('href') ?? '';
+      const text = $(el).text().trim();
+      const match = href.match(/\/type\/([^/]+)\.html/);
+      if (match) {
+        categories.push({ id: match[1], text });
+      }
+    });
+    return categories;
   }
 
   async getCategoryDetail() {
@@ -29,7 +42,7 @@ export default class YHDM implements Handle {
 
     if (env.get('debug')) {
       console.log('[DEBUG] 分类页 URL:', url);
-      console.log('[DEBUG] HTML 片段:', html.slice(0, 300));
+      console.log('[DEBUG] HTML 长度:', html.length);
     }
 
     return $('.item').toArray().map<Movie>(el => {
@@ -51,7 +64,7 @@ export default class YHDM implements Handle {
 
     if (env.get('debug')) {
       console.log('[DEBUG] 搜索 URL:', url);
-      console.log('[DEBUG] HTML 片段:', html.slice(0, 300));
+      console.log('[DEBUG] HTML 长度:', html.length);
     }
 
     return $('.item').toArray().map<Movie>(el => {
@@ -72,7 +85,7 @@ export default class YHDM implements Handle {
 
     if (env.get('debug')) {
       console.log('[DEBUG] 详情页 URL:', url);
-      console.log('[DEBUG] HTML 片段:', html.slice(0, 300));
+      console.log('[DEBUG] HTML 长度:', html.length);
     }
 
     const title = $('h1').first().text().trim();

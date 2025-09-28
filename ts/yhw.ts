@@ -4,7 +4,7 @@ export default class SakuraAnime implements Handle {
       id: 'sakura295yhw',
       name: '樱花动漫',
       api: 'https://www.295yhw.com',
-      type: 1, // 标准 JS 源
+      type: 1, // 标准 JS 模式
       nsfw: false,
     };
   }
@@ -70,16 +70,17 @@ export default class SakuraAnime implements Handle {
     const $ = kitty.load(html);
     const title = $('h1').text().trim();
     const cover = $('.hl-item-thumb').attr('data-original') ?? '';
-    const remark = $('.hl-item-content .hl-item-sub').text().trim();
-    const desc = $('.hl-item-content .hl-item-text').text().trim();
+    const remark = $('.hl-item-sub').text().trim();
+    const desc = $('.hl-item-text').text().trim();
     const playlist: Playlist[] = [];
 
     $('.hl-plays-list').each((_, el) => {
       const name = $(el).find('.hl-plays-title').text().trim();
-      const urls = $(el).find('a').toArray().map(a => ({
-        title: $(a).text().trim(),
-        url: $(a).attr('href') ?? '',
-      }));
+      const urls = $(el).find('a').toArray().map(a => {
+        const url = $(a).attr('href') ?? '';
+        const title = $(a).text().trim();
+        return { title, url };
+      });
       playlist.push({ name, urls });
     });
 
@@ -89,7 +90,25 @@ export default class SakuraAnime implements Handle {
   async parsePlayUrl() {
     const playUrl = env.get('playUrl');
     const html = await req(`${env.baseUrl}${playUrl}`);
-    const iframeSrc = kitty.load(html)('iframe').attr('src');
-    return kitty.utils.getM3u8WithIframe({ iframe: iframeSrc });
+    const $ = kitty.load(html);
+
+    // 优先解析 player_aaaa 加密变量
+    const scriptText = $('script').toArray().map(s => $(s).html()).join('\n');
+    const encryptedMatch = scriptText.match(/player_aaaa\s*=\s*{[^}]*"url"\s*:\s*"([^"]+)"[^}]*}/);
+    if (encryptedMatch) {
+      const encoded = decodeURIComponent(encryptedMatch[1]);
+      const decoded = kitty.utils.base64Decode(encoded);
+      if (decoded.includes('.m3u8')) {
+        return { url: decoded };
+      }
+    }
+
+    // 备用方案：解析 iframe 播放地址
+    const iframeSrc = $('iframe').attr('src');
+    if (iframeSrc) {
+      return kitty.utils.getM3u8WithIframe({ iframe: iframeSrc });
+    }
+
+    return { url: '' };
   }
 }

@@ -2,7 +2,7 @@ export default class implements Handle {
   getConfig() {
     return {
       id: 'yhdm',
-      name: '樱花动漫',
+      name: '樱花动漫_测试',
       api: 'https://www.857yhw.com',
       type: 1,
       nsfw: false
@@ -11,10 +11,10 @@ export default class implements Handle {
 
   async getCategory() {
     return [
-      { id: 'riben', text: '日本动漫' },
-      { id: 'guochan', text: '国产动漫' },
-      { id: 'dianying', text: '动漫电影' },
-      { id: 'oumei', text: '欧美动漫' }
+      { id: 'ribendongman', text: '日本动漫' },
+      { id: 'guochandongman', text: '国产动漫' },
+      { id: 'dongmandianying', text: '动漫电影' },
+      { id: 'oumeidongman', text: '欧美动漫' }
     ];
   }
 
@@ -34,9 +34,10 @@ export default class implements Handle {
   }
 
   async getCategoryDetail() {
-    const id = env.get('id');
+    const id = env.get('id'); // 如 'ribendongman'
     const page = env.get('page') ?? 1;
-    const html = await req(`${env.baseUrl}/${id}/${page}.html`);
+    const url = `${env.baseUrl}/type/${id}${page > 1 ? `-${page}` : ''}.html`;
+    const html = await req(url);
     const $ = kitty.load(html);
     const items: Movie[] = [];
 

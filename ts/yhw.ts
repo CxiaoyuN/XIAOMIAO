@@ -35,7 +35,7 @@ export default class YHW implements Handle {
   async getCategoryDetail() {
     const cateId = env.get('cateId');
     const page = env.get('page');
-    const url = `${env.baseUrl}/type/${cateId}.html?page=${page}`;
+    const url = `${env.baseUrl}/show/${cateId}--------${page}---.html`;
     const html = await req(url);
     const $ = kitty.load(html);
     const items = $('ul.hl-vod-list li').toArray().map(el => {

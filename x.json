@@ -86,6 +86,46 @@
     }
   },
   {
+    "id": "czzy",
+    "name": "厂长资源",
+    "api": "https://www.cz4k.com",
+    "nsfw": false,
+    "type": 1,
+    "extra": {
+      "js": {
+        "category": [
+          {
+            "text": "电影",
+            "id": "zuixindianying"
+          },
+          {
+            "text": "剧场",
+            "id": "dongmanjuchangban"
+          },
+          {
+            "text": "国产",
+            "id": "gcj"
+          },
+          {
+            "text": "美剧",
+            "id": "meijutt"
+          },
+          {
+            "text": "韩剧",
+            "id": "hanjutv"
+          },
+          {
+            "text": "番剧",
+            "id": "fanju"
+          }
+        ],
+        "home": "const cate=utils_1.env.get(\"category\");const page=utils_1.env.get(\"page\")||1;const url=`${utils_1.env.baseUrl}/${cate}/page/${page}`;const html=await(0,utils_1.req)(url);const $=utils_1.kitty.load(html);return $(\".bt_img li\").toArray().map(item=>{const a=$(item).find(\"a\");const title=a.attr(\"title\")??\"\";const id=a.attr(\"href\")??\"\";const cover=a.find(\"img\").attr(\"data-original\")??\"\";return{id,title,cover,desc:\"\",remark:\"\",playlist:[]}})",
+        "search": "const keyword=utils_1.env.get(\"keyword\");const url=`${utils_1.env.baseUrl}/xsss1O1?q=${encodeURIComponent(keyword)}`;const html=await(0,utils_1.req)(url);const $=utils_1.kitty.load(html);return $(\".bt_img li\").toArray().map(item=>{const a=$(item).find(\"a\");const title=a.attr(\"title\")??\"\";const id=a.attr(\"href\")??\"\";const cover=a.find(\"img\").attr(\"data-original\")??\"\";return{id,title,cover,desc:\"\",remark:\"\",playlist:[]}})",
+        "detail": "const id=utils_1.env.get(\"movieId\");const url=`${utils_1.env.baseUrl}${id}`;const html=await(0,utils_1.req)(url);const $=utils_1.kitty.load(html);const title=$(\"h3\").first().text().trim();const cover=$(\".video_box img\").attr(\"data-original\")??\"\";const desc=$(\".ttmtiart\").text().trim();const iframeUrl=$(\"iframe.viframe\").attr(\"src\")??\"\";const realUrl=iframeUrl.includes(\"url=\")?decodeURIComponent(iframeUrl.split(\"url=\")[1]):\"\";const simulatedPlayUrl=iframeUrl;const playlist=[{title:\"\\u64AD\\u653E\\u9009\\u9879\",videos:[{text:\"\\uD83D\\uDD17 \\u539F\\u7F51\\u9875\\u64AD\\u653E\",url},{text:\"\\u25B6\\uFE0F \\u6A21\\u62DF\\u5B98\\u7F51\\u64AD\\u653E\",url:simulatedPlayUrl},{text:\"\\uD83C\\uDF9E\\uFE0F \\u771F\\u5B9E\\u94FE\\u63A5\\uFF08\\u53EF\\u80FD\\u53D7\\u9650\\uFF09\",url:realUrl}]}];return{id,title,cover,desc,remark:\"\",playlist}"
+      }
+    }
+  },
+  {
     "id": "duonaovod",
     "name": "多瑙影院",
     "api": "https://www.duonaovod.com",

@@ -11,7 +11,7 @@ export default class YHW implements Handle {
 
   async getCategory() {
     return [
-      { id: "/type/1.html", text: "日本动漫" },
+      { id: "/type/ribendongman.html", text: "日本动漫" },
       { id: "/type/2.html", text: "国产动漫" },
       { id: "/type/3.html", text: "剧场版" },
       { id: "/type/4.html", text: "欧美动漫" },
@@ -19,7 +19,7 @@ export default class YHW implements Handle {
   }
 
   async getHome() {
-    const cate = env.get("category") || "/type/1.html";
+    const cate = env.get("category") || "/type/ribendongman.html";
     const page = env.get("page") || 1;
     const url = `${env.baseUrl}${cate.replace(".html", "")}-${page}.html`;
     const html = await req(url);

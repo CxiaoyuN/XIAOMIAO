@@ -523,7 +523,7 @@
       "js": {
         "category": [
           {
-            "id": "/type/1.html",
+            "id": "/type/ribendongman.html",
             "text": "日本动漫"
           },
           {
@@ -539,7 +539,7 @@
             "text": "欧美动漫"
           }
         ],
-        "home": "const cate=env.get(\"category\")||\"/type/1.html\";const page=env.get(\"page\")||1;const url=`${env.baseUrl}${cate.replace(\".html\",\"\")}-${page}.html`;const html=await req(url);const $=kitty.load(html);return $(\".module-item\").map((i,el)=>{const a=$(el).find(\"a\");const id=a.attr(\"href\")??\"\";const title=a.attr(\"title\")??a.text().trim();const cover=$(el).find(\"img\").attr(\"data-src\")||$(el).find(\"img\").attr(\"src\")||\"\";const remark=$(el).find(\".module-item-text\").text().trim();return{id,title,cover,remark}}).get()",
+        "home": "const cate=env.get(\"category\")||\"/type/ribendongman.html\";const page=env.get(\"page\")||1;const url=`${env.baseUrl}${cate.replace(\".html\",\"\")}-${page}.html`;const html=await req(url);const $=kitty.load(html);return $(\".module-item\").map((i,el)=>{const a=$(el).find(\"a\");const id=a.attr(\"href\")??\"\";const title=a.attr(\"title\")??a.text().trim();const cover=$(el).find(\"img\").attr(\"data-src\")||$(el).find(\"img\").attr(\"src\")||\"\";const remark=$(el).find(\".module-item-text\").text().trim();return{id,title,cover,remark}}).get()",
         "search": "const page=env.get(\"page\")||1;const url=`${env.baseUrl}/search/${encodeURIComponent(keyword)}----------${page}---.html`;const html=await req(url);const $=kitty.load(html);return $(\".module-search-item\").map((i,el)=>{const a=$(el).find(\"a\");const id=a.attr(\"href\")??\"\";const title=a.attr(\"title\")??a.text().trim();const cover=$(el).find(\"img\").attr(\"data-src\")||$(el).find(\"img\").attr(\"src\")||\"\";return{id,title,cover,remark:\"\"}}).get()",
         "detail": "const id=env.get(\"movieId\");const url=`${env.baseUrl}${id}`;const html=await req(url);const $=kitty.load(html);const title=$(\"h1\").text().trim();const desc=$(\".video-info-content\").text().trim();const cover=$(\"meta[property='og:image']\").attr(\"content\")??\"\";const iframe=$(\"iframe\").attr(\"src\");let playlist=[];if(iframe){env.set(\"iframe\",iframe);playlist=[{title:\"\\u9ED8\\u8BA4\\u7EBF\\u8DEF\",videos:[{text:\"\\u64AD\\u653E\",id:iframe}]}]}return{id,title,desc,cover,playlist}",
         "parseIframe": "return env.get(\"iframe\")"

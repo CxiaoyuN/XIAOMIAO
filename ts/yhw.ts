@@ -28,6 +28,7 @@ export default class YHW implements Handle {
       { text: '日本动漫', id: 'ribendongman' },
       { text: '国产动漫', id: 'guochandongman' },
       { text: '欧美动漫', id: 'omeidongman' },
+      { text: '动漫电影', id: 'dongmandianying' },
     ];
   }
 

@@ -1,7 +1,7 @@
 export default class implements Handle {
   getConfig() {
     return {
-      id: 'yhdm',
+      id: 'yhw',
       name: '樱花动漫_测试',
       api: 'https://www.857yhw.com',
       type: 1,
@@ -34,7 +34,7 @@ export default class implements Handle {
   }
 
   async getCategoryDetail() {
-    const id = env.get('id'); // 如 'ribendongman'
+    const id = env.get('id');
     const page = env.get('page') ?? 1;
     const url = `${env.baseUrl}/type/${id}${page > 1 ? `-${page}` : ''}.html`;
     const html = await req(url);
@@ -55,10 +55,11 @@ export default class implements Handle {
     const id = env.get('movieId');
     const html = await req(`${env.baseUrl}${id}`);
     const $ = kitty.load(html);
-    const title = $('h1').text().trim();
-    const cover = $('div.img > img').attr('src') ?? '';
-    const desc = $('div.info > p').text().trim();
-    const remark = $('div.info > span').text().trim();
+
+    const title = $('div.detail-title h1').text().trim();
+    const cover = $('div.detail-pic img').attr('src') ?? '';
+    const desc = $('div.detail-desc').text().trim();
+    const remark = $('div.detail-info span').text().trim();
 
     const playlist: Playlist[] = [];
     $('div.playlist').each((_, el) => {

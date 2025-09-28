@@ -1,10 +1,10 @@
-export default class SakuraAnime implements Handle {
+export default class YHW implements Handle {
   getConfig() {
     return {
-      id: 'sakura295yhw',
+      id: 'yhw',
       name: '樱花动漫',
       api: 'https://www.295yhw.com',
-      type: 1, // 标准 JS 模式
+      type: 1,
       nsfw: false,
     };
   }
@@ -79,8 +79,14 @@ export default class SakuraAnime implements Handle {
       const urls = $(el).find('a').toArray().map(a => {
         const url = $(a).attr('href') ?? '';
         const title = $(a).text().trim();
-        return { title, url };
-      });
+
+        // 创建两个播放链接：一个真实，一个原网页
+        return [
+          { title: `${title}（直链）`, url: `${url}?real=1` },
+          { title: `${title}（原页）`, url: `${url}?raw=1` },
+        ];
+      }).flat();
+
       playlist.push({ name, urls });
     });
 
@@ -89,21 +95,26 @@ export default class SakuraAnime implements Handle {
 
   async parsePlayUrl() {
     const playUrl = env.get('playUrl');
-    const html = await req(`${env.baseUrl}${playUrl}`);
-    const $ = kitty.load(html);
 
-    // 优先解析 player_aaaa 加密变量
+    // 如果是原始网页播放，直接返回跳转链接
+    if (playUrl.includes('?raw=1')) {
+      return { url: `${env.baseUrl}${playUrl.replace('?raw=1', '')}`, headers: { Referer: env.baseUrl } };
+    }
+
+    // 如果是真实播放链接，解析加密字段
+    const html = await req(`${env.baseUrl}${playUrl.replace('?real=1', '')}`);
+    const $ = kitty.load(html);
     const scriptText = $('script').toArray().map(s => $(s).html()).join('\n');
-    const encryptedMatch = scriptText.match(/player_aaaa\s*=\s*{[^}]*"url"\s*:\s*"([^"]+)"[^}]*}/);
-    if (encryptedMatch) {
-      const encoded = decodeURIComponent(encryptedMatch[1]);
+    const match = scriptText.match(/player_aaaa\s*=\s*{[^}]*"url"\s*:\s*"([^"]+)"[^}]*}/);
+    if (match) {
+      const encoded = decodeURIComponent(match[1]);
       const decoded = kitty.utils.base64Decode(encoded);
       if (decoded.includes('.m3u8')) {
         return { url: decoded };
       }
     }
 
-    // 备用方案：解析 iframe 播放地址
+    // 备用方案：iframe 提取
     const iframeSrc = $('iframe').attr('src');
     if (iframeSrc) {
       return kitty.utils.getM3u8WithIframe({ iframe: iframeSrc });

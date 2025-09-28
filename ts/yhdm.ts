@@ -11,6 +11,7 @@ export default class YHDM implements Handle {
     };
   }
 
+  // 动态解析首页导航分类
   async getCategory() {
     const url = `${env.baseUrl}/`;
     const html = await reqBrowser(url);
@@ -18,7 +19,7 @@ export default class YHDM implements Handle {
 
     if (env.get('debug')) {
       console.log('[DEBUG] 分类导航 URL:', url);
-      console.log('[DEBUG] HTML 片段:', html.slice(0, 300));
+      console.log('[DEBUG] HTML 片段:', html.slice(0, 200));
     }
 
     const categories: { id: string; text: string }[] = [];
@@ -45,20 +46,21 @@ export default class YHDM implements Handle {
       console.log('[DEBUG] HTML 长度:', html.length);
     }
 
-    return $('.item').toArray().map<Movie>(el => {
+    return $('.myui-vodlist__box').toArray().map<Movie>(el => {
       const a = $(el).find('a');
-      const img = $(el).find('img');
+      const img = $(el).find('a img');
       const id = a.attr('href') ?? '';
       const title = img.attr('alt') ?? '';
-      const cover = 'https:' + (img.attr('data-src') ?? img.attr('src') ?? '');
-      return { id, title, cover, desc: '', remark: '', playlist: [] };
+      const cover = img.attr('data-original') ?? img.attr('src') ?? '';
+      const remark = $(el).find('.pic-text').text().trim();
+      return { id, title, cover, remark, desc: '', playlist: [] };
     });
   }
 
   async getSearch() {
     const keyword = env.get('keyword');
     if (!keyword) return [];
-    const url = `${env.baseUrl}/search/${encodeURIComponent(keyword)}`;
+    const url = `${env.baseUrl}/search/${encodeURIComponent(keyword)}-------------.html`;
     const html = await reqBrowser(url);
     const $ = kitty.load(html);
 
@@ -67,13 +69,14 @@ export default class YHDM implements Handle {
       console.log('[DEBUG] HTML 长度:', html.length);
     }
 
-    return $('.item').toArray().map<Movie>(el => {
+    return $('.myui-vodlist__box').toArray().map<Movie>(el => {
       const a = $(el).find('a');
-      const img = $(el).find('img');
+      const img = $(el).find('a img');
       const id = a.attr('href') ?? '';
       const title = img.attr('alt') ?? '';
-      const cover = 'https:' + (img.attr('data-src') ?? img.attr('src') ?? '');
-      return { id, title, cover, desc: '', remark: '', playlist: [] };
+      const cover = img.attr('data-original') ?? img.attr('src') ?? '';
+      const remark = $(el).find('.pic-text').text().trim();
+      return { id, title, cover, remark, desc: '', playlist: [] };
     });
   }
 
@@ -88,15 +91,15 @@ export default class YHDM implements Handle {
       console.log('[DEBUG] HTML 长度:', html.length);
     }
 
-    const title = $('h1').first().text().trim();
-    const cover = 'https:' + ($('img.lazyload').attr('data-src') ?? $('img.lazyload').attr('src') ?? '');
-    const desc = $('.info p').text().trim();
-    const remark = $('.info span').text().trim();
+    const title = $('h1').text().trim();
+    const cover = $('.lazyload').attr('data-original') ?? '';
+    const desc = $('.content p').text().trim();
+    const remark = $('.data span').first().text().trim();
 
     const playlist: Playlist[] = [];
-    $('.movurl').each((_, el) => {
-      const name = $(el).find('h2').text().trim();
-      const videos: Video[] = $(el).find('li a').toArray().map(a => ({
+    $('.stui-content__playlist').each((_, el) => {
+      const name = $(el).prev('h3').text().trim() || '播放列表';
+      const videos: Video[] = $(el).find('a').toArray().map(a => ({
         id: $(a).attr('href') ?? '',
         name: $(a).text().trim(),
       }));

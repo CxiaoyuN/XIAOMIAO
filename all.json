@@ -1125,7 +1125,7 @@
     }
   },
   {
-    "id": "yhdm",
+    "id": "yhw",
     "name": "樱花动漫_测试",
     "api": "https://www.857yhw.com",
     "type": 1,
@@ -1151,7 +1151,7 @@
           }
         ],
         "home": "const html=await req(`${env.baseUrl}/`);const $=kitty.load(html);const items=[];$(\".item\").each((_,el)=>{const title=$(el).find(\"img\").attr(\"alt\")??\"\";const cover=\"https:\"+($(el).find(\"img\").attr(\"data-src\")??\"\");const id=$(el).find(\"a\").attr(\"href\")??\"\";items.push({id,title,cover,desc:\"\",remark:\"\",playlist:[]})});return items",
-        "detail": "const id=env.get(\"movieId\");const html=await req(`${env.baseUrl}${id}`);const $=kitty.load(html);const title=$(\"h1\").text().trim();const cover=$(\"div.img > img\").attr(\"src\")??\"\";const desc=$(\"div.info > p\").text().trim();const remark=$(\"div.info > span\").text().trim();const playlist=[];$(\"div.playlist\").each((_,el)=>{const name=$(el).find(\"h2\").text().trim();const videos=[];$(el).find(\"li\").each((_,li)=>{const text=$(li).text().trim();const href=$(li).find(\"a\").attr(\"href\")??\"\";videos.push({id:href,name:text})});playlist.push({name,videos})});return{id,title,cover,desc,remark,playlist}",
+        "detail": "const id=env.get(\"movieId\");const html=await req(`${env.baseUrl}${id}`);const $=kitty.load(html);const title=$(\"div.detail-title h1\").text().trim();const cover=$(\"div.detail-pic img\").attr(\"src\")??\"\";const desc=$(\"div.detail-desc\").text().trim();const remark=$(\"div.detail-info span\").text().trim();const playlist=[];$(\"div.playlist\").each((_,el)=>{const name=$(el).find(\"h2\").text().trim();const videos=[];$(el).find(\"li\").each((_,li)=>{const text=$(li).text().trim();const href=$(li).find(\"a\").attr(\"href\")??\"\";videos.push({id:href,name:text})});playlist.push({name,videos})});return{id,title,cover,desc,remark,playlist}",
         "search": "const keyword=env.get(\"keyword\");const html=await req(`${env.baseUrl}/search/${keyword}`);const $=kitty.load(html);const items=[];$(\".item\").each((_,el)=>{const title=$(el).find(\"img\").attr(\"alt\")??\"\";const cover=\"https:\"+($(el).find(\"img\").attr(\"data-src\")??\"\");const href=$(el).find(\"a\").attr(\"href\")??\"\";items.push({id:href,title,cover,desc:\"\",remark:\"\",playlist:[]})});return items",
         "parseIframe": "return kitty.utils.getM3u8WithIframe(env)"
       }

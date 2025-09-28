@@ -13,7 +13,7 @@ export default class YHW implements Handle {
 
   private parseItems(html: string) {
     const regex = /hl-item-thumb[^>]*href="([^"]+)"[^>]*title="([^"]+)"[^>]*data-original="([^"]+)"[\s\S]*?remarks">([^<]*)</g;
-    return [...html.matchAll(regex)].map(m => ({
+    const items = [...html.matchAll(regex)].map(m => ({
       id: m[1],
       title: m[2],
       cover: m[3],
@@ -21,10 +21,23 @@ export default class YHW implements Handle {
       desc: '',
       playlist: [],
     }));
+
+    if (env.get('debug')) {
+      console.log(`[DEBUG] 解析出 ${items.length} 个条目`);
+    }
+
+    return items;
   }
 
   async getHome() {
-    const html = await reqBrowser(`${env.baseUrl}/`);
+    const url = `${env.baseUrl}/`;
+    const html = await reqBrowser(url);
+
+    if (env.get('debug')) {
+      console.log('[DEBUG] 首页请求地址:', url);
+      console.log('[DEBUG] 首页页面片段:', html.slice(0, 500));
+    }
+
     return this.parseItems(html);
   }
 
@@ -40,21 +53,41 @@ export default class YHW implements Handle {
   async getCategoryDetail() {
     const cateId = env.get('cateId');
     const page = env.get('page') ?? 1;
-    const html = await reqBrowser(`${env.baseUrl}/show/${cateId}--------${page}---.html`);
+    const url = `${env.baseUrl}/show/${cateId}--------${page}---.html`;
+    const html = await reqBrowser(url);
+
+    if (env.get('debug')) {
+      console.log('[DEBUG] 分类页请求地址:', url);
+      console.log('[DEBUG] 分类页页面片段:', html.slice(0, 500));
+    }
+
     return this.parseItems(html);
   }
 
   async getSearch() {
     const keyword = env.get('keyword');
-    const html = await reqBrowser(`${env.baseUrl}/search/${encodeURIComponent(keyword)}-------------.html`);
+    const url = `${env.baseUrl}/search/${encodeURIComponent(keyword)}-------------.html`;
+    const html = await reqBrowser(url);
+
+    if (env.get('debug')) {
+      console.log('[DEBUG] 搜索请求地址:', url);
+      console.log('[DEBUG] 搜索页面片段:', html.slice(0, 500));
+    }
+
     return this.parseItems(html);
   }
 
   async getDetail() {
     const id = env.get('movieId');
-    const html = await reqBrowser(`${env.baseUrl}${id}`);
-    const $ = kitty.load(html);
+    const url = `${env.baseUrl}${id}`;
+    const html = await reqBrowser(url);
 
+    if (env.get('debug')) {
+      console.log('[DEBUG] 详情页请求地址:', url);
+      console.log('[DEBUG] 详情页页面片段:', html.slice(0, 500));
+    }
+
+    const $ = kitty.load(html);
     const title = $('h1').text().trim();
     const cover = $('.hl-item-thumb img').attr('data-original') ?? '';
     const desc = $('.hl-item-text').text().trim();
@@ -78,33 +111,13 @@ export default class YHW implements Handle {
   async parsePlayUrl() {
     const playUrl = env.get('playUrl');
     const cleanUrl = playUrl.replace(/\?real=1|\?raw=1/, '');
-    const html = await reqBrowser(`${env.baseUrl}${cleanUrl}`);
+    const url = `${env.baseUrl}${cleanUrl}`;
+    const html = await reqBrowser(url);
+
+    if (env.get('debug')) {
+      console.log('[DEBUG] 播放页请求地址:', url);
+      console.log('[DEBUG] 播放页页面片段:', html.slice(0, 500));
+    }
 
     if (playUrl.includes('?raw=1')) {
-      return {
-        url: `${env.baseUrl}${cleanUrl}`,
-        headers: { Referer: env.baseUrl },
-      };
-    }
-
-    const match = html.match(/player_aaaa\s*=\s*{[^}]*"url"\s*:\s*"([^"]+)"/);
-    if (match) {
-      try {
-        const encoded = decodeURIComponent(match[1]);
-        const decoded = kitty.utils.base64Decode(encoded);
-        if (decoded.includes('.mp4') || decoded.includes('.m3u8')) {
-          return { url: decoded };
-        }
-      } catch (e) {
-        console.warn('base64 decode failed', e);
-      }
-    }
-
-    const iframe = html.match(/<iframe[^>]*src="([^"]+)"/)?.[1];
-    if (iframe) {
-      return kitty.utils.getM3u8WithIframe({ iframe });
-    }
-
-    return { url: '' };
-  }
-}
+      return

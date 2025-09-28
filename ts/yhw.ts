@@ -95,10 +95,13 @@ export default class YHW implements Handle {
 
     // 原网页跳转播放
     if (playUrl.includes('?raw=1')) {
-      return { url: `${env.baseUrl}${playUrl.replace('?raw=1', '')}`, headers: { Referer: env.baseUrl } };
+      return {
+        url: `${env.baseUrl}${playUrl.replace('?raw=1', '')}`,
+        headers: { Referer: env.baseUrl },
+      };
     }
 
-    // 真实播放链接
+    // 真实播放链接解析
     const html = await req(`${env.baseUrl}${playUrl.replace('?real=1', '')}`);
     const $ = kitty.load(html);
     const scriptText = $('script').toArray().map(s => $(s).html()).join('\n');
@@ -107,11 +110,12 @@ export default class YHW implements Handle {
     if (match) {
       const encoded = decodeURIComponent(match[1]);
       const decoded = kitty.utils.base64Decode(encoded);
-      if (decoded.includes('.m3u8') || decoded.includes('.mp4')) {
+      if (decoded.includes('.mp4') || decoded.includes('.m3u8')) {
         return { url: decoded };
       }
     }
 
+    // iframe 备用方案
     const iframeSrc = $('iframe').attr('src');
     if (iframeSrc) {
       return kitty.utils.getM3u8WithIframe({ iframe: iframeSrc });

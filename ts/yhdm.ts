@@ -19,11 +19,23 @@ export default class YHDM implements Handle {
       const id = $(el).find('a').attr('href') ?? '';
       items.push({ id, title, cover, desc: '', remark: '', playlist: [] });
     });
+
+    if (env.get('debug')) {
+      console.log(`[DEBUG] 解析出 ${items.length} 个条目`);
+    }
+
     return items;
   }
 
   async getHome() {
-    const html = await reqBrowser(`${env.baseUrl}/`);
+    const url = `${env.baseUrl}/`;
+    const html = await reqBrowser(url);
+
+    if (env.get('debug')) {
+      console.log('[DEBUG] 首页请求地址:', url);
+      console.log('[DEBUG] 首页页面片段:', html.slice(0, 500));
+    }
+
     const $ = kitty.load(html);
     return this.parseItems($);
   }
@@ -42,22 +54,41 @@ export default class YHDM implements Handle {
     const page = env.get('page') ?? 1;
     const url = `${env.baseUrl}/type/${cateId}${page > 1 ? `-${page}` : ''}.html`;
     const html = await reqBrowser(url);
+
+    if (env.get('debug')) {
+      console.log('[DEBUG] 分类页请求地址:', url);
+      console.log('[DEBUG] 分类页页面片段:', html.slice(0, 500));
+    }
+
     const $ = kitty.load(html);
     return this.parseItems($);
   }
 
   async getSearch() {
     const keyword = env.get('keyword');
-    const html = await reqBrowser(`${env.baseUrl}/search/${keyword}`);
+    const url = `${env.baseUrl}/search/${keyword}`;
+    const html = await reqBrowser(url);
+
+    if (env.get('debug')) {
+      console.log('[DEBUG] 搜索请求地址:', url);
+      console.log('[DEBUG] 搜索页面片段:', html.slice(0, 500));
+    }
+
     const $ = kitty.load(html);
     return this.parseItems($);
   }
 
   async getDetail() {
     const id = env.get('movieId');
-    const html = await reqBrowser(`${env.baseUrl}${id}`);
-    const $ = kitty.load(html);
+    const url = `${env.baseUrl}${id}`;
+    const html = await reqBrowser(url);
 
+    if (env.get('debug')) {
+      console.log('[DEBUG] 详情页请求地址:', url);
+      console.log('[DEBUG] 详情页页面片段:', html.slice(0, 500));
+    }
+
+    const $ = kitty.load(html);
     const title = $('h1').first().text().trim();
     const cover = 'https:' + ($('img.lazyload').attr('data-src') ?? $('img.lazyload').attr('src') ?? '');
     const desc = $('.info p').text().trim();
@@ -82,7 +113,7 @@ export default class YHDM implements Handle {
     try {
       return await kitty.utils.getM3u8WithIframe(env);
     } catch (e) {
-      console.warn('parseIframe failed', e);
+      console.warn('[DEBUG] parseIframe 异常:', e);
       return { url: '' };
     }
   }

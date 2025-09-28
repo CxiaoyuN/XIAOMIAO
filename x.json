@@ -96,30 +96,30 @@
         "category": [
           {
             "text": "最新电影",
-            "id": "zuixindianying"
+            "id": "最新电影"
           },
           {
             "text": "剧场版",
-            "id": "dongmanjuchangban"
+            "id": "剧场版"
           },
           {
             "text": "国产剧",
-            "id": "gcj"
+            "id": "国产剧"
           },
           {
             "text": "美剧",
-            "id": "meijutt"
+            "id": "美剧"
           },
           {
             "text": "韩剧",
-            "id": "hanjutv"
+            "id": "韩剧"
           },
           {
             "text": "番剧",
-            "id": "fanju"
+            "id": "番剧"
           }
         ],
-        "home": "const cate=utils_1.env.get(\"category\");const page=utils_1.env.get(\"page\")||1;const url=`${utils_1.env.baseUrl}/${cate}/page/${page}`;const html=await(0,utils_1.req)(url);const $=utils_1.kitty.load(html);return $(\".bt_img li\").toArray().map(item=>{const a=$(item).find(\"a\").first();const id=a.attr(\"href\")?.replace(utils_1.env.baseUrl,\"\")??\"\";const title=$(item).find(\"h3.dytit a\").text().trim();const cover=a.find(\"img\").attr(\"data-original\")??\"\";const desc=$(item).find(\"p.inzhuy\").text().trim();const remark=$(item).find(\".rating\").text().trim();return{id,title,cover,desc,remark,playlist:[]}})",
+        "home": "const cate=utils_1.env.get(\"category\");const page=utils_1.env.get(\"page\")||1;const url=`${utils_1.env.baseUrl}/xsss1O1?q=${encodeURIComponent(cate)}&page=${page}`;const html=await(0,utils_1.req)(url);const $=utils_1.kitty.load(html);return $(\".bt_img li\").toArray().map(item=>{const a=$(item).find(\"a\").first();const id=a.attr(\"href\")?.replace(utils_1.env.baseUrl,\"\")??\"\";const title=$(item).find(\"h3.dytit a\").text().trim();const cover=a.find(\"img\").attr(\"data-original\")??\"\";const desc=$(item).find(\"p.inzhuy\").text().trim();const remark=$(item).find(\".rating\").text().trim();return{id,title,cover,desc,remark,playlist:[]}})",
         "search": "const keyword=utils_1.env.get(\"keyword\");const page=utils_1.env.get(\"page\")||1;const url=`${utils_1.env.baseUrl}/xsss1O1?q=${encodeURIComponent(keyword)}&page=${page}`;const html=await(0,utils_1.req)(url);const $=utils_1.kitty.load(html);return $(\".bt_img li\").toArray().map(item=>{const a=$(item).find(\"a\").first();const id=a.attr(\"href\")?.replace(utils_1.env.baseUrl,\"\")??\"\";const title=$(item).find(\"h3.dytit a\").text().trim();const cover=a.find(\"img\").attr(\"data-original\")??\"\";const desc=$(item).find(\"p.inzhuy\").text().trim();const remark=$(item).find(\".rating\").text().trim();return{id,title,cover,desc,remark,playlist:[]}})",
         "detail": "const id=utils_1.env.get(\"movieId\");const url=`${utils_1.env.baseUrl}${id}`;const html=await(0,utils_1.req)(url);const $=utils_1.kitty.load(html);const title=$(\"h1, h3\").first().text().trim();const cover=$(\".video_box img\").attr(\"data-original\")??\"\";const desc=$(\".ttmtiart\").text().trim();const iframeUrl=$(\"iframe.viframe\").attr(\"src\")??\"\";const realUrl=iframeUrl.includes(\"url=\")?decodeURIComponent(iframeUrl.split(\"url=\")[1]):\"\";const simulatedPlayUrl=iframeUrl;const episodes=$(\".stui-content__playlist a\").toArray().map(el=>{const text=$(el).text().trim();const href=$(el).attr(\"href\")??\"\";return{text,url:`${utils_1.env.baseUrl}${href}`}});const playlist=[{title:\"\\u64AD\\u653E\\u9009\\u9879\",videos:[{text:\"\\uD83D\\uDD17 \\u539F\\u7F51\\u9875\\u64AD\\u653E\",url},{text:\"\\u25B6\\uFE0F \\u6A21\\u62DF\\u5B98\\u7F51\\u64AD\\u653E\",url:simulatedPlayUrl},{text:\"\\uD83C\\uDF9E\\uFE0F \\u771F\\u5B9E\\u94FE\\u63A5\\uFF08\\u53EF\\u80FD\\u53D7\\u9650\\uFF09\",url:realUrl},...episodes]}];return{id,title,cover,desc,remark:\"\",playlist}"
       }

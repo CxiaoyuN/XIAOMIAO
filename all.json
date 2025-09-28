@@ -1168,19 +1168,19 @@
         "home": "const html=await reqBrowser(`${env.baseUrl}/`);const items=[...html.matchAll(/hl-item-thumb[^>]*href=\"([^\"]+)\"[^>]*title=\"([^\"]+)\"[^>]*data-original=\"([^\"]+)\"[\\s\\S]*?remarks\">([^<]*)</g)].map(m=>({id:m[1],title:m[2],cover:m[3],remark:m[4].trim(),desc:\"\",playlist:[]}));return items",
         "category": [
           {
-            "text": "日本",
+            "text": "日本动漫",
             "id": "ribendongman"
           },
           {
-            "text": "国产",
+            "text": "国产动漫",
             "id": "guochandongman"
           },
           {
-            "text": "电影",
+            "text": "动漫电影",
             "id": "dongmandianying"
           },
           {
-            "text": "欧美",
+            "text": "欧美动漫",
             "id": "omeidongman"
           }
         ],

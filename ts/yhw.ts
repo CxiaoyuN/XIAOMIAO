@@ -4,7 +4,7 @@ export default class SakuraAnime implements Handle {
       id: 'sakura295yhw',
       name: '樱花动漫',
       api: 'https://www.295yhw.com',
-      type: 3, // eval 模式，支持加密播放地址
+      type: 1, // 保持原来的 JS 模式
       nsfw: false,
     };
   }
@@ -92,7 +92,7 @@ export default class SakuraAnime implements Handle {
     const html = await req(`${env.baseUrl}${playUrl}`);
     const $ = kitty.load(html);
 
-    // 尝试从 player_aaaa 变量中提取加密地址
+    // 尝试从 player_aaaa 加密变量中提取播放地址
     const scriptText = $('script').toArray().map(s => $(s).html()).join('\n');
     const encryptedMatch = scriptText.match(/player_aaaa\s*=\s*{[^}]*"url"\s*:\s*"([^"]+)"[^}]*}/);
     if (encryptedMatch) {
@@ -103,7 +103,7 @@ export default class SakuraAnime implements Handle {
       }
     }
 
-    // 尝试从 iframe 提取
+    // 如果没有加密变量，尝试从 iframe 提取
     const iframeSrc = $('iframe').attr('src');
     if (iframeSrc) {
       return kitty.utils.getM3u8WithIframe({ iframe: iframeSrc });

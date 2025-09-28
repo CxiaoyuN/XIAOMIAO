@@ -14,19 +14,20 @@ export default class Czzy {
 
   async getCategory(): Promise<ICategory[]> {
     return [
-      { text: '最新电影', id: 'zuixindianying' },
-      { text: '剧场版', id: 'dongmanjuchangban' },
-      { text: '国产剧', id: 'gcj' },
-      { text: '美剧', id: 'meijutt' },
-      { text: '韩剧', id: 'hanjutv' },
-      { text: '番剧', id: 'fanju' },
+      { text: '最新电影', id: '最新电影' },
+      { text: '剧场版', id: '剧场版' },
+      { text: '国产剧', id: '国产剧' },
+      { text: '美剧', id: '美剧' },
+      { text: '韩剧', id: '韩剧' },
+      { text: '番剧', id: '番剧' },
     ];
   }
 
+  // 用搜索接口模拟分类页
   async getHome(): Promise<IMovie[]> {
     const cate = env.get('category');
     const page = env.get('page') || 1;
-    const url = `${env.baseUrl}/${cate}/page/${page}`;
+    const url = `${env.baseUrl}/xsss1O1?q=${encodeURIComponent(cate)}&page=${page}`;
     const html = await req(url);
     const $ = kitty.load(html);
 
@@ -73,7 +74,7 @@ export default class Czzy {
     const realUrl = iframeUrl.includes('url=') ? decodeURIComponent(iframeUrl.split('url=')[1]) : '';
     const simulatedPlayUrl = iframeUrl;
 
-    // 选集支持
+    // 选集支持（如果存在）
     const episodes = $('.stui-content__playlist a').toArray().map(el => {
       const text = $(el).text().trim();
       const href = $(el).attr('href') ?? '';

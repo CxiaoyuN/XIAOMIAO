@@ -1161,7 +1161,7 @@
     "id": "sakura295yhw",
     "name": "樱花动漫",
     "api": "https://www.295yhw.com",
-    "type": 3,
+    "type": 1,
     "nsfw": false,
     "extra": {
       "js": {

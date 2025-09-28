@@ -1165,27 +1165,27 @@
     "nsfw": false,
     "extra": {
       "js": {
-        "home": "const html=await req(`${env.baseUrl}/`);const $=kitty.load(html);const items=$(\"ul.hl-vod-list li\").toArray().map(el=>{const a=$(el).find(\"a.hl-item-thumb\");const id=a.attr(\"href\")??\"\";const title=a.attr(\"title\")??\"\";const cover=a.attr(\"data-original\")??\"\";const remark=$(el).find(\".remarks\").text().trim();return{id,title,cover,desc:\"\",remark,playlist:[]}});return items",
+        "home": "const html=await reqBrowser(`${env.baseUrl}/`);const items=[...html.matchAll(/hl-item-thumb[^>]*href=\"([^\"]+)\"[^>]*title=\"([^\"]+)\"[^>]*data-original=\"([^\"]+)\"[\\s\\S]*?remarks\">([^<]*)</g)].map(m=>({id:m[1],title:m[2],cover:m[3],remark:m[4].trim(),desc:\"\",playlist:[]}));return items",
         "category": [
           {
-            "text": "日本动漫",
+            "text": "日本",
             "id": "ribendongman"
           },
           {
-            "text": "国产动漫",
+            "text": "国产",
             "id": "guochandongman"
           },
           {
-            "text": "欧美动漫",
-            "id": "omeidongman"
+            "text": "电影",
+            "id": "dongmandianying"
           },
           {
-            "text": "动漫电影",
-            "id": "dongmandianying"
+            "text": "欧美",
+            "id": "omeidongman"
           }
         ],
-        "search": "const keyword=env.get(\"keyword\");const url=`${env.baseUrl}/search/${encodeURIComponent(keyword)}-------------.html`;const html=await req(url);const $=kitty.load(html);const items=$(\"ul.hl-vod-list li\").toArray().map(el=>{const a=$(el).find(\"a.hl-item-thumb\");const id=a.attr(\"href\")??\"\";const title=a.attr(\"title\")??\"\";const cover=a.attr(\"data-original\")??\"\";const remark=$(el).find(\".remarks\").text().trim();return{id,title,cover,desc:\"\",remark,playlist:[]}});return items",
-        "detail": "const id=env.get(\"movieId\");const html=await req(`${env.baseUrl}${id}`);const $=kitty.load(html);const title=$(\"h1\").text().trim();const cover=$(\".hl-item-thumb\").attr(\"data-original\")??\"\";const remark=$(\".hl-item-sub\").text().trim();const desc=$(\".hl-item-text\").text().trim();const playlist=[];$(\".hl-plays-list\").each((_,el)=>{const name=$(el).find(\".hl-plays-title\").text().trim()||\"\\u9ED8\\u8BA4\\u7EBF\\u8DEF\";const urls=$(el).find(\"a\").toArray().map(a=>{const rawUrl=$(a).attr(\"href\")??\"\";const epTitle=$(a).text().trim();return[{title:`${epTitle}（直链）`,url:`${rawUrl}?real=1`},{title:`${epTitle}（原页）`,url:`${rawUrl}?raw=1`}]}).flat();playlist.push({name,urls})});return{id,title,cover,desc,remark,playlist}"
+        "search": "const keyword=env.get(\"keyword\");const html=await reqBrowser(`${env.baseUrl}/search/${encodeURIComponent(keyword)}-------------.html`);const items=[...html.matchAll(/hl-item-thumb[^>]*href=\"([^\"]+)\"[^>]*title=\"([^\"]+)\"[^>]*data-original=\"([^\"]+)\"[\\s\\S]*?remarks\">([^<]*)</g)].map(m=>({id:m[1],title:m[2],cover:m[3],remark:m[4].trim(),desc:\"\",playlist:[]}));return items",
+        "detail": "const id=env.get(\"movieId\");const html=await reqBrowser(`${env.baseUrl}${id}`);const title=html.match(/<h1[^>]*>([^<]+)<\\/h1>/)?.[1]?.trim()??\"\";const cover=html.match(/hl-item-thumb[^>]*data-original=\"([^\"]+)\"/)?.[1]??\"\";const remark=html.match(/hl-item-sub[^>]*>([^<]+)<\\/div>/)?.[1]?.trim()??\"\";const desc=html.match(/hl-item-text[^>]*>([^<]+)<\\/div>/)?.[1]?.trim()??\"\";const playlist=[];const blockMatch=[...html.matchAll(/hl-plays-list[\\s\\S]*?hl-plays-title[^>]*>([^<]+)<[\\s\\S]*?<ul[^>]*>([\\s\\S]*?)<\\/ul>/g)];for(const[,name,ul]of blockMatch){const urls=[...ul.matchAll(/href=\"([^\"]+)\"[^>]*>([^<]+)<\\/a>/g)].flatMap(m=>[{title:`${m[2]}（直链）`,url:`${m[1]}?real=1`},{title:`${m[2]}（原页）`,url:`${m[1]}?raw=1`}]);playlist.push({name:name.trim(),urls})}return{id,title,cover,desc,remark,playlist}"
       }
     }
   },

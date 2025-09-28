@@ -27,6 +27,11 @@ export default class YHDM implements Handle {
     const html = await reqBrowser(url);
     const $ = kitty.load(html);
 
+    if (env.get('debug')) {
+      console.log('[DEBUG] 分类页 URL:', url);
+      console.log('[DEBUG] HTML 片段:', html.slice(0, 300));
+    }
+
     return $('.item').toArray().map<Movie>(el => {
       const a = $(el).find('a');
       const img = $(el).find('img');
@@ -39,9 +44,15 @@ export default class YHDM implements Handle {
 
   async getSearch() {
     const keyword = env.get('keyword');
+    if (!keyword) return [];
     const url = `${env.baseUrl}/search/${encodeURIComponent(keyword)}`;
     const html = await reqBrowser(url);
     const $ = kitty.load(html);
+
+    if (env.get('debug')) {
+      console.log('[DEBUG] 搜索 URL:', url);
+      console.log('[DEBUG] HTML 片段:', html.slice(0, 300));
+    }
 
     return $('.item').toArray().map<Movie>(el => {
       const a = $(el).find('a');
@@ -59,8 +70,13 @@ export default class YHDM implements Handle {
     const html = await reqBrowser(url);
     const $ = kitty.load(html);
 
-    const title = $('h1').text().trim();
-    const cover = 'https:' + ($('img.lazyload').attr('data-src') ?? '');
+    if (env.get('debug')) {
+      console.log('[DEBUG] 详情页 URL:', url);
+      console.log('[DEBUG] HTML 片段:', html.slice(0, 300));
+    }
+
+    const title = $('h1').first().text().trim();
+    const cover = 'https:' + ($('img.lazyload').attr('data-src') ?? $('img.lazyload').attr('src') ?? '');
     const desc = $('.info p').text().trim();
     const remark = $('.info span').text().trim();
 
@@ -78,6 +94,11 @@ export default class YHDM implements Handle {
   }
 
   async parseIframe() {
-    return kitty.utils.getM3u8WithIframe(env);
+    try {
+      return await kitty.utils.getM3u8WithIframe(env);
+    } catch (e) {
+      console.warn('[DEBUG] parseIframe 异常:', e);
+      return { url: '' };
+    }
   }
 }

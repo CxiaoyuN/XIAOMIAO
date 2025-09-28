@@ -1178,6 +1178,10 @@
           {
             "text": "欧美动漫",
             "id": "omeidongman"
+          },
+          {
+            "text": "动漫电影",
+            "id": "dongmandianying"
           }
         ],
         "search": "const keyword=env.get(\"keyword\");const url=`${env.baseUrl}/search/${encodeURIComponent(keyword)}-------------.html`;const html=await req(url);const $=kitty.load(html);const items=$(\"ul.hl-vod-list li\").toArray().map(el=>{const a=$(el).find(\"a.hl-item-thumb\");const id=a.attr(\"href\")??\"\";const title=a.attr(\"title\")??\"\";const cover=a.attr(\"data-original\")??\"\";const remark=$(el).find(\".remarks\").text().trim();return{id,title,cover,desc:\"\",remark,playlist:[]}});return items",

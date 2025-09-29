@@ -23,27 +23,28 @@ export default class YHW implements Handle {
   async getHome() {
     const cate = env.get('category')
     const page = env.get('page')
-    const supportsPaging = ['ribendongman', 'guochandongman'].includes(cate)
-    const url = supportsPaging
+    const url = ['ribendongman', 'guochandongman'].includes(cate)
       ? `${env.baseUrl}/type/${cate}-${page}.html`
       : `${env.baseUrl}/type/${cate}.html`
 
     const html = await req(url)
     const $ = kitty.load(html)
+
     return $('.myui-vodlist__box').toArray().map(item => {
       const a = $(item).find('a.myui-vodlist__thumb')
-      const id = a.attr('href') ?? ''
-      const title = a.attr('title') ?? ''
-      const cover = a.attr('data-original') ?? ''
-      const remark = $(item).find('.pic-text').text().trim() ?? ''
-      return { id, title, cover, remark, playlist: [] }
+      return {
+        id: a.attr('href') ?? '',
+        title: a.attr('title') ?? '',
+        cover: a.attr('data-original') ?? '',
+        remark: $(item).find('.pic-text').text().trim(),
+        playlist: [],
+      }
     })
   }
 
   async getDetail() {
     const id = env.get('movieId')
-    const url = `${env.baseUrl}${id}`
-    const html = await req(url)
+    const html = await req(`${env.baseUrl}${id}`)
     const $ = kitty.load(html)
 
     const title = $('.myui-content__detail .title').text().trim()
@@ -58,23 +59,28 @@ export default class YHW implements Handle {
       const tabId = $(tab).attr('id') ?? ''
       const tabTitle = $(`.nav-tabs a[href="#${tabId}"]`).text().trim() || '默认线路'
 
-      const rawLinks = $(tab).find('a[href*="/play/"]').toArray().map(a => {
-        const text = $(a).text().trim()
-        const playPath = $(a).attr('href') ?? ''
-        return { text, playPath }
-      })
+      const rawLinks = $(tab).find('a[href*="/play/"]').toArray().map(a => ({
+        text: $(a).text().trim(),
+        playPath: a.attribs.href,
+      }))
 
       const videos: IPlaylistVideo[] = []
 
-      // ✅ 插入网页播放按钮（第一集）
+      // 插入网页播放按钮（第一集）
       if (rawLinks.length > 0) {
         const fullWebUrl = `${baseUrl}${rawLinks[0].playPath}`
         videos.push({ text: '网页播放', url: fullWebUrl })
       }
 
-      // ✅ 替换每集链接为代理地址
+      // 遍历每集链接，访问页面并提取加密字段
       for (const { text, playPath } of rawLinks) {
-        videos.push({ text, id: playPath }) // 交给 parseIframe 处理
+        const fullPlayUrl = `${baseUrl}${playPath}`
+        const playHtml = await req(fullPlayUrl)
+        const urlMatch = playHtml.match(/player_aaaa\.url\s*=\s*["']([^"']+)["']/)
+        if (!urlMatch) continue
+        const encrypted = urlMatch[1]
+        const proxyUrl = `https://danmu.yhdmjx.com/m3u8.php?url=${encodeURIComponent(encrypted)}`
+        videos.push({ text, url: proxyUrl })
       }
 
       if (videos.length > 0) {
@@ -95,25 +101,22 @@ export default class YHW implements Handle {
   async getSearch() {
     const wd = env.get('keyword')
     const page = env.get('page')
-    const url = `${env.baseUrl}/search/${wd}----------${page}---.html`
-    const html = await req(url)
+    const html = await req(`${env.baseUrl}/search/${wd}----------${page}---.html`)
     const $ = kitty.load(html)
+
     return $('.myui-vodlist__box').toArray().map(item => {
       const a = $(item).find('a.myui-vodlist__thumb')
-      const id = a.attr('href') ?? ''
-      const title = a.attr('title') ?? ''
-      const cover = a.attr('data-original') ?? ''
-      const remark = $(item).find('.pic-text').text().trim() ?? ''
-      return { id, title, cover, remark, playlist: [] }
+      return {
+        id: a.attr('href') ?? '',
+        title: a.attr('title') ?? '',
+        cover: a.attr('data-original') ?? '',
+        remark: $(item).find('.pic-text').text().trim(),
+        playlist: [],
+      }
     })
   }
 
   async parseIframe() {
-    const playPath = env.get('id')
-    const playHtml = await req(`${env.baseUrl}${playPath}`)
-    const urlMatch = playHtml.match(/player_aaaa\.url\s*=\s*["']([^"']+)["']/)
-    if (!urlMatch) return ''
-    const encrypted = urlMatch[1]
-    return `https://danmu.yhdmjx.com/m3u8.php?url=${encodeURIComponent(encrypted)}`
+    return '' // 所有播放地址已通过代理接口处理，无需再解析
   }
 }

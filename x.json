@@ -516,14 +516,32 @@
   {
     "id": "yhw",
     "name": "樱花动漫",
+    "api": "https://www.857yhw.com",
     "type": 1,
     "nsfw": false,
     "extra": {
       "js": {
-        "category": "return[...CONFIG.DEFAULT_CATEGORIES]",
-        "home": "const cate=env.get(\"category\")||\"\";const page=env.get(\"page\")||\"1\";try{const supportsPaging=CONFIG.SUPPORT_PAGING_CATEGORIES.includes(cate);const path=CONFIG.URL_TEMPLATES.CATEGORY(cate,supportsPaging?page:\"\");const url=`${CONFIG.BASE_URL}${path}`;console.log(`Fetching home data from: ${url}`);const html=await robustReq(url);const $=kitty.load(html);const items=$(CONFIG.SELECTORS.VOD_LIST).toArray().map(item=>this.parseVideoItem(item,$)).filter(v=>v.id&&v.title);if(items.length>0){return items}else{console.log(\"\\u9996\\u9875\\u5217\\u8868\\u4E3A\\u7A7A\\uFF0C\\u5C1D\\u8BD5\\u964D\\u7EA7\\u65B9\\u6848...\");return await this.getFallbackHome()}}catch(error){console.error(\"\\u83B7\\u53D6\\u9996\\u9875\\u6570\\u636E\\u5931\\u8D25:\",error);return await this.getFallbackHome()}",
-        "detail": "const id=env.get(\"movieId\");if(!id){console.error(\"movieId \\u4E3A\\u7A7A\");throw new Error(\"\\u65E0\\u6548\\u7684 movieId\")}const url=`${CONFIG.BASE_URL}${id}`;let html;let $;try{console.log(`Fetching detail from: ${url}`);html=await robustReq(url);$=kitty.load(html)}catch(error){console.error(`请求详情页失败: ${url}`,error);throw new Error(\"\\u83B7\\u53D6\\u8BE6\\u60C5\\u5931\\u8D25\\uFF0C\\u8BF7\\u68C0\\u67E5\\u7F51\\u7EDC\\u6216movieId\")}const title=($(CONFIG.SELECTORS.DETAIL_TITLE).text()||\"\\u672A\\u77E5\\u6807\\u9898\").trim();const desc=($(CONFIG.SELECTORS.DETAIL_DESC).text()||\"\").trim();const cover=$(CONFIG.SELECTORS.DETAIL_COVER).attr(\"data-original\")||$(CONFIG.SELECTORS.DETAIL_COVER).attr(\"src\")||\"\";const remark=($(CONFIG.SELECTORS.DETAIL_REMARK).text()||\"\").trim();const rawLinks=$(CONFIG.SELECTORS.PLAY_LIST).toArray().map(item=>{const $item=$(item);return{text:($item.text()||\"\\u672A\\u77E5\\u96C6\\u6570\").trim(),playPath:$item.attr(\"href\")||\"\"}}).filter(link=>link.playPath);if(rawLinks.length===0){console.warn(\"\\u672A\\u5728\\u8BE6\\u60C5\\u9875\\u627E\\u5230\\u64AD\\u653E\\u94FE\\u63A5\",url)}const videos=[];for(const link of rawLinks){try{const playUrl=`${CONFIG.BASE_URL}${link.playPath}`;console.log(`解析播放页: ${playUrl}`);const playHtml=await robustReq(playUrl);const urlMatch=playHtml.match(/player_data\\s*\\.\\s*url\\s*=\\s*[\"']([^\"']+)[\"']/);const encryptMatch=playHtml.match(/player_data\\s*\\.\\s*encrypt\\s*=\\s*[\"']?(\\d)[\"']?/);if(!urlMatch||!encryptMatch){console.warn(`未在播放页找到 player_data 信息: ${playUrl}`);continue}let realUrl=urlMatch[1];const encryptType=encryptMatch[1];console.log(`解密前: ${realUrl}, 加密类型: ${encryptType}`);if(encryptType===\"2\"){realUrl=Buffer.from(decodeURIComponent(realUrl),\"base64\").toString(\"utf-8\")}else if(encryptType===\"1\"){realUrl=decodeURIComponent(realUrl)}else{console.warn(`未知的加密类型: ${encryptType}, 使用原始URL.`)}console.log(`解密后: ${realUrl}`);if(realUrl&&(realUrl.startsWith(\"http://\")||realUrl.startsWith(\"https://\")||realUrl.startsWith(\"//\"))){videos.push({text:link.text,id:realUrl})}else{console.warn(`解密后的URL格式似乎不正确: ${realUrl}`)}}catch(error){console.error(`处理播放链接 \"${link.text}\" 时发生错误:`,error);continue}}return{id,title,cover,desc,remark,playlist:videos.length>0?[{title:\"\\u64AD\\u653E\\u5217\\u8868\",videos}]:[]}",
-        "search": "const wd=env.get(\"keyword\");const page=env.get(\"page\")||\"1\";if(!wd){console.warn(\"\\u641C\\u7D22\\u5173\\u952E\\u8BCD\\u4E3A\\u7A7A\");return[]}try{const path=CONFIG.URL_TEMPLATES.SEARCH(wd,page);const url=`${CONFIG.BASE_URL}${path}`;console.log(`Searching: ${url}`);const html=await robustReq(url);const $=kitty.load(html);return $(CONFIG.SELECTORS.VOD_LIST).toArray().map(item=>this.parseVideoItem(item,$)).filter(v=>v.id&&v.title)}catch(error){console.error(\"\\u641C\\u7D22\\u5931\\u8D25:\",error);return[]}",
+        "category": [
+          {
+            "text": "日本",
+            "id": "ribendongman"
+          },
+          {
+            "text": "国产",
+            "id": "guochandongman"
+          },
+          {
+            "text": "欧美",
+            "id": "omeidongman"
+          },
+          {
+            "text": "电影",
+            "id": "dongmandianying"
+          }
+        ],
+        "home": "const cate=env.get(\"category\");const page=env.get(\"page\");const supportsPaging=[\"ribendongman\",\"guochandongman\"].includes(cate);const url=supportsPaging?`${env.baseUrl}/type/${cate}-${page}.html`:`${env.baseUrl}/type/${cate}.html`;const html=await req(url);const $=kitty.load(html);const items=$(\".myui-vodlist__box\").toArray().map(item=>{const a=$(item).find(\"a.myui-vodlist__thumb\");const id=a.attr(\"href\")??\"\";const title=a.attr(\"title\")??\"\";const cover=a.attr(\"data-original\")??\"\";const remark=$(item).find(\".pic-text\").text().trim()??\"\";return{id,title,cover,remark,playlist:[]}});return items.length>0?items:await this.getFallbackHome()",
+        "detail": "const id=env.get(\"movieId\");const url=`${env.baseUrl}${id}`;const html=await req(url);const $=kitty.load(html);const title=$(\".myui-content__detail .title\").text().trim();const desc=$(\".myui-content__detail .data\").text().trim();const cover=$(\".myui-content__thumb .lazyload\").attr(\"data-original\")??\"\";const remark=$(\".myui-content__detail .myui-content__other\").text().trim();const rawLinks=$(\"#playlist .col-md-auto a\").toArray().map(item=>{const text=$(item).text().trim();const playPath=$(item).attr(\"href\")??\"\";return{text,playPath}});const videos=[];for(const{text,playPath}of rawLinks){const playHtml=await req(`${env.baseUrl}${playPath}`);const urlMatch=playHtml.match(/player_data\\.url\\s*=\\s*[\"']([^\"']+)[\"']/);const encryptMatch=playHtml.match(/player_data\\.encrypt\\s*=\\s*[\"']?(\\d)[\"']?/);if(!urlMatch||!encryptMatch)continue;let realUrl=urlMatch[1];const encryptType=encryptMatch[1];if(encryptType===\"2\"){realUrl=Buffer.from(decodeURIComponent(realUrl),\"base64\").toString(\"utf-8\")}else if(encryptType===\"1\"){realUrl=decodeURIComponent(realUrl)}if(realUrl.startsWith(\"http\")||realUrl.startsWith(\"//\")){videos.push({text,id:realUrl})}}return{id,title,cover,desc,remark,playlist:videos.length>0?[{title:\"\\u6A31\\u82B1\\u52A8\\u6F2B\",videos}]:[]}",
+        "search": "const wd=env.get(\"keyword\");const page=env.get(\"page\");const url=`${env.baseUrl}/search/${wd}----------${page}---.html`;const html=await req(url);const $=kitty.load(html);return $(\".myui-vodlist__box\").toArray().map(item=>{const a=$(item).find(\"a.myui-vodlist__thumb\");const id=a.attr(\"href\")??\"\";const title=a.attr(\"title\")??\"\";const cover=a.attr(\"data-original\")??\"\";const remark=$(item).find(\".pic-text\").text().trim()??\"\";return{id,title,cover,remark,playlist:[]}})",
         "parseIframe": "return\"\""
       }
     }

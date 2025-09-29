@@ -51,7 +51,7 @@ export default class YHW implements Handle {
     const cover = $('.myui-content__thumb .lazyload').attr('data-original') ?? ''
     const remark = $('.myui-content__detail .myui-content__other').text().trim()
 
-    const rawLinks = $('#playlist .col-md-auto a').toArray().map(item => {
+    const rawLinks = $('.myui-content__list .col-md-auto a').toArray().map(item => {
       const text = $(item).text().trim()
       const playPath = $(item).attr('href') ?? ''
       return { text, playPath }
@@ -64,7 +64,8 @@ export default class YHW implements Handle {
       if (!urlMatch) continue
 
       const encrypted = urlMatch[1]
-      videos.push({ text, id: encrypted }) // ✅ 使用 id，交给 parseIframe
+      const proxyUrl = `https://danmu.yhdmjx.com/m3u8.php?url=${encodeURIComponent(encrypted)}`
+      videos.push({ text, url: proxyUrl }) // ✅ 直接使用 url，播放器可识别
     }
 
     return {
@@ -94,7 +95,6 @@ export default class YHW implements Handle {
   }
 
   async parseIframe() {
-    const encrypted = env.get('id')
-    return `https://danmu.yhdmjx.com/m3u8.php?url=${encodeURIComponent(encrypted)}`
+    return '' // ✅ 不需要解析，播放地址已是直链
   }
 }

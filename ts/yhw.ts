@@ -4,7 +4,7 @@ export default class YHW implements Handle {
   getConfig() {
     return {
       id: 'yhw',
-      name: '樱花动漫_测试',
+      name: '樱花动漫',
       api: 'https://www.857yhw.com',
       type: 1,
       nsfw: false,
@@ -64,8 +64,7 @@ export default class YHW implements Handle {
       if (!urlMatch) continue
 
       const encrypted = urlMatch[1]
-      const proxyUrl = `https://danmu.yhdmjx.com/m3u8.php?url=${encodeURIComponent(encrypted)}`
-      videos.push({ text, url: proxyUrl })
+      videos.push({ text, id: encrypted }) // ✅ 使用 id，交给 parseIframe
     }
 
     return {
@@ -74,7 +73,7 @@ export default class YHW implements Handle {
       cover,
       desc,
       remark,
-      playlist: videos.length > 0 ? [{ title: '樱花', videos }] : [],
+      playlist: videos.length > 0 ? [{ title: '在线播放', videos }] : [],
     }
   }
 
@@ -95,6 +94,7 @@ export default class YHW implements Handle {
   }
 
   async parseIframe() {
-    return '' // 所有播放地址已通过代理接口处理，无需再解析
+    const encrypted = env.get('id')
+    return `https://danmu.yhdmjx.com/m3u8.php?url=${encodeURIComponent(encrypted)}`
   }
 }

@@ -1,4 +1,4 @@
-// import { kitty, req, createTestEnv } from 'utils'
+// import { kitty, req } from 'utils'
 
 export default class YHW implements Handle {
   getConfig() {
@@ -13,10 +13,10 @@ export default class YHW implements Handle {
 
   async getCategory() {
     return <ICategory[]>[
-      { text: '日本', id: 'ribendongman' },
-      { text: '国产', id: 'guochandongman' },
-      { text: '欧美', id: 'omeidongman' },
-      { text: '电影', id: 'dongmandianying' },
+      { text: '日本动漫', id: 'ribendongman' },
+      { text: '国产动漫', id: 'guochandongman' },
+      { text: '欧美动漫', id: 'omeidongman' },
+      { text: '动漫电影', id: 'dongmandianying' },
     ]
   }
 
@@ -95,6 +95,22 @@ export default class YHW implements Handle {
   }
 
   async parseIframe() {
-    return kitty.utils.getM3u8WithIframe(env)
+    const iframeUrl = env.get('iframe')
+    const html = await req(`${env.baseUrl}${iframeUrl}`)
+
+    const urlMatch = html.match(/player_data\.url\s*=\s*["']([^"']+)["']/)
+    const encryptMatch = html.match(/player_data\.encrypt\s*=\s*["']?(\d)["']?/)
+    if (!urlMatch || !encryptMatch) return ''
+
+    let encrypted = urlMatch[1]
+    const encryptType = encryptMatch[1]
+
+    if (encryptType === '2') {
+      encrypted = Buffer.from(decodeURIComponent(encrypted), 'base64').toString('utf-8')
+    } else if (encryptType === '1') {
+      encrypted = decodeURIComponent(encrypted)
+    }
+
+    return encrypted
   }
 }

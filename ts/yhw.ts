@@ -4,7 +4,7 @@ export default class YHW implements Handle {
   getConfig() {
     return <Iconfig>{
       id: 'yhw',
-      name: '樱花动漫_测试',
+      name: '樱花动漫',
       api: 'https://www.857yhw.com',
       type: 1,
       nsfw: false,
@@ -73,24 +73,13 @@ export default class YHW implements Handle {
     const videos: IPlaylistVideo[] = []
     for (const { text, playPath } of rawLinks) {
       const playHtml = await req(`${env.baseUrl}${playPath}`)
-      const urlMatch = playHtml.match(/player_data\.url\s*=\s*["']([^"']+)["']/)
-      const encryptMatch = playHtml.match(/player_data\.encrypt\s*=\s*["']?(\d)["']?/)
+      const urlMatch = playHtml.match(/player_aaaa\.url\s*=\s*["']([^"']+)["']/)
+      const encryptMatch = playHtml.match(/player_aaaa\.encrypt\s*=\s*["']?(\d)["']?/)
       if (!urlMatch || !encryptMatch) continue
 
-      let realUrl = urlMatch[1]
-      const encryptType = encryptMatch[1]
-      if (encryptType === '2') {
-        realUrl = Buffer.from(decodeURIComponent(realUrl), 'base64').toString('utf-8')
-      } else if (encryptType === '1') {
-        realUrl = decodeURIComponent(realUrl)
-      }
-
-      // 智能判断：如果是直链则用 url，否则用 id
-      if (realUrl.startsWith('http') || realUrl.startsWith('//')) {
-        videos.push({ text, url: realUrl })
-      } else {
-        videos.push({ text, id: realUrl })
-      }
+      const encryptedUrl = urlMatch[1]
+      const proxyUrl = `https://danmu.yhdmjx.com/m3u8.php?url=${encodeURIComponent(encryptedUrl)}`
+      videos.push({ text, url: proxyUrl })
     }
 
     return <IMovie>{
@@ -120,6 +109,6 @@ export default class YHW implements Handle {
   }
 
   async parseIframe() {
-    return '' // 如果某集使用 id 字段，这里可以补充解析逻辑
+    return '' // 所有播放地址已通过代理接口处理，无需再解析
   }
 }

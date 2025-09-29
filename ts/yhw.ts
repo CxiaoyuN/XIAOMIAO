@@ -4,7 +4,7 @@ export default class YHW implements Handle {
   getConfig() {
     return {
       id: 'yhw',
-      name: '樱花动漫',
+      name: '樱花动漫CX',
       api: 'https://www.857yhw.com',
       type: 1,
       nsfw: false,

@@ -13,10 +13,10 @@ export default class YHW implements Handle {
 
   async getCategory() {
     return <ICategory[]>[
-      { text: '日本', id: 'ribendongman' },
-      { text: '国产', id: 'guochandongman' },
-      { text: '欧美', id: 'omeidongman' },
-      { text: '电影', id: 'dongmandianying' },
+      { text: '日漫', id: 'ribendongman' },
+      { text: '国漫', id: 'guochandongman' },
+      { text: '美漫', id: 'omeidongman' },
+      { text: '剧场', id: 'dongmandianying' },
     ]
   }
 
@@ -96,7 +96,7 @@ export default class YHW implements Handle {
       cover,
       desc,
       remark,
-      playlist: videos.length > 0 ? [{ title: '樱花动漫', videos }] : [],
+      playlist: videos.length > 0 ? [{ title: '在线播放', videos }] : [],
     }
   }
 

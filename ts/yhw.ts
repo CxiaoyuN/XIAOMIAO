@@ -1,76 +1,81 @@
-export default class YHW implements Handle {
+// import { kitty, req } from 'utils'
+
+export default class SakuraAnime implements Handle {
   getConfig() {
-    return <IConfig>{
-      id: "yhw",
-      name: "857樱花动漫",
-      api: "https://www.857yhw.com",
+    return <Iconfig>{
+      id: 'sakura857',
+      name: '樱花动漫',
+      api: 'https://www.857yhw.com',
       type: 1,
       nsfw: false,
-    };
+    }
   }
 
   async getCategory() {
-    return [
-      { id: "/type/ribendongman.html", text: "日本动漫" },
-      { id: "/type/2.html", text: "国产动漫" },
-      { id: "/type/3.html", text: "剧场版" },
-      { id: "/type/4.html", text: "欧美动漫" },
-    ];
+    return <ICategory[]>[
+      { text: '日本动漫', id: 'ribendongman' },
+      { text: '国产动漫', id: 'guochandongman' },
+      { text: '欧美动漫', id: 'oumeidongman' },
+      { text: '剧场版', id: 'juchangban' },
+    ]
   }
 
   async getHome() {
-    const cate = env.get("category") || "/type/ribendongman.html";
-    const page = env.get("page") || 1;
-    const url = `${env.baseUrl}${cate.replace(".html", "")}-${page}.html`;
-    const html = await req(url);
-    const $ = kitty.load(html);
-
-    return $(".module-item").map((i, el) => {
-      const a = $(el).find("a");
-      const id = a.attr("href") ?? "";
-      const title = a.attr("title") ?? a.text().trim();
-      const cover = $(el).find("img").attr("data-src") || $(el).find("img").attr("src") || "";
-      const remark = $(el).find(".module-item-text").text().trim();
-      return <IMovie>{ id, title, cover, remark };
-    }).get();
-  }
-
-  async getSearch(keyword: string) {
-    const page = env.get("page") || 1;
-    const url = `${env.baseUrl}/search/${encodeURIComponent(keyword)}----------${page}---.html`;
-    const html = await req(url);
-    const $ = kitty.load(html);
-
-    return $(".module-search-item").map((i, el) => {
-      const a = $(el).find("a");
-      const id = a.attr("href") ?? "";
-      const title = a.attr("title") ?? a.text().trim();
-      const cover = $(el).find("img").attr("data-src") || $(el).find("img").attr("src") || "";
-      return <IMovie>{ id, title, cover, remark: "" };
-    }).get();
+    const cate = env.get('category')
+    const page = env.get('page')
+    const url = `${env.baseUrl}/type/${cate}-${page}.html`
+    const html = await req(url)
+    const $ = kitty.load(html)
+    return $('.myui-vodlist__box').toArray().map(item => {
+      const a = $(item).find('a.myui-vodlist__thumb')
+      const id = a.attr('href') ?? ''
+      const title = a.attr('title') ?? ''
+      const cover = a.attr('data-original') ?? ''
+      const remark = $(item).find('.pic-text').text() ?? ''
+      return { id, title, cover, remark, playlist: [] }
+    })
   }
 
   async getDetail() {
-    const id = env.get("movieId");
-    const url = `${env.baseUrl}${id}`;
-    const html = await req(url);
-    const $ = kitty.load(html);
-
-    const title = $("h1").text().trim();
-    const desc = $(".video-info-content").text().trim();
-    const cover = $("meta[property='og:image']").attr("content") ?? "";
-    const iframe = $("iframe").attr("src");
-
-    let playlist: IPlaylist[] = [];
-    if (iframe) {
-      env.set("iframe", iframe);
-      playlist = [{ title: "默认线路", videos: [{ text: "播放", id: iframe }] }];
+    const id = env.get('movieId')
+    const url = `${env.baseUrl}${id}`
+    const html = await req(url)
+    const $ = kitty.load(html)
+    const title = $('.myui-content__detail .title').text()
+    const desc = $('.myui-content__detail .data').text()
+    const cover = $('.myui-content__thumb .lazyload').attr('data-original') ?? ''
+    const player: IPlaylistVideo[] = $('#playlist .col-md-auto a').toArray().map(item => {
+      const text = $(item).text()
+      const id = $(item).attr('href') ?? ''
+      return { text, id }
+    })
+    return <IMovie>{
+      id,
+      title,
+      cover,
+      desc,
+      remark: '',
+      playlist: [{ title: '樱花动漫', videos: player }],
     }
+  }
 
-    return <IMovie>{ id, title, desc, cover, playlist };
+  async getSearch() {
+    const wd = env.get('keyword')
+    const page = env.get('page')
+    const url = `${env.baseUrl}/search/${wd}----------${page}---.html`
+    const html = await req(url)
+    const $ = kitty.load(html)
+    return $('.myui-vodlist__box').toArray().map(item => {
+      const a = $(item).find('a.myui-vodlist__thumb')
+      const id = a.attr('href') ?? ''
+      const title = a.attr('title') ?? ''
+      const cover = a.attr('data-original') ?? ''
+      const remark = $(item).find('.pic-text').text() ?? ''
+      return { id, title, cover, remark, playlist: [] }
+    })
   }
 
   async parseIframe() {
-    return env.get<string>("iframe");
+    return kitty.utils.getM3u8WithIframe(env)
   }
 }

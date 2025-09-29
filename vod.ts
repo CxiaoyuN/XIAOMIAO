@@ -142,7 +142,7 @@ const vods = <Iconfig[]>[
   },
   {
     id: "1080zyku",
-    name: "1080资源",
+    name: "高清资源",
     api: "http://api.1080zyku.com/inc/api.php/provide/vod",
     nsfw: false,
     type: 0,

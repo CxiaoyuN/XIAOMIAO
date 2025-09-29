@@ -85,7 +85,10 @@ export default class YHW implements Handle {
         realUrl = decodeURIComponent(realUrl)
       }
 
+      // 智能判断：如果是直链则用 url，否则用 id
       if (realUrl.startsWith('http') || realUrl.startsWith('//')) {
+        videos.push({ text, url: realUrl })
+      } else {
         videos.push({ text, id: realUrl })
       }
     }
@@ -117,6 +120,6 @@ export default class YHW implements Handle {
   }
 
   async parseIframe() {
-    return '' // 已在 getDetail 中提前解密，无需再解析
+    return '' // 如果某集使用 id 字段，这里可以补充解析逻辑
   }
 }

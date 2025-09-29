@@ -4,7 +4,7 @@ export default class YHW implements Handle {
   getConfig() {
     return {
       id: 'yhw',
-      name: '樱花动漫CX',
+      name: '樱花动漫',
       api: 'https://www.857yhw.com',
       type: 1,
       nsfw: false,
@@ -51,22 +51,22 @@ export default class YHW implements Handle {
     const cover = $('.myui-content__thumb .lazyload').attr('data-original') ?? ''
     const remark = $('.myui-content__detail .myui-content__other').text().trim()
 
-    const rawLinks = $('.myui-content__list .col-md-auto a').toArray().map(item => {
-      const text = $(item).text().trim()
-      const playPath = $(item).attr('href') ?? ''
-      return { text, playPath }
+    const playlists: IPlaylist[] = []
+
+    $('.tab-content .tab-pane').each((_, tab) => {
+      const tabId = $(tab).attr('id') ?? ''
+      const tabTitle = $(`.nav-tabs a[href="#${tabId}"]`).text().trim() || '默认线路'
+
+      const videos: IPlaylistVideo[] = $(tab).find('a[href*="/play/"]').toArray().map(a => {
+        const text = $(a).text().trim()
+        const playPath = $(a).attr('href') ?? ''
+        return { text, id: playPath } // ✅ 使用 id，交给 parseIframe
+      })
+
+      if (videos.length > 0) {
+        playlists.push({ title: tabTitle, videos })
+      }
     })
-
-    const videos: IPlaylistVideo[] = []
-    for (const { text, playPath } of rawLinks) {
-      const playHtml = await req(`${env.baseUrl}${playPath}`)
-      const urlMatch = playHtml.match(/player_aaaa\.url\s*=\s*["']([^"']+)["']/)
-      if (!urlMatch) continue
-
-      const encrypted = urlMatch[1]
-      const proxyUrl = `https://danmu.yhdmjx.com/m3u8.php?url=${encodeURIComponent(encrypted)}`
-      videos.push({ text, url: proxyUrl }) // ✅ 直接使用 url，播放器可识别
-    }
 
     return {
       id,
@@ -74,7 +74,7 @@ export default class YHW implements Handle {
       cover,
       desc,
       remark,
-      playlist: videos.length > 0 ? [{ title: '在线播放', videos }] : [],
+      playlist: playlists,
     }
   }
 
@@ -95,6 +95,11 @@ export default class YHW implements Handle {
   }
 
   async parseIframe() {
-    return '' // ✅ 不需要解析，播放地址已是直链
+    const playPath = env.get('id')
+    const playHtml = await req(`${env.baseUrl}${playPath}`)
+    const urlMatch = playHtml.match(/player_aaaa\.url\s*=\s*["']([^"']+)["']/)
+    if (!urlMatch) return ''
+    const encrypted = urlMatch[1]
+    return `https://danmu.yhdmjx.com/m3u8.php?url=${encodeURIComponent(encrypted)}`
   }
 }

@@ -59,22 +59,43 @@ export default class YHW implements Handle {
     const url = `${env.baseUrl}${id}`
     const html = await req(url)
     const $ = kitty.load(html)
+
     const title = $('.myui-content__detail .title').text().trim()
     const desc = $('.myui-content__detail .data').text().trim()
     const cover = $('.myui-content__thumb .lazyload').attr('data-original') ?? ''
     const remark = $('.myui-content__detail .myui-content__other').text().trim()
-    const player: IPlaylistVideo[] = $('#playlist .col-md-auto a').toArray().map(item => {
+
+    const rawLinks = $('#playlist .col-md-auto a').toArray().map(item => {
       const text = $(item).text().trim()
-      const id = $(item).attr('href') ?? ''
-      return { text, id }
+      const playPath = $(item).attr('href') ?? ''
+      return { text, playPath }
     })
+
+    const videos: IPlaylistVideo[] = []
+    for (const { text, playPath } of rawLinks) {
+      const playHtml = await req(`${env.baseUrl}${playPath}`)
+      const urlMatch = playHtml.match(/player_data\.url\s*=\s*["']([^"']+)["']/)
+      const encryptMatch = playHtml.match(/player_data\.encrypt\s*=\s*["']?(\d)["']?/)
+      if (!urlMatch || !encryptMatch) continue
+
+      let realUrl = urlMatch[1]
+      const encryptType = encryptMatch[1]
+      if (encryptType === '2') {
+        realUrl = Buffer.from(decodeURIComponent(realUrl), 'base64').toString('utf-8')
+      } else if (encryptType === '1') {
+        realUrl = decodeURIComponent(realUrl)
+      }
+
+      videos.push({ text, id: realUrl })
+    }
+
     return <IMovie>{
       id,
       title,
       cover,
       desc,
       remark,
-      playlist: [{ title: '樱花动漫', videos: player }],
+      playlist: [{ title: '樱花动漫', videos }],
     }
   }
 
@@ -95,22 +116,6 @@ export default class YHW implements Handle {
   }
 
   async parseIframe() {
-    const iframeUrl = env.get('iframe')
-    const html = await req(`${env.baseUrl}${iframeUrl}`)
-
-    const urlMatch = html.match(/player_data\.url\s*=\s*["']([^"']+)["']/)
-    const encryptMatch = html.match(/player_data\.encrypt\s*=\s*["']?(\d)["']?/)
-    if (!urlMatch || !encryptMatch) return ''
-
-    let encrypted = urlMatch[1]
-    const encryptType = encryptMatch[1]
-
-    if (encryptType === '2') {
-      encrypted = Buffer.from(decodeURIComponent(encrypted), 'base64').toString('utf-8')
-    } else if (encryptType === '1') {
-      encrypted = decodeURIComponent(encrypted)
-    }
-
-    return encrypted
+    return '' // 已在 getDetail 中提前解密，无需再解析
   }
 }

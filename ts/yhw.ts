@@ -99,6 +99,30 @@ export default class SakuraAnime implements Handle {
   }
 
   async parseIframe() {
-    return kitty.utils.getM3u8WithIframe(env)
+    const iframePath = env.get('iframe') // 例如: /play/9341-1-1.html
+    const fullUrl = `${env.baseUrl}${iframePath}`
+    const html = await this.safeRequest(fullUrl)
+
+    // 尝试提取 .mp4 或 .m3u8 视频地址
+    const match = html.match(/https?:\/\/[^"']+\.(mp4|m3u8)[^"']*/i)
+    if (match) {
+      console.log('🎯 视频地址:', match[0])
+      return match[0]
+    }
+
+    // 尝试从 iframe 中继续解析
+    const $ = kitty.load(html)
+    const iframeSrc = $('iframe').attr('src')
+    if (iframeSrc) {
+      const nestedHtml = await this.safeRequest(iframeSrc)
+      const nestedMatch = nestedHtml.match(/https?:\/\/[^"']+\.(mp4|m3u8)[^"']*/i)
+      if (nestedMatch) {
+        console.log('🎯 嵌套 iframe 视频地址:', nestedMatch[0])
+        return nestedMatch[0]
+      }
+    }
+
+    console.warn('❌ 未找到视频地址')
+    return ''
   }
 }

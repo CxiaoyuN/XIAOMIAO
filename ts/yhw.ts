@@ -13,10 +13,10 @@ export default class YHW implements Handle {
 
   async getCategory() {
     return <ICategory[]>[
-      { text: '日本动漫', id: 'ribendongman' },
-      { text: '国产动漫', id: 'guochandongman' },
-      { text: '欧美动漫', id: 'omeidongman' },
-      { text: '动漫电影', id: 'dongmandianying' },
+      { text: '日漫', id: 'ribendongman' },
+      { text: '国漫', id: 'guochandongman' },
+      { text: '美漫', id: 'omeidongman' },
+      { text: '动画', id: 'dongmandianying' },
     ]
   }
 

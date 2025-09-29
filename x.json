@@ -523,19 +523,19 @@
       "js": {
         "category": [
           {
-            "text": "日本动漫",
+            "text": "日本",
             "id": "ribendongman"
           },
           {
-            "text": "国产动漫",
+            "text": "国产",
             "id": "guochandongman"
           },
           {
-            "text": "欧美动漫",
+            "text": "欧美",
             "id": "oumeidongman"
           },
           {
-            "text": "剧场版",
+            "text": "剧场",
             "id": "juchangban"
           }
         ],

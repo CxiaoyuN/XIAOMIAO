@@ -1,7 +1,6 @@
-# @d1y/kitty
+# XIAOMIAO
 
-小猫影视扩展源, @d1y 自用
-
+引用d1y/kitty，感谢大佬
 ```bash
 bun install
 bunx kitty-parse -o result.json
@@ -10,4 +9,4 @@ bunx kitty-parse -o result.json
 npx http-server
 ```
 
-订阅地址:https://cxiaoyun.github.io/kitty
+订阅地址:https://cxiaoyun.github.io/XIAOMIAO

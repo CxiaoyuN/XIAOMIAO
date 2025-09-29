@@ -1,102 +1,80 @@
-// import { kitty, req } from 'utils'
-
-const CONFIG = {
-  BASE_URL: 'https://www.857yhw.com',
-  SUPPORT_PAGING_CATEGORIES: ['ribendongman', 'guochandongman'] as const,
-  DEFAULT_CATEGORIES: [
-    { text: '日漫', id: 'ribendongman' },
-    { text: '国漫', id: 'guochandongman' },
-    { text: '美漫', id: 'omeidongman' },
-    { text: '动画', id: 'dongmandianying' },
-  ] as const,
-  SELECTORS: {
-    VOD_LIST: '.myui-vodlist__box',
-    THUMB_LINK: 'a.myui-vodlist__thumb',
-    PIC_TEXT: '.pic-text',
-    DETAIL_TITLE: '.myui-content__detail .title',
-    DETAIL_DESC: '.myui-content__detail .data',
-    DETAIL_COVER: '.myui-content__thumb .lazyload',
-    DETAIL_REMARK: '.myui-content__detail .myui-content__other',
-    PLAY_LIST: '#playlist .col-md-auto a',
-  } as const,
-  URL_TEMPLATES: {
-    CATEGORY: (cate: string, page: string) => `/type/${cate}${page ? `-${page}` : ''}.html`,
-    SEARCH: (wd: string, page: string) => `/search/${wd}----------${page}---.html`,
-  } as const,
-}
-
-async function robustReq(url: string): Promise<string> {
-  return await req(url)
-}
+// import { kitty, req, createTestEnv } from 'utils'
 
 export default class YHW implements Handle {
   getConfig() {
-    return {
+    return <Iconfig>{
       id: 'yhw',
       name: '樱花动漫',
-      api: CONFIG.BASE_URL,
+      api: 'https://www.857yhw.com',
       type: 1,
       nsfw: false,
     }
   }
 
   async getCategory() {
-    return [...CONFIG.DEFAULT_CATEGORIES]
-  }
-
-  private parseVideoItem(item: cheerio.Element, $: cheerio.CheerioAPI): IVideoItem {
-    const $item = $(item)
-    const $a = $item.find(CONFIG.SELECTORS.THUMB_LINK)
-    const id = $a.attr('href') || ''
-    const title = $a.attr('title') || $a.attr('alt') || $a.find('img').attr('title') || ''
-    const cover = $a.attr('data-original') || $a.find('img').attr('src') || ''
-    const remark = ($item.find(CONFIG.SELECTORS.PIC_TEXT).text() || '').trim()
-    return { id, title, cover, remark, playlist: [] }
+    return <ICategory[]>[
+      { text: '日本', id: 'ribendongman' },
+      { text: '国产', id: 'guochandongman' },
+      { text: '欧美', id: 'omeidongman' },
+      { text: '电影', id: 'dongmandianying' },
+    ]
   }
 
   async getHome() {
-    const cate = env.get('category') || ''
-    const page = env.get('page') || '1'
-    const supportsPaging = CONFIG.SUPPORT_PAGING_CATEGORIES.includes(cate)
-    const path = CONFIG.URL_TEMPLATES.CATEGORY(cate, supportsPaging ? page : '')
-    const url = `${CONFIG.BASE_URL}${path}`
-    const html = await robustReq(url)
+    const cate = env.get('category')
+    const page = env.get('page')
+    const supportsPaging = ['ribendongman', 'guochandongman'].includes(cate)
+    const url = supportsPaging
+      ? `${env.baseUrl}/type/${cate}-${page}.html`
+      : `${env.baseUrl}/type/${cate}.html`
+
+    const html = await req(url)
     const $ = kitty.load(html)
-    const items = $(CONFIG.SELECTORS.VOD_LIST).toArray().map(item => this.parseVideoItem(item, $)).filter(v => v.id && v.title)
+    const items = $('.myui-vodlist__box').toArray().map(item => {
+      const a = $(item).find('a.myui-vodlist__thumb')
+      const id = a.attr('href') ?? ''
+      const title = a.attr('title') ?? ''
+      const cover = a.attr('data-original') ?? ''
+      const remark = $(item).find('.pic-text').text().trim() ?? ''
+      return { id, title, cover, remark, playlist: [] }
+    })
     return items.length > 0 ? items : await this.getFallbackHome()
   }
 
   async getFallbackHome() {
-    const html = await robustReq(`${CONFIG.BASE_URL}/`)
+    const html = await req(`${env.baseUrl}/`)
     const $ = kitty.load(html)
-    return $(CONFIG.SELECTORS.VOD_LIST).toArray().map(item => this.parseVideoItem(item, $)).filter(v => v.id && v.title)
+    return $('.myui-vodlist__box').toArray().map(item => {
+      const a = $(item).find('a.myui-vodlist__thumb')
+      const id = a.attr('href') ?? ''
+      const title = a.attr('title') ?? ''
+      const cover = a.attr('data-original') ?? ''
+      const remark = $(item).find('.pic-text').text().trim() ?? ''
+      return { id, title, cover, remark, playlist: [] }
+    }).filter(v => v.id && v.title)
   }
 
   async getDetail() {
     const id = env.get('movieId')
-    const url = `${CONFIG.BASE_URL}${id}`
-    const html = await robustReq(url)
+    const url = `${env.baseUrl}${id}`
+    const html = await req(url)
     const $ = kitty.load(html)
+    const title = $('.myui-content__detail .title').text().trim()
+    const desc = $('.myui-content__detail .data').text().trim()
+    const cover = $('.myui-content__thumb .lazyload').attr('data-original') ?? ''
+    const remark = $('.myui-content__detail .myui-content__other').text().trim()
 
-    const title = ($(CONFIG.SELECTORS.DETAIL_TITLE).text() || '未知标题').trim()
-    const desc = ($(CONFIG.SELECTORS.DETAIL_DESC).text() || '').trim()
-    const cover = $(CONFIG.SELECTORS.DETAIL_COVER).attr('data-original') || $(CONFIG.SELECTORS.DETAIL_COVER).attr('src') || ''
-    const remark = ($(CONFIG.SELECTORS.DETAIL_REMARK).text() || '').trim()
-
-    const rawLinks = $(CONFIG.SELECTORS.PLAY_LIST).toArray().map(item => {
-      const $item = $(item)
-      return {
-        text: ($item.text() || '未知集数').trim(),
-        playPath: $item.attr('href') || '',
-      }
-    }).filter(link => link.playPath)
+    const rawLinks = $('#playlist .col-md-auto a').toArray().map(item => {
+      const text = $(item).text().trim()
+      const playPath = $(item).attr('href') ?? ''
+      return { text, playPath }
+    })
 
     const videos: IPlaylistVideo[] = []
-    for (const link of rawLinks) {
-      const playUrl = `${CONFIG.BASE_URL}${link.playPath}`
-      const playHtml = await robustReq(playUrl)
-      const urlMatch = playHtml.match(/player_data\s*\.\s*url\s*=\s*["']([^"']+)["']/)
-      const encryptMatch = playHtml.match(/player_data\s*\.\s*encrypt\s*=\s*["']?(\d)["']?/)
+    for (const { text, playPath } of rawLinks) {
+      const playHtml = await req(`${env.baseUrl}${playPath}`)
+      const urlMatch = playHtml.match(/player_data\.url\s*=\s*["']([^"']+)["']/)
+      const encryptMatch = playHtml.match(/player_data\.encrypt\s*=\s*["']?(\d)["']?/)
       if (!urlMatch || !encryptMatch) continue
 
       let realUrl = urlMatch[1]
@@ -108,32 +86,37 @@ export default class YHW implements Handle {
       }
 
       if (realUrl.startsWith('http') || realUrl.startsWith('//')) {
-        videos.push({ text: link.text, id: realUrl })
+        videos.push({ text, id: realUrl })
       }
     }
 
-    return {
+    return <IMovie>{
       id,
       title,
       cover,
       desc,
       remark,
-      playlist: videos.length > 0 ? [{ title: '樱花线路', videos }] : [],
+      playlist: videos.length > 0 ? [{ title: '樱花动漫', videos }] : [],
     }
   }
 
   async getSearch() {
     const wd = env.get('keyword')
-    const page = env.get('page') || '1'
-    if (!wd) return []
-    const path = CONFIG.URL_TEMPLATES.SEARCH(wd, page)
-    const url = `${CONFIG.BASE_URL}${path}`
-    const html = await robustReq(url)
+    const page = env.get('page')
+    const url = `${env.baseUrl}/search/${wd}----------${page}---.html`
+    const html = await req(url)
     const $ = kitty.load(html)
-    return $(CONFIG.SELECTORS.VOD_LIST).toArray().map(item => this.parseVideoItem(item, $)).filter(v => v.id && v.title)
+    return $('.myui-vodlist__box').toArray().map(item => {
+      const a = $(item).find('a.myui-vodlist__thumb')
+      const id = a.attr('href') ?? ''
+      const title = a.attr('title') ?? ''
+      const cover = a.attr('data-original') ?? ''
+      const remark = $(item).find('.pic-text').text().trim() ?? ''
+      return { id, title, cover, remark, playlist: [] }
+    })
   }
 
   async parseIframe() {
-    return ''
+    return '' // 已在 getDetail 中提前解密，无需再解析
   }
 }

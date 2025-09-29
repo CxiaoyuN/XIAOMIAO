@@ -1157,8 +1157,8 @@
     }
   },
   {
-    "id": "yhw",
-    "name": "857樱花动漫",
+    "id": "sakura857",
+    "name": "樱花动漫",
     "api": "https://www.857yhw.com",
     "type": 1,
     "nsfw": false,
@@ -1166,26 +1166,26 @@
       "js": {
         "category": [
           {
-            "id": "/type/ribendongman.html",
-            "text": "日本动漫"
+            "text": "日本动漫",
+            "id": "ribendongman"
           },
           {
-            "id": "/type/2.html",
-            "text": "国产动漫"
+            "text": "国产动漫",
+            "id": "guochandongman"
           },
           {
-            "id": "/type/3.html",
-            "text": "剧场版"
+            "text": "欧美动漫",
+            "id": "oumeidongman"
           },
           {
-            "id": "/type/4.html",
-            "text": "欧美动漫"
+            "text": "剧场版",
+            "id": "juchangban"
           }
         ],
-        "home": "const cate=env.get(\"category\")||\"/type/ribendongman.html\";const page=env.get(\"page\")||1;const url=`${env.baseUrl}${cate.replace(\".html\",\"\")}-${page}.html`;const html=await req(url);const $=kitty.load(html);return $(\".module-item\").map((i,el)=>{const a=$(el).find(\"a\");const id=a.attr(\"href\")??\"\";const title=a.attr(\"title\")??a.text().trim();const cover=$(el).find(\"img\").attr(\"data-src\")||$(el).find(\"img\").attr(\"src\")||\"\";const remark=$(el).find(\".module-item-text\").text().trim();return{id,title,cover,remark}}).get()",
-        "search": "const page=env.get(\"page\")||1;const url=`${env.baseUrl}/search/${encodeURIComponent(keyword)}----------${page}---.html`;const html=await req(url);const $=kitty.load(html);return $(\".module-search-item\").map((i,el)=>{const a=$(el).find(\"a\");const id=a.attr(\"href\")??\"\";const title=a.attr(\"title\")??a.text().trim();const cover=$(el).find(\"img\").attr(\"data-src\")||$(el).find(\"img\").attr(\"src\")||\"\";return{id,title,cover,remark:\"\"}}).get()",
-        "detail": "const id=env.get(\"movieId\");const url=`${env.baseUrl}${id}`;const html=await req(url);const $=kitty.load(html);const title=$(\"h1\").text().trim();const desc=$(\".video-info-content\").text().trim();const cover=$(\"meta[property='og:image']\").attr(\"content\")??\"\";const iframe=$(\"iframe\").attr(\"src\");let playlist=[];if(iframe){env.set(\"iframe\",iframe);playlist=[{title:\"\\u9ED8\\u8BA4\\u7EBF\\u8DEF\",videos:[{text:\"\\u64AD\\u653E\",id:iframe}]}]}return{id,title,desc,cover,playlist}",
-        "parseIframe": "return env.get(\"iframe\")"
+        "home": "const cate=env.get(\"category\");const page=env.get(\"page\");const url=`${env.baseUrl}/type/${cate}-${page}.html`;const html=await req(url);const $=kitty.load(html);return $(\".myui-vodlist__box\").toArray().map(item=>{const a=$(item).find(\"a.myui-vodlist__thumb\");const id=a.attr(\"href\")??\"\";const title=a.attr(\"title\")??\"\";const cover=a.attr(\"data-original\")??\"\";const remark=$(item).find(\".pic-text\").text()??\"\";return{id,title,cover,remark,playlist:[]}})",
+        "detail": "const id=env.get(\"movieId\");const url=`${env.baseUrl}${id}`;const html=await req(url);const $=kitty.load(html);const title=$(\".myui-content__detail .title\").text();const desc=$(\".myui-content__detail .data\").text();const cover=$(\".myui-content__thumb .lazyload\").attr(\"data-original\")??\"\";const player=$(\"#playlist .col-md-auto a\").toArray().map(item=>{const text=$(item).text();const id=$(item).attr(\"href\")??\"\";return{text,id}});return{id,title,cover,desc,remark:\"\",playlist:[{title:\"\\u6A31\\u82B1\\u52A8\\u6F2B\",videos:player}]}",
+        "search": "const wd=env.get(\"keyword\");const page=env.get(\"page\");const url=`${env.baseUrl}/search/${wd}----------${page}---.html`;const html=await req(url);const $=kitty.load(html);return $(\".myui-vodlist__box\").toArray().map(item=>{const a=$(item).find(\"a.myui-vodlist__thumb\");const id=a.attr(\"href\")??\"\";const title=a.attr(\"title\")??\"\";const cover=a.attr(\"data-original\")??\"\";const remark=$(item).find(\".pic-text\").text()??\"\";return{id,title,cover,remark,playlist:[]}})",
+        "parseIframe": "return kitty.utils.getM3u8WithIframe(env)"
       }
     }
   },

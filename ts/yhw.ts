@@ -60,7 +60,7 @@ export default class YHW implements Handle {
 
       const rawLinks = $(tab).find('a[href*="/play/"]').toArray().map(a => {
         const text = $(a).text().trim()
-        const playPath = $(a).attr('href') ?? ''
+        const playPath = a.attribs.href
         return { text, playPath }
       })
 
@@ -72,9 +72,15 @@ export default class YHW implements Handle {
         videos.push({ text: '网页播放', url: fullWebUrl })
       }
 
-      // ✅ 替换每集链接为代理地址
+      // ✅ 遍历每集链接，访问页面并提取加密字段
       for (const { text, playPath } of rawLinks) {
-        videos.push({ text, id: playPath }) // 交给 parseIframe 处理
+        const fullPlayUrl = `${baseUrl}${playPath}`
+        const playHtml = await req(fullPlayUrl)
+        const urlMatch = playHtml.match(/player_aaaa\.url\s*=\s*["']([^"']+)["']/)
+        if (!urlMatch) continue
+        const encrypted = urlMatch[1]
+        const proxyUrl = `https://danmu.yhdmjx.com/m3u8.php?url=${encodeURIComponent(encrypted)}`
+        videos.push({ text, url: proxyUrl })
       }
 
       if (videos.length > 0) {
@@ -109,11 +115,6 @@ export default class YHW implements Handle {
   }
 
   async parseIframe() {
-    const playPath = env.get('id')
-    const playHtml = await req(`${env.baseUrl}${playPath}`)
-    const urlMatch = playHtml.match(/player_aaaa\.url\s*=\s*["']([^"']+)["']/)
-    if (!urlMatch) return ''
-    const encrypted = urlMatch[1]
-    return `https://danmu.yhdmjx.com/m3u8.php?url=${encodeURIComponent(encrypted)}`
+    return '' // ✅ 所有播放地址已通过代理接口处理，无需再解析
   }
 }

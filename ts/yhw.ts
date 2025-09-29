@@ -1,9 +1,9 @@
-// import { kitty, req } from 'utils'
+// import { kitty, req, createTestEnv } from 'utils'
 
-export default class SakuraAnime implements Handle {
+export default class YHW implements Handle {
   getConfig() {
     return <Iconfig>{
-      id: 'sakura857',
+      id: 'yhw',
       name: '樱花动漫',
       api: 'https://www.857yhw.com',
       type: 1,
@@ -15,25 +15,43 @@ export default class SakuraAnime implements Handle {
     return <ICategory[]>[
       { text: '日本动漫', id: 'ribendongman' },
       { text: '国产动漫', id: 'guochandongman' },
-      { text: '欧美动漫', id: 'oumeidongman' },
-      { text: '剧场版', id: 'juchangban' },
+      { text: '欧美动漫', id: 'omeidongman' },
+      { text: '动漫电影', id: 'dongmandianying' },
     ]
   }
 
   async getHome() {
     const cate = env.get('category')
     const page = env.get('page')
-    const url = `${env.baseUrl}/type/${cate}-${page}.html`
+    const supportsPaging = ['ribendongman', 'guochandongman'].includes(cate)
+    const url = supportsPaging
+      ? `${env.baseUrl}/type/${cate}-${page}.html`
+      : `${env.baseUrl}/type/${cate}.html`
+
     const html = await req(url)
+    const $ = kitty.load(html)
+    const items = $('.myui-vodlist__box').toArray().map(item => {
+      const a = $(item).find('a.myui-vodlist__thumb')
+      const id = a.attr('href') ?? ''
+      const title = a.attr('title') ?? ''
+      const cover = a.attr('data-original') ?? ''
+      const remark = $(item).find('.pic-text').text().trim() ?? ''
+      return { id, title, cover, remark, playlist: [] }
+    })
+    return items.length > 0 ? items : await this.getFallbackHome()
+  }
+
+  async getFallbackHome() {
+    const html = await req(`${env.baseUrl}/`)
     const $ = kitty.load(html)
     return $('.myui-vodlist__box').toArray().map(item => {
       const a = $(item).find('a.myui-vodlist__thumb')
       const id = a.attr('href') ?? ''
       const title = a.attr('title') ?? ''
       const cover = a.attr('data-original') ?? ''
-      const remark = $(item).find('.pic-text').text() ?? ''
+      const remark = $(item).find('.pic-text').text().trim() ?? ''
       return { id, title, cover, remark, playlist: [] }
-    })
+    }).filter(v => v.id && v.title)
   }
 
   async getDetail() {
@@ -41,11 +59,12 @@ export default class SakuraAnime implements Handle {
     const url = `${env.baseUrl}${id}`
     const html = await req(url)
     const $ = kitty.load(html)
-    const title = $('.myui-content__detail .title').text()
-    const desc = $('.myui-content__detail .data').text()
+    const title = $('.myui-content__detail .title').text().trim()
+    const desc = $('.myui-content__detail .data').text().trim()
     const cover = $('.myui-content__thumb .lazyload').attr('data-original') ?? ''
+    const remark = $('.myui-content__detail .myui-content__other').text().trim()
     const player: IPlaylistVideo[] = $('#playlist .col-md-auto a').toArray().map(item => {
-      const text = $(item).text()
+      const text = $(item).text().trim()
       const id = $(item).attr('href') ?? ''
       return { text, id }
     })
@@ -54,25 +73,11 @@ export default class SakuraAnime implements Handle {
       title,
       cover,
       desc,
-      remark: '',
+      remark,
       playlist: [{ title: '樱花动漫', videos: player }],
     }
   }
-  async safeRequest(url: string): Promise<string> {
-    try {
-      const html = await req(url, {
-        headers: {
-          'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64)',
-          'Referer': 'https://www.857yhw.com/',
-        },
-      })
-      if (!html || html.length < 100) throw new Error('Empty HTML')
-      return html
-    } catch (err) {
-      console.warn(`请求失败: ${url}`, err)
-      return ''
-    }
-  }
+
   async getSearch() {
     const wd = env.get('keyword')
     const page = env.get('page')
@@ -84,31 +89,12 @@ export default class SakuraAnime implements Handle {
       const id = a.attr('href') ?? ''
       const title = a.attr('title') ?? ''
       const cover = a.attr('data-original') ?? ''
-      const remark = $(item).find('.pic-text').text() ?? ''
+      const remark = $(item).find('.pic-text').text().trim() ?? ''
       return { id, title, cover, remark, playlist: [] }
     })
   }
 
   async parseIframe() {
-    const iframePath = env.get('iframe') // 例如: /play/9341-1-1.html
-    const fullUrl = `${env.baseUrl}${iframePath}`
-    const html = await this.safeRequest(fullUrl)
-
-    // 尝试提取 .mp4 或 .m3u8 视频地址
-    const match = html.match(/https?:\/\/[^"']+\.(mp4|m3u8)[^"']*/i)
-    if (match) {
-      console.log('🎯 视频地址:', match[0])
-      return match[0]
-    }
-
-    // 尝试从 iframe 中继续解析
-    const $ = kitty.load(html)
-    const iframeSrc = $('iframe').attr('src')
-    if (iframeSrc) {
-      const nestedHtml = await this.safeRequest(iframeSrc)
-      const nestedMatch = nestedHtml.match(/https?:\/\/[^"']+\.(mp4|m3u8)[^"']*/i)
-      if (nestedMatch) {
-        console.log('🎯 嵌套 iframe 视频地址:', nestedMatch[0])
-        return nestedMatch[0]
-      }
-    }
+    return kitty.utils.getM3u8WithIframe(env)
+  }
+}

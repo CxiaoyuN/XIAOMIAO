@@ -46,7 +46,11 @@ export default class SakuraAnime implements Handle {
       const a = $(item).find('a.myui-vodlist__thumb')
       const id = a.attr('href') ?? ''
       const title = a.attr('title') ?? ''
-      const cover = a.attr('data-original') ?? ''
+      const cover =
+        a.attr('data-original') ||
+        a.find('img').attr('src') ||
+        a.css('background-image')?.match(/url\\(['"]?(.*?)['"]?\\)/)?.[1] ||
+        ''
       const remark = $(item).find('.pic-text').text() ?? ''
       if (!id || !title || !cover) return null
       return { id, title, cover, remark, playlist: [] }
@@ -60,7 +64,10 @@ export default class SakuraAnime implements Handle {
     const $ = kitty.load(html)
     const title = $('.myui-content__detail .title').text().trim() || $('h1').text().trim()
     const desc = $('.myui-content__detail .data').text().trim()
-    const cover = $('.myui-content__thumb .lazyload').attr('data-original') ?? ''
+    const cover =
+      $('.myui-content__thumb .lazyload').attr('data-original') ||
+      $('.myui-content__thumb img').attr('src') ||
+      ''
     const player: IPlaylistVideo[] = $('#playlist .col-md-auto a').toArray().map(item => {
       const text = $(item).text().trim()
       const id = $(item).attr('href') ?? ''
@@ -71,14 +78,7 @@ export default class SakuraAnime implements Handle {
       ? [{ title: '樱花动漫', videos: player }]
       : [{ title: '暂无播放列表', videos: [] }]
 
-    return <IMovie>{
-      id,
-      title,
-      cover,
-      desc,
-      remark: '',
-      playlist,
-    }
+    return <IMovie>{ id, title, cover, desc, remark: '', playlist }
   }
 
   async getSearch() {
@@ -91,7 +91,11 @@ export default class SakuraAnime implements Handle {
       const a = $(item).find('a.myui-vodlist__thumb')
       const id = a.attr('href') ?? ''
       const title = a.attr('title') ?? ''
-      const cover = a.attr('data-original') ?? ''
+      const cover =
+        a.attr('data-original') ||
+        a.find('img').attr('src') ||
+        a.css('background-image')?.match(/url\\(['"]?(.*?)['"]?\\)/)?.[1] ||
+        ''
       const remark = $(item).find('.pic-text').text() ?? ''
       if (!id || !title || !cover) return null
       return { id, title, cover, remark, playlist: [] }

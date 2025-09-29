@@ -51,17 +51,31 @@ export default class YHW implements Handle {
     const cover = $('.myui-content__thumb .lazyload').attr('data-original') ?? ''
     const remark = $('.myui-content__detail .myui-content__other').text().trim()
 
+    const baseUrl = env.baseUrl
     const playlists: IPlaylist[] = []
 
     $('.tab-content .tab-pane').each((_, tab) => {
       const tabId = $(tab).attr('id') ?? ''
       const tabTitle = $(`.nav-tabs a[href="#${tabId}"]`).text().trim() || '默认线路'
 
-      const videos: IPlaylistVideo[] = $(tab).find('a[href*="/play/"]').toArray().map(a => {
+      const rawLinks = $(tab).find('a[href*="/play/"]').toArray().map(a => {
         const text = $(a).text().trim()
         const playPath = $(a).attr('href') ?? ''
-        return { text, id: playPath } // ✅ 使用 id，交给 parseIframe
+        return { text, playPath }
       })
+
+      const videos: IPlaylistVideo[] = []
+
+      // ✅ 插入网页播放按钮（第一集）
+      if (rawLinks.length > 0) {
+        const fullWebUrl = `${baseUrl}${rawLinks[0].playPath}`
+        videos.push({ text: '网页播放', url: fullWebUrl })
+      }
+
+      // ✅ 替换每集链接为代理地址
+      for (const { text, playPath } of rawLinks) {
+        videos.push({ text, id: playPath }) // 交给 parseIframe 处理
+      }
 
       if (videos.length > 0) {
         playlists.push({ title: tabTitle, videos })

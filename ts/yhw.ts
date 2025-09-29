@@ -13,10 +13,10 @@ export default class SakuraAnime implements Handle {
 
   async getCategory() {
     return <ICategory[]>[
-      { text: '日本动漫', id: 'ribendongman' },
-      { text: '国产动漫', id: 'guochandongman' },
-      { text: '欧美动漫', id: 'oumeidongman' },
-      { text: '剧场版', id: 'juchangban' },
+      { text: '日本', id: 'ribendongman' },
+      { text: '国产', id: 'guochandongman' },
+      { text: '欧美', id: 'oumeidongman' },
+      { text: '剧场', id: 'juchangban' },
     ]
   }
 

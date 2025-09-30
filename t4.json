@@ -10,6 +10,16 @@
     }
   },
   {
+    "id": "t4-dytt",
+    "name": "电影天堂(T4)",
+    "api": "https://py.doube.eu.org/spider?site=DianYingTanTang",
+    "nsfw": false,
+    "type": 1,
+    "extra": {
+      "template": "t4"
+    }
+  },
+  {
     "id": "t4-pinguo",
     "name": "苹果源(T4)",
     "api": "https://tvbot.ggff.net/pingguo",

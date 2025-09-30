@@ -2143,6 +2143,16 @@
     }
   },
   {
+    "id": "t4-OleVod",
+    "name": "欧乐影院(T4)",
+    "api": "https://py.doube.eu.org/spider?site=OleVod",
+    "nsfw": false,
+    "type": 1,
+    "extra": {
+      "template": "t4"
+    }
+  },
+  {
     "id": "t4-duboku",
     "name": "独播库(T4)",
     "api": "https://tvbot.ggff.net/duboku",

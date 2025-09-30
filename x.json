@@ -1143,6 +1143,48 @@
     }
   },
   {
+    "id": "ThePornCC",
+    "name": "ThePorn",
+    "nsfw": true,
+    "api": "https://theporn.cc",
+    "type": 1,
+    "extra": {
+      "gfw": true,
+      "searchLimit": 28,
+      "js": {
+        "category": [
+          {
+            "id": "categories/all",
+            "text": "全部"
+          },
+          {
+            "id": "jav",
+            "text": "日本AV"
+          },
+          {
+            "id": "jav/uncensored",
+            "text": "日本无码"
+          },
+          {
+            "id": "eu",
+            "text": "欧美"
+          },
+          {
+            "id": "vr",
+            "text": "VR"
+          },
+          {
+            "id": "cartoon",
+            "text": "卡通动漫"
+          }
+        ],
+        "home": "const cate=env.get(\"category\");const page=env.get(\"page\");const url=`${env.baseUrl}/${cate}/${page}`;const $=kitty.load(await req(url));return $(\".video-list .avdata-outer\").toArray().map(item=>{const img=$(item).find(\"img\");const title=img.attr(\"alt\")??\"\";const cover=img.attr(\"data-src\")??\"\";const id=$(item).find(\"a\").attr(\"href\")??\"\";const remark=$(item).find(\".title_fanhao\").text();return{id,title,cover,remark}})",
+        "detail": "let id=env.get(\"movieId\");if(id.startsWith(\"/\")){id=id.slice(1)}const url=`${env.baseUrl}/${id}`;const text=await req(url);const $=kitty.load(text);const result={};$(\"script\").map((_,item)=>{const text=$(item).text();if(!text)return;if(text.includes(\"VideoObject\")){const unsaefVO=JSON.parse(text);result.cover=unsaefVO.thumbnailUrl;result.title=unsaefVO.name}if(text.includes(\"avdata_source\")){let parse=text.replace(\"var avdata_source='\",\"\");const endIndex=parse.indexOf(\"';$g.avd\");parse=parse.slice(0,endIndex);const unsafeData=JSON.parse(parse);const id=unsafeData.hash_id;const videos=unsafeData.space_hosts.map(item=>{const url=\"https://\"+item[2]+\"/videos/\"+id+\"/g.m3u8\";return{text:item[1],url}});result.playlist=[{title:unsafeData.tid,videos}]}if(text.includes(\"var av_response\")){let parse=text.replace(\"var av_response='\",\"\");const endIndex=parse.indexOf(\"';$g.av\");parse=parse.slice(0,endIndex);try{const unsafeResponse=JSON.parse(parse)}catch(error){console.error(error)}}});return result",
+        "search": "const wd=env.get(\"keyword\");const page=env.get(\"page\");const url=`${env.baseUrl}/search/${wd}/${page}?`;const $=kitty.load(await req(url));return $(\".video-list .avdata-outer\").toArray().map(item=>{const img=$(item).find(\"img\");const title=img.attr(\"alt\")??\"\";const cover=img.attr(\"data-src\")??\"\";const id=$(item).find(\"a\").attr(\"href\")??\"\";const remark=$(item).find(\".title_fanhao\").text();return{id,title,cover,remark}})"
+      }
+    }
+  },
+  {
     "id": "uaa",
     "name": "UAA影视",
     "api": "https://www.uaa001.com",

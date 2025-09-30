@@ -1125,6 +1125,39 @@
     }
   },
   {
+    "id": "yhdm",
+    "name": "樱花动漫-DL",
+    "api": "https://www.857yhw.com",
+    "type": 1,
+    "nsfw": false,
+    "extra": {
+      "js": {
+        "category": [
+          {
+            "text": "日漫",
+            "id": "ribendongman"
+          },
+          {
+            "text": "国漫",
+            "id": "guochandongman"
+          },
+          {
+            "text": "美漫",
+            "id": "omeidongman"
+          },
+          {
+            "text": "剧场",
+            "id": "dongmandianying"
+          }
+        ],
+        "home": "const cate=env.get(\"category\");const page=env.get(\"page\");const url=[\"ribendongman\",\"guochandongman\"].includes(cate)?`${env.baseUrl}/type/${cate}-${page}.html`:`${env.baseUrl}/type/${cate}.html`;const html=await req(url);const $=kitty.load(html);return $(\".myui-vodlist__box\").toArray().map(item=>{const a=$(item).find(\"a.myui-vodlist__thumb\");return{id:a.attr(\"href\")??\"\",title:a.attr(\"title\")??\"\",cover:a.attr(\"data-original\")??\"\",remark:$(item).find(\".pic-text\").text().trim(),playlist:[]}})",
+        "detail": "const id=env.get(\"movieId\");const html=await req(`${env.baseUrl}${id}`);const $=kitty.load(html);const title=$(\".myui-content__detail .title\").text().trim();const desc=$(\".myui-content__detail .data\").text().trim();const cover=$(\".myui-content__thumb .lazyload\").attr(\"data-original\")??\"\";const remark=$(\".myui-content__detail .myui-content__other\").text().trim();const baseUrl=env.baseUrl;const playlists=[];$(\".tab-content .tab-pane\").each((_,tab)=>{const tabId=$(tab).attr(\"id\")??\"\";const tabTitle=$(`.nav-tabs a[href=\"#${tabId}\"]`).text().trim()||\"\\u9ED8\\u8BA4\\u7EBF\\u8DEF\";const rawLinks=$(tab).find(\"a[href*=\\\"/play/\\\"]\").toArray().map(a=>({text:$(a).text().trim(),fullUrl:`${baseUrl}${a.attribs.href}`}));const videos=[];if(rawLinks.length>0){videos.push({text:\"\\u7F51\\u9875\\u64AD\\u653E\",id:rawLinks[0].fullUrl})}for(const{text,fullUrl}of rawLinks){videos.push({text,id:fullUrl})}if(videos.length>0){playlists.push({title:tabTitle,videos})}});return{id,title,cover,desc,remark,playlist:playlists}",
+        "search": "const wd=env.get(\"keyword\");const page=env.get(\"page\");const html=await req(`${env.baseUrl}/search/${wd}----------${page}---.html`);const $=kitty.load(html);return $(\".myui-vodlist__box\").toArray().map(item=>{const a=$(item).find(\"a.myui-vodlist__thumb\");return{id:a.attr(\"href\")??\"\",title:a.attr(\"title\")??\"\",cover:a.attr(\"data-original\")??\"\",remark:$(item).find(\".pic-text\").text().trim(),playlist:[]}})",
+        "parseIframe": "const fullPlayUrl=env.get(\"id\");const playHtml=await req(fullPlayUrl,{headers:{\"User-Agent\":\"Mozilla/5.0\"}});const urlMatch=playHtml.match(/\"url\"\\s*:\\s*\"([^\"]+)\"/);if(!urlMatch)return\"\";const encrypted=urlMatch[1];return`https://danmu.yhdmjx.com/m3u8.php?url=${encodeURIComponent(encrypted)}`"
+      }
+    }
+  },
+  {
     "id": "yhw",
     "name": "樱花动漫_WEB",
     "api": "https://www.857yhw.com",

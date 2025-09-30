@@ -55,7 +55,6 @@ export default class YHW implements Handle {
     const baseUrl = env.baseUrl
     const playlists: IPlaylist[] = []
 
-    // 遍历每条线路
     $('.tab-content .tab-pane').each((_, tab) => {
       const tabId = $(tab).attr('id') ?? ''
       const tabTitle = $(`.nav-tabs a[href="#${tabId}"]`).text().trim() || '默认线路'
@@ -72,9 +71,20 @@ export default class YHW implements Handle {
         videos.push({ text: '网页播放', id: rawLinks[0].fullUrl })
       }
 
-      // 每集直接存网页地址，交给 parseIframe 解析
+      // 每集访问播放页，提取加密字段并拼接代理地址
       for (const { text, fullUrl } of rawLinks) {
-        videos.push({ text, id: fullUrl })
+        try {
+          const playHtml = await req(fullUrl, {
+            headers: { 'User-Agent': 'Mozilla/5.0' }
+          })
+          const urlMatch = playHtml.match(/"url"\s*:\s*"([^"]+)"/)
+          if (!urlMatch) continue
+          const encrypted = urlMatch[1]
+          const proxyUrl = `https://danmu.yhdmjx.com/m3u8.php?url=${encodeURIComponent(encrypted)}`
+          videos.push({ text, id: proxyUrl })
+        } catch (e) {
+          console.log('解析失败:', e)
+        }
       }
 
       if (videos.length > 0) {
@@ -111,18 +121,6 @@ export default class YHW implements Handle {
   }
 
   async parseIframe() {
-    const fullPlayUrl = env.get('id') // 传进来的网页地址
-    const playHtml = await req(fullPlayUrl)
-
-    // 提取 player_aaaa JSON
-    const match = playHtml.match(/var\\s+player_aaaa\\s*=\\s*(\\{.+?\\});/)
-    if (!match) return ''
-
-    const playerData = JSON.parse(match[1])
-    const encrypted = playerData.url
-    if (!encrypted) return ''
-
-    // 拼接代理地址并返回
-    return `https://danmu.yhdmjx.com/m3u8.php?url=${encodeURIComponent(encrypted)}`
+    return '' // ✅ 所有播放地址已在 getDetail 中构建，无需解析
   }
 }

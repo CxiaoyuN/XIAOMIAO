@@ -2193,9 +2193,9 @@
     }
   },
   {
-    "id": "t4-sp360",
-    "name": "360影视源(T4)",
-    "api": "https://tvbot.ggff.net/sp360",
+    "id": "t4-yhdm",
+    "name": "樱花动漫(T4)",
+    "api": "https://tvbot.ggff.net/yhdm",
     "nsfw": false,
     "type": 1,
     "extra": {

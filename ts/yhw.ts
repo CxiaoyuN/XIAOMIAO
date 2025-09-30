@@ -4,7 +4,7 @@ export default class YHW implements Handle {
   getConfig() {
     return {
       id: 'yhw',
-      name: '樱花动漫',
+      name: '樱花动漫_WEB',
       api: 'https://www.857yhw.com',
       type: 1,
       nsfw: false,
@@ -110,11 +110,6 @@ export default class YHW implements Handle {
   }
 
   async parseIframe() {
-    const fullPlayUrl = env.get('id')
-    const playHtml = await req(fullPlayUrl)
-    const urlMatch = playHtml.match(/player_aaaa\.url\s*=\s*["']([^"']+)["']/)
-    if (!urlMatch) return ''
-    const encrypted = urlMatch[1]
-    return `https://danmu.yhdmjx.com/m3u8.php?url=${encodeURIComponent(encrypted)}`
+    return env.get('id') // ✅ 直接返回网页地址，小猫自动解析
   }
 }

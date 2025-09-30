@@ -4,7 +4,7 @@ export default class YHW implements Handle {
   getConfig() {
     return {
       id: 'yhdm',
-      name: '樱花动漫DL',
+      name: '樱花动漫-DL',
       api: 'https://www.857yhw.com',
       type: 1,
       nsfw: false,
@@ -71,20 +71,9 @@ export default class YHW implements Handle {
         videos.push({ text: '网页播放', id: rawLinks[0].fullUrl })
       }
 
-      // 每集访问播放页，提取加密字段并拼接代理地址
+      // 每集只存网页地址，交给 parseIframe 解析
       for (const { text, fullUrl } of rawLinks) {
-        try {
-          const playHtml = await req(fullUrl, {
-            headers: { 'User-Agent': 'Mozilla/5.0' }
-          })
-          const urlMatch = playHtml.match(/"url"\s*:\s*"([^"]+)"/)
-          if (!urlMatch) continue
-          const encrypted = urlMatch[1]
-          const proxyUrl = `https://danmu.yhdmjx.com/m3u8.php?url=${encodeURIComponent(encrypted)}`
-          videos.push({ text, id: proxyUrl })
-        } catch (e) {
-          console.log('解析失败:', e)
-        }
+        videos.push({ text, id: fullUrl })
       }
 
       if (videos.length > 0) {
@@ -121,6 +110,16 @@ export default class YHW implements Handle {
   }
 
   async parseIframe() {
-    return '' // ✅ 所有播放地址已在 getDetail 中构建，无需解析
+    const fullPlayUrl = env.get('id') // 网页地址
+    const playHtml = await req(fullPlayUrl, {
+      headers: { 'User-Agent': 'Mozilla/5.0' }
+    })
+
+    // 直接正则提取 "url":"..."
+    const urlMatch = playHtml.match(/"url"\s*:\s*"([^"]+)"/)
+    if (!urlMatch) return ''
+
+    const encrypted = urlMatch[1]
+    return `https://danmu.yhdmjx.com/m3u8.php?url=${encodeURIComponent(encrypted)}`
   }
 }

@@ -2143,6 +2143,16 @@
     }
   },
   {
+    "id": "t4-Dm84",
+    "name": "动漫巴士(T4)",
+    "api": "https://py.doube.eu.org/spider?site=Dm84",
+    "nsfw": false,
+    "type": 1,
+    "extra": {
+      "template": "t4"
+    }
+  },
+  {
     "id": "t4-OleVod",
     "name": "欧乐影院(T4)",
     "api": "https://py.doube.eu.org/spider?site=OleVod",

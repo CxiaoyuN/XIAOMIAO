@@ -1,0 +1,10 @@
+{
+    "id": "t4-yhdm",
+    "name": "樱花动漫(T4)",
+    "api": "https://tvbot.ggff.net/yhdm",
+    "nsfw": false,
+    "type": 1,
+    "extra": {
+      "template": "t4"
+    }
+}

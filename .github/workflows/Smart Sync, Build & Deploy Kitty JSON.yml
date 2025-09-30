@@ -9,6 +9,7 @@ on:
       - 'kitty.config.*.ts'
       - '.github/workflows/**'
       - 'docs/**'   # docs 目录变化也触发
+      - 't4/**.json' # 新增：t4 文件夹变化也触发
   workflow_dispatch:
 
 jobs:
@@ -31,9 +32,10 @@ jobs:
       - name: Install dependencies
         run: bun install
 
-      - name: Build vod.json, xvod.json, x.json and all.json
+      - name: Build vod.json, xvod.json, x.json, t4.json and all.json
         run: |
           mkdir -p docs
+
           # 生成 vod.json 和 xvod.json（直接用 vod.ts）
           bun run vod.ts docs/vod.json docs/xvod.json
 
@@ -41,8 +43,11 @@ jobs:
           cp kitty.config.x.ts kitty.config.ts
           bunx kitty-parse -o docs/x.json
 
-          # 合并成 all.json
-          jq -s 'add' docs/vod.json docs/xvod.json docs/x.json > docs/all.json
+          # 合并 t4 文件夹里的 JSON -> t4.json
+          jq -s '.' t4/*.json > docs/t4.json
+
+          # 最终合并成 all.json
+          jq -s 'add' docs/vod.json docs/xvod.json docs/x.json docs/t4.json > docs/all.json
 
       - name: Keep CNAME if exists
         run: |

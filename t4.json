@@ -48,5 +48,15 @@
     "extra": {
       "template": "t4"
     }
+  },
+  {
+    "id": "t4-sp360",
+    "name": "360影视源(T4)",
+    "api": "https://py.doube.eu.org/spider?site=sp360",
+    "nsfw": false,
+    "type": 1,
+    "extra": {
+      "template": "t4"
+    }
   }
 ]

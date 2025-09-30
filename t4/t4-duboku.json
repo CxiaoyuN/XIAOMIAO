@@ -1,0 +1,10 @@
+{
+    "id": "t4-duboku",
+    "name": "独播库(T4)",
+    "api": "https://tvbot.ggff.net/duboku",
+    "nsfw": false,
+    "type": 1,
+    "extra": {
+      "template": "t4"
+    }
+}

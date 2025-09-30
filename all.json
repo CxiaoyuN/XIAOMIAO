@@ -1,14 +1,4 @@
 [
-    {
-    "id": "t4-pinguo",
-    "name": "苹果源(T4)",
-    "api": "https://tvbot.ggff.net/pingguo",
-    "nsfw": false,
-    "type": 1,
-    "extra": {
-      "template": "t4"
-    }
-  },
   {
     "id": "niuniuziyuan",
     "name": "牛牛资源",
@@ -2150,6 +2140,16 @@
         "home": "const cate=env.get(\"category\");const page=env.get(\"page\");const url=`${env.baseUrl}/vodtype/${cate}-${page}/`;const $=kitty.load(await req(url));return $(\".post-list .col-md-3\").toArray().map(item=>{const a=$(item).find(\"a\");const img=a.find(\"img\");const id=a.attr(\"href\")??\"\";let cover=img.attr(\"data-original\")??\"\";cover=`${env.baseUrl}${cover}`;const title=img.attr(\"alt\")??\"\";return{id,cover,title}})",
         "detail": "const id=env.get(\"movieId\");const url=`${env.baseUrl}${id}`;const html=await req(url);const $=kitty.load(html);const m3u8=kitty.utils.getM3u8WithStr(html);const title=$(\".breadcrumb\").text().trim();return{id,title,playlist:[{title:\"\\u9ED8\\u8BA4\",videos:[{text:\"\\uD83D\\uDE0D\\u64AD\\u653E\",url:m3u8}]}]}"
       }
+    }
+  },
+  {
+    "id": "t4-pinguo",
+    "name": "苹果源(T4)",
+    "api": "https://tvbot.ggff.net/pingguo",
+    "nsfw": false,
+    "type": 1,
+    "extra": {
+      "template": "t4"
     }
   }
 ]

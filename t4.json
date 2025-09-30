@@ -1,0 +1,10 @@
+{
+  "id": "t4-pinguo",
+  "name": "苹果源(T4)",
+  "api": "https://tvbot.ggff.net/pingguo",
+  "nsfw": false,
+  "type": 1,
+  "extra": {
+    "template": "t4"
+  }
+}

@@ -1,0 +1,10 @@
+{
+    "id": "t4-dytt",
+    "name": "电影天堂(T4)",
+    "api": "https://py.doube.eu.org/spider?site=DianYingTanTang",
+    "nsfw": false,
+    "type": 1,
+    "extra": {
+      "template": "t4"
+    }
+}

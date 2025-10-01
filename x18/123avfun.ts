@@ -2,7 +2,7 @@ export default class AV123Source implements Handle {
   getConfig() {
     return {
       id: "123avfun",
-      name: "123AV",
+      name: "123FUN",
       api: "https://123av.fun",
       type: 1,
       nsfw: true
@@ -15,10 +15,8 @@ export default class AV123Source implements Handle {
       { id: "long", text: "长视频" },
       { id: "explore/q-巨乳", text: "巨乳" },
       { id: "explore/q-口", text: "口" },
-      { id: "explore/q-COSPLAY", text: "COSPLAY" },
       { id: "explore/q-人妻", text: "人妻" },
       { id: "explore/q-蘿莉", text: "蘿莉" },
-      { id: "explore/q-sm", text: "SM" },
       { id: "explore/q-中出", text: "中出" }
     ];
   }

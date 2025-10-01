@@ -1,5 +1,15 @@
 [
   {
+    "id": "t4-AiGuaTV",
+    "name": "爱瓜TV(T4)",
+    "api": "https://spider.doube.eu.org/spider?site=AiGuaTV",
+    "nsfw": false,
+    "type": 1,
+    "extra": {
+      "template": "t4"
+    }
+  },
+  {
     "id": "t4-BaHaoTV",
     "name": "八号影院(T4)",
     "api": "https://py.doube.eu.org/spider?site=BaHaoTV",

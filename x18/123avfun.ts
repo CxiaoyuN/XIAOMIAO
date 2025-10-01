@@ -2,7 +2,7 @@ export default class AV123Source implements Handle {
   getConfig() {
     return {
       id: "123avfun",
-      name: "AVFUN",
+      name: "123AV",
       api: "https://123av.fun/zh-cn",
       type: 1,
       nsfw: true
@@ -11,10 +11,10 @@ export default class AV123Source implements Handle {
 
   async getCategory() {
     return [
-      { id: "publish-time/sort-desc", text: "最新" },
-      { id: "view-count/sort-asc", text: "推荐" },
-      { id: "comment-count/sort-desc", text: "排行" },
-      { id: "favorite-count/sort-desc", text: "收藏" }
+      { id: "publish-time/sort-desc", text: "发布时间" },
+      { id: "view-count/sort-asc", text: "播放数" },
+      { id: "comment-count/sort-desc", text: "评论数" },
+      { id: "favorite-count/sort-desc", text: "收藏数" }
     ];
   }
 

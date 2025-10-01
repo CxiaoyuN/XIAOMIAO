@@ -19,41 +19,23 @@ export default class AV123Source implements Handle {
   async getCategoryPage() {
     const tid = env.get("category");
     const pg = env.get("page");
-    let url = `https://123av.fun/zh-cn/${tid}`;
-    if (tid !== "explore") url += `/page-${pg}`;
+    const url = `https://123av.fun/zh-cn/${tid}/page-${pg}`;
     const html = await req(url);
-    const $ = kitty.load(html);
-    let items: any[] = [];
-
-    if (tid === "long") {
-      items = $("[style='aspect-ratio: 4/3;']").toArray().map(el => {
-        const id = $(el).closest("a").attr("href") ?? "";
-        const title = $(el).find("img").attr("alt") ?? "";
-        const cover = $(el).find("img").attr("data-src") ?? $(el).find("img").attr("src") ?? "";
-        return { id, title, cover, desc: "", remark: "长视频", playlist: [] };
-      });
-    } else if (tid === "") {
-      items = $("[style='aspect-ratio: 3/4;']").toArray().map(el => {
-        const id = $(el).closest("a").attr("href") ?? "";
-        const title = $(el).find("img").attr("alt") ?? "";
-        const cover = $(el).find("img").attr("data-src") ?? $(el).find("img").attr("src") ?? "";
-        return { id, title, cover, desc: "", remark: "短视频", playlist: [] };
-      });
-    }
-
-    return items;
-  }
-
-  async getHome() {
-    const html = await req("https://123av.fun/zh-cn/");
     const $ = kitty.load(html);
     const items = $("a[href*='/detail/']").toArray().map(el => {
       const id = $(el).attr("href") ?? "";
       const title = $(el).find("img").attr("alt") ?? "";
       const cover = $(el).find("img").attr("data-src") ?? $(el).find("img").attr("src") ?? "";
-      return { id, title, cover, desc: "", remark: "", playlist: [] };
+      const remark = $(el).find(".video-tag").text().trim();
+      return { id, title, cover, desc: "", remark, playlist: [] };
     });
     return items;
+  }
+
+  async getHome() {
+    env.set("category", "");
+    env.set("page", 1);
+    return await this.getCategoryPage();
   }
 
   async getDetail() {
@@ -63,24 +45,32 @@ export default class AV123Source implements Handle {
     const title = $("h1").text().trim();
     const cover = $("video.detail-video").attr("poster") ?? "";
     const videoUrl = $("video.detail-video").attr("data-src") ?? "";
-    const playlist = [
-      {
-        title: "主线路",
-        videos: [{ text: "播放", type: "m3u8", url: videoUrl }]
-      }
-    ];
-    return { id, title, cover, desc: "", remark: "", playlist };
+
+    return {
+      id,
+      title,
+      cover,
+      desc: "",
+      remark: "",
+      playlist: [
+        {
+          title: "主线路",
+          videos: [{ text: "播放", type: "m3u8", url: videoUrl }]
+        }
+      ]
+    };
   }
 
   async getSearch() {
     const wd = env.get("keyword");
-    const html = await req(`https://123av.fun/explore/q-${wd}`);
+    const html = await req(`https://123av.fun/explore/q-${encodeURIComponent(wd)}`);
     const $ = kitty.load(html);
     const items = $("a[href*='/detail/']").toArray().map(el => {
       const id = $(el).attr("href") ?? "";
       const title = $(el).find("img").attr("alt") ?? "";
       const cover = $(el).find("img").attr("data-src") ?? $(el).find("img").attr("src") ?? "";
-      return { id, title, cover, desc: "", remark: "搜索结果", playlist: [] };
+      const remark = $(el).find(".video-tag").text().trim();
+      return { id, title, cover, desc: "", remark, playlist: [] };
     });
     return items;
   }

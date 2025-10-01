@@ -1233,7 +1233,7 @@
   },
   {
     "id": "123avfun",
-    "name": "AVFUN",
+    "name": "123AV",
     "api": "https://123av.fun/zh-cn",
     "type": 1,
     "nsfw": true,
@@ -1242,19 +1242,19 @@
         "category": [
           {
             "id": "publish-time/sort-desc",
-            "text": "最新"
+            "text": "发布时间"
           },
           {
             "id": "view-count/sort-asc",
-            "text": "推荐"
+            "text": "播放数"
           },
           {
             "id": "comment-count/sort-desc",
-            "text": "排行"
+            "text": "评论数"
           },
           {
             "id": "favorite-count/sort-desc",
-            "text": "收藏"
+            "text": "收藏数"
           }
         ],
         "home": "env.set(\"category\",\"publish-time/sort-desc\");env.set(\"page\",1);return await this.getCategoryPage()",

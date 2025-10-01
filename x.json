@@ -761,7 +761,7 @@
   },
   {
     "id": "badnews",
-    "name": "Bad.News",
+    "name": "BadNews",
     "api": "https://bad.news",
     "type": 1,
     "nsfw": true,
@@ -777,8 +777,8 @@
             "text": "长视频"
           }
         ],
-        "home": "const cate=env.get(\"category\");const page=env.get(\"page\");const url=`${env.baseUrl}/tag/${cate}?page=${page}`;const html=await req(url);const $=kitty.load(html);const result=$(\"video.my-videos\").toArray().map(video=>{const id=video.attr(\"data-id\")??\"\";const title=`视频 ${id}`;const cover=video.attr(\"poster\")??\"\";const remark=$(video).closest(\".coverdiv\").find(\".ct-time span\").text().trim();const videoUrl=video.attr(\"data-source\")??\"\";return{id,title,cover,desc:\"\",remark,playlist:[{name:\"\\u9ED8\\u8BA4\\u7EBF\\u8DEF\",videos:[{title,url:videoUrl}]}]}});return result",
-        "search": "const wd=env.get(\"keyword\");const page=env.get(\"page\");const url=`${env.baseUrl}/?s=${encodeURIComponent(wd)}&page=${page}`;const html=await req(url);const $=kitty.load(html);const result=$(\"video.my-videos\").toArray().map(video=>{const id=video.attr(\"data-id\")??\"\";const title=`搜索结果 ${id}`;const cover=video.attr(\"poster\")??\"\";const remark=$(video).closest(\".coverdiv\").find(\".ct-time span\").text().trim();const videoUrl=video.attr(\"data-source\")??\"\";return{id,title,cover,desc:\"\",remark,playlist:[{name:\"\\u9ED8\\u8BA4\\u7EBF\\u8DEF\",videos:[{title,url:videoUrl}]}]}});return result",
+        "home": "const cate=env.get(\"category\");const page=env.get(\"page\");const url=`${env.baseUrl}/tag/${cate}?page=${page}`;const html=await req(url);const $=kitty.load(html);const result=$(\"video.my-videos\").toArray().map(video=>{const id=video.attr(\"data-id\")??\"\";const title=`视频 ${id}`;const cover=video.attr(\"poster\")??\"\";const videoUrl=video.attr(\"data-source\")??\"\";const remark=$(video).closest(\".coverdiv\").find(\".ct-time span\").text().trim();return{id,title,cover,desc:\"\",remark,playlist:[{name:\"\\u9ED8\\u8BA4\\u7EBF\\u8DEF\",videos:[{title,url:videoUrl}]}]}});return result",
+        "search": "const wd=env.get(\"keyword\");const page=env.get(\"page\");const url=`${env.baseUrl}/?s=${encodeURIComponent(wd)}&page=${page}`;const html=await req(url);const $=kitty.load(html);const result=$(\"video.my-videos\").toArray().map(video=>{const id=video.attr(\"data-id\")??\"\";const title=`搜索结果 ${id}`;const cover=video.attr(\"poster\")??\"\";const videoUrl=video.attr(\"data-source\")??\"\";const remark=$(video).closest(\".coverdiv\").find(\".ct-time span\").text().trim();return{id,title,cover,desc:\"\",remark,playlist:[{name:\"\\u9ED8\\u8BA4\\u7EBF\\u8DEF\",videos:[{title,url:videoUrl}]}]}});return result",
         "detail": "throw new Error(\"\\u6B64\\u6E90\\u65E0\\u8BE6\\u60C5\\u9875\\uFF0C\\u6240\\u6709\\u4FE1\\u606F\\u5DF2\\u5728\\u5206\\u7C7B\\u9875\\u4E2D\\u63D0\\u4F9B\")",
         "parseIframe": "return kitty.utils.getM3u8WithIframe(env)"
       }

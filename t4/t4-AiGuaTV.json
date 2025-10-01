@@ -2,7 +2,7 @@
     "id": "t4-AiGuaTV",
     "name": "爱瓜TV(T4)",
     "api": "https://spider.doube.eu.org/spider?site=AiGuaTV",
-    "nsfw": false,
+    "nsfw": true,
     "type": 1,
     "extra": {
       "template": "t4"

@@ -2,36 +2,37 @@ export default class BadNewsSource implements Handle {
   getConfig() {
     return {
       id: "badnews",
-      name: "Bad.News",
+      name: "BadNews",
       api: "https://bad.news",
       type: 1,
       nsfw: true
     };
   }
 
-  async getCategory() {
-    return [
-      { id: "porn", text: "短视频" },
-      { id: "long-porn", text: "长视频" }
-    ];
-  }
-
   async getHome() {
     const cate = env.get("category");
     const page = env.get("page");
     const url = `${env.baseUrl}/tag/${cate}?page=${page}`;
-    const html = await req(url);
+    const html = await req(url, {
+      headers: {
+        "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 Chrome/117 Safari/537.36"
+      }
+    });
     const $ = kitty.load(html);
 
     const result = $("video.my-videos").toArray().map(video => {
-      const id = video.attr("data-id") ?? "";
       const cover = video.attr("poster") ?? "";
       const videoUrl = video.attr("data-source") ?? "";
       const remark = $(video).closest(".coverdiv").find(".ct-time span").text().trim();
 
+      // 提取 onclick 中的跳转链接
+      const onclick = $(video).closest(".coverdiv").parent().find("[onclick*='Clipboard.copy']").attr("onclick") ?? "";
+      const match = onclick.match(/Clipboard\.copy\('([^']+)'\)/);
+      const id = match ? match[1] : video.attr("data-id") ?? "";
+
       return {
         id,
-        title: "", // 留空
+        title: "",
         cover,
         desc: "",
         remark,
@@ -49,18 +50,25 @@ export default class BadNewsSource implements Handle {
     const wd = env.get("keyword");
     const page = env.get("page");
     const url = `${env.baseUrl}/?s=${encodeURIComponent(wd)}&page=${page}`;
-    const html = await req(url);
+    const html = await req(url, {
+      headers: {
+        "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 Chrome/117 Safari/537.36"
+      }
+    });
     const $ = kitty.load(html);
 
     const result = $("video.my-videos").toArray().map(video => {
-      const id = video.attr("data-id") ?? "";
       const cover = video.attr("poster") ?? "";
       const videoUrl = video.attr("data-source") ?? "";
       const remark = $(video).closest(".coverdiv").find(".ct-time span").text().trim();
 
+      const onclick = $(video).closest(".coverdiv").parent().find("[onclick*='Clipboard.copy']").attr("onclick") ?? "";
+      const match = onclick.match(/Clipboard\.copy\('([^']+)'\)/);
+      const id = match ? match[1] : video.attr("data-id") ?? "";
+
       return {
         id,
-        title: "", // 留空
+        title: "",
         cover,
         desc: "",
         remark,
@@ -72,6 +80,13 @@ export default class BadNewsSource implements Handle {
     });
 
     return result;
+  }
+
+  async getCategory() {
+    return [
+      { id: "porn", text: "短视频" },
+      { id: "long-porn", text: "长视频" }
+    ];
   }
 
   async getDetail() {

@@ -589,8 +589,8 @@
     }
   },
   {
-    "id": "AvFun",
-    "name": "123AV",
+    "id": "123avfun",
+    "name": "AvFun",
     "api": "https://123av.fun",
     "type": 1,
     "nsfw": true,

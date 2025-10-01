@@ -2,7 +2,7 @@ export default class AV123Source implements Handle {
   getConfig() {
     return {
       id: "123avfun",
-      name: "123AV",
+      name: "DVFUN",
       api: "https://123av.fun/zh-tw",
       type: 1,
       nsfw: true

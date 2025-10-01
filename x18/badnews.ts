@@ -2,7 +2,7 @@ export default class BadNewsSource implements Handle {
   getConfig() {
     return {
       id: "badnews",
-      name: "BadNews",
+      name: "Bad.News",
       api: "https://bad.news",
       type: 1,
       nsfw: true
@@ -25,20 +25,19 @@ export default class BadNewsSource implements Handle {
 
     const result = $("video.my-videos").toArray().map(video => {
       const id = video.attr("data-id") ?? "";
-      const title = `视频 ${id}`;
       const cover = video.attr("poster") ?? "";
       const videoUrl = video.attr("data-source") ?? "";
       const remark = $(video).closest(".coverdiv").find(".ct-time span").text().trim();
 
       return {
         id,
-        title,
+        title: "", // 留空
         cover,
         desc: "",
         remark,
         playlist: [{
           name: "默认线路",
-          videos: [{ title, url: videoUrl }]
+          videos: [{ title: "", url: videoUrl }]
         }]
       };
     });
@@ -55,20 +54,19 @@ export default class BadNewsSource implements Handle {
 
     const result = $("video.my-videos").toArray().map(video => {
       const id = video.attr("data-id") ?? "";
-      const title = `搜索结果 ${id}`;
       const cover = video.attr("poster") ?? "";
       const videoUrl = video.attr("data-source") ?? "";
       const remark = $(video).closest(".coverdiv").find(".ct-time span").text().trim();
 
       return {
         id,
-        title,
+        title: "", // 留空
         cover,
         desc: "",
         remark,
         playlist: [{
           name: "默认线路",
-          videos: [{ title, url: videoUrl }]
+          videos: [{ title: "", url: videoUrl }]
         }]
       };
     });
@@ -77,7 +75,6 @@ export default class BadNewsSource implements Handle {
   }
 
   async getDetail() {
-    // 无详情页，直接抛出错误或返回空
     throw new Error("此源无详情页，所有信息已在分类页中提供");
   }
 

@@ -2,8 +2,8 @@ export default class AV123Source implements Handle {
   getConfig() {
     return {
       id: "123avfun",
-      name: "DVFUN",
-      api: "https://123av.fun/zh-tw",
+      name: "123AV",
+      api: "https://123av.fun/zh-cn",
       type: 1,
       nsfw: true
     };
@@ -13,14 +13,15 @@ export default class AV123Source implements Handle {
     return [
       { id: "publish-time/sort-desc", text: "最新" },
       { id: "view-count/sort-asc", text: "推荐" },
-      { id: "comment-count/sort-desc", text: "排行" },
+      { id: "comment-count/sort-desc", text: "评论" },
       { id: "favorite-count/sort-desc", text: "收藏" }
     ];
   }
 
   async getCategoryPage() {
     const tid = env.get("category");
-    const url = `https://123av.fun/zh-tw/${tid}`;
+    const page = env.get("page", "1");
+    const url = `${env.baseUrl}/${tid}/page-${page}`;
     const html = await req(url);
     const $ = kitty.load(html);
     const items = $(".video-card").toArray().map(el => {
@@ -38,7 +39,13 @@ export default class AV123Source implements Handle {
         playlist: [
           {
             title: "主线路",
-            videos: [{ text: "播放", type: "mp4", url: videoUrl }]
+            videos: [
+              {
+                text: "播放",
+                type: "mp4",
+                url: videoUrl
+              }
+            ]
           }
         ]
       };
@@ -53,12 +60,11 @@ export default class AV123Source implements Handle {
 
   async getDetail() {
     const id = env.get("movieId");
-    const html = await req(`https://123av.fun${id}`);
+    const html = await req(`${env.baseUrl}${id}`);
     const $ = kitty.load(html);
     const title = $("h1").text().trim();
     const cover = $("video.detail-video").attr("poster") ?? "";
     const videoUrl = $("video.detail-video").attr("data-src") ?? "";
-
     return {
       id,
       title,
@@ -68,7 +74,13 @@ export default class AV123Source implements Handle {
       playlist: [
         {
           title: "主线路",
-          videos: [{ text: "播放", type: "m3u8", url: videoUrl }]
+          videos: [
+            {
+              text: "播放",
+              type: "m3u8",
+              url: videoUrl
+            }
+          ]
         }
       ]
     };
@@ -76,7 +88,7 @@ export default class AV123Source implements Handle {
 
   async getSearch() {
     const wd = env.get("keyword");
-    const html = await req(`https://123av.fun/explore/q-${encodeURIComponent(wd)}`);
+    const html = await req(`${env.baseUrl}/explore/q-${encodeURIComponent(wd)}`);
     const $ = kitty.load(html);
     const items = $(".video-card").toArray().map(el => {
       const id = $(el).attr("href") ?? "";
@@ -93,7 +105,13 @@ export default class AV123Source implements Handle {
         playlist: [
           {
             title: "主线路",
-            videos: [{ text: "播放", type: "mp4", url: videoUrl }]
+            videos: [
+              {
+                text: "播放",
+                type: "mp4",
+                url: videoUrl
+              }
+            ]
           }
         ]
       };

@@ -23,7 +23,7 @@
     "id": "t4-badnews",
     "name": "BadNews(T4)",
     "api": "https://py.doube.eu.org/spider?site=BadNews",
-    "nsfw": false,
+    "nsfw": true,
     "type": 1,
     "extra": {
       "template": "t4"

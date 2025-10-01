@@ -2,7 +2,7 @@ export default class AV123Source implements Handle {
   getConfig() {
     return {
       id: "av123",
-      name: "AVFUN_D",
+      name: "AVFUN",
       api: "https://123av.fun/zh-cn",
       type: 1,
       nsfw: true
@@ -40,21 +40,26 @@ export default class AV123Source implements Handle {
     });
     const $ = kitty.load(html);
 
-    const result = $(".video-card").toArray().map(card => {
-      const a = $(card).find("a");
-      const id = a.attr("href") ?? "";
-      const title = $(card).find(".video-title").text().trim();
-      let cover = $(card).find("img").attr("data-src") ?? $(card).find("img").attr("src") ?? "";
-      if (cover.startsWith("//")) cover = "https:" + cover;
-      const remark = $(card).find(".video-duration").text().trim();
+    const result = $("a.video-card").toArray().map(card => {
+      const id = $(card).attr("href") ?? "";
+      const title = $(card).find("img").attr("alt")?.trim() ?? "";
+      const cover = $(card).find("img").attr("src") ?? "";
+      const remark = $(card).find(".video-date").text().trim();
+      const desc = $(card).find(".truncate").text().trim();
+      const videoUrl = $(card).find(".video-play").attr("data-src") ?? "";
 
       return {
         id,
         title,
         cover,
-        desc: "",
+        desc,
         remark,
-        playlist: []
+        playlist: videoUrl
+          ? [{
+              name: "默认线路",
+              videos: [{ title: "", url: videoUrl }]
+            }]
+          : []
       };
     });
 
@@ -76,7 +81,7 @@ export default class AV123Source implements Handle {
     const cover = video.attr("poster") ?? "";
     const title = $("img[alt]").attr("alt")?.trim() ?? `视频 ${video.attr("data-id")}`;
     const desc = $(".bg-header").text().trim();
-    const remark = $(".ct-time span").text().trim() ?? "";
+    const remark = $(".video-date").text().trim();
 
     const playlist = [{
       name: "默认线路",
@@ -104,21 +109,26 @@ export default class AV123Source implements Handle {
     });
     const $ = kitty.load(html);
 
-    const result = $(".video-card").toArray().map(card => {
-      const a = $(card).find("a");
-      const id = a.attr("href") ?? "";
-      const title = $(card).find(".video-title").text().trim();
-      let cover = $(card).find("img").attr("data-src") ?? $(card).find("img").attr("src") ?? "";
-      if (cover.startsWith("//")) cover = "https:" + cover;
-      const remark = $(card).find(".video-duration").text().trim();
+    const result = $("a.video-card").toArray().map(card => {
+      const id = $(card).attr("href") ?? "";
+      const title = $(card).find("img").attr("alt")?.trim() ?? "";
+      const cover = $(card).find("img").attr("src") ?? "";
+      const remark = $(card).find(".video-date").text().trim();
+      const desc = $(card).find(".truncate").text().trim();
+      const videoUrl = $(card).find(".video-play").attr("data-src") ?? "";
 
       return {
         id,
         title,
         cover,
-        desc: "",
+        desc,
         remark,
-        playlist: []
+        playlist: videoUrl
+          ? [{
+              name: "默认线路",
+              videos: [{ title: "", url: videoUrl }]
+            }]
+          : []
       };
     });
 

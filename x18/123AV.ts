@@ -13,24 +13,53 @@ export default class AV123Source implements Handle {
     return [
       { id: "", text: "短视频" },
       { id: "long", text: "长视频" },
-      { id: "explore", text: "探索" },
-      { id: "list", text: "榜单" }
+      { id: "list", text: "榜单" },
+      { id: "explore", text: "探索" }
     ];
   }
 
   async getCategoryPage() {
-    const tid = env.get("category"); // e.g. "long"
+    const tid = env.get("category");
     const pg = env.get("page");
-    const url = `https://123av.fun/zh-tw/${tid}?page=${pg}`;
+
+    let url = `https://123av.fun/zh-tw/${tid}`;
+    if (tid !== "explore") url += `/page-${pg}`;
+
     const html = await req(url);
     const $ = kitty.load(html);
-    const items = $("a[href*='/detail/']").toArray().map(el => {
-      const id = $(el).attr("href") ?? "";
-      const title = $(el).find("img").attr("alt") ?? $(el).find("h1").text().trim();
-      const cover = $(el).find("img").attr("data-src") ?? $(el).find("img").attr("src") ?? "";
-      const remark = $(el).find(".video-tag").text().trim();
-      return { id, title, cover, desc: "", remark, playlist: [] };
-    });
+
+    let items: any[] = [];
+
+    if (tid === "long") {
+      items = $("[style='aspect-ratio: 4/3;']").toArray().map(el => {
+        const id = $(el).closest("a").attr("href") ?? "";
+        const title = $(el).find("img").attr("alt") ?? "";
+        const cover = $(el).find("img").attr("data-src") ?? "";
+        return { id, title, cover, desc: "", remark: "长视频", playlist: [] };
+      });
+    } else if (tid === "") {
+      items = $("[style='aspect-ratio: 3/4;']").toArray().map(el => {
+        const id = $(el).closest("a").attr("href") ?? "";
+        const title = $(el).find("img").attr("alt") ?? "";
+        const cover = $(el).find("img").attr("data-src") ?? "";
+        return { id, title, cover, desc: "", remark: "短视频", playlist: [] };
+      });
+    } else if (tid === "list") {
+      items = $("a[href*='/detail/']").toArray().map(el => {
+        const id = $(el).attr("href") ?? "";
+        const title = $(el).find("img").attr("alt") ?? "";
+        const cover = $(el).find("img").attr("data-src") ?? "";
+        return { id, title, cover, desc: "", remark: "榜单", playlist: [] };
+      });
+    } else if (tid === "explore") {
+      items = $("a[href*='/detail/']").toArray().map(el => {
+        const id = $(el).attr("href") ?? "";
+        const title = $(el).find("img").attr("alt") ?? "";
+        const cover = $(el).find("img").attr("data-src") ?? "";
+        return { id, title, cover, desc: "", remark: "探索", playlist: [] };
+      });
+    }
+
     return items;
   }
 
@@ -39,16 +68,15 @@ export default class AV123Source implements Handle {
     const $ = kitty.load(html);
     const items = $("a[href*='/detail/']").toArray().map(el => {
       const id = $(el).attr("href") ?? "";
-      const title = $(el).find("img").attr("alt") ?? $(el).find("h1").text().trim();
-      const cover = $(el).find("img").attr("data-src") ?? $(el).find("img").attr("src") ?? "";
-      const remark = $(el).find(".video-tag").text().trim();
-      return { id, title, cover, desc: "", remark, playlist: [] };
+      const title = $(el).find("img").attr("alt") ?? "";
+      const cover = $(el).find("img").attr("data-src") ?? "";
+      return { id, title, cover, desc: "", remark: "", playlist: [] };
     });
     return items;
   }
 
   async getDetail() {
-    const id = env.get("movieId"); // e.g. "/zh-tw/detail/4505"
+    const id = env.get("movieId");
     const html = await req(`https://123av.fun${id}`);
     const $ = kitty.load(html);
     const title = $("h1").text().trim();
@@ -69,10 +97,9 @@ export default class AV123Source implements Handle {
     const $ = kitty.load(html);
     const items = $("a[href*='/detail/']").toArray().map(el => {
       const id = $(el).attr("href") ?? "";
-      const title = $(el).find("img").attr("alt") ?? $(el).find("h1").text().trim();
-      const cover = $(el).find("img").attr("data-src") ?? $(el).find("img").attr("src") ?? "";
-      const remark = $(el).find(".video-tag").text().trim();
-      return { id, title, cover, desc: "", remark, playlist: [] };
+      const title = $(el).find("img").attr("alt") ?? "";
+      const cover = $(el).find("img").attr("data-src") ?? "";
+      return { id, title, cover, desc: "", remark: "搜索结果", playlist: [] };
     });
     return items;
   }

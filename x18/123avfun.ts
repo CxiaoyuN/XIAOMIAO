@@ -12,10 +12,20 @@ export default class AV123Source implements Handle {
   async getCategory() {
     return [
       { id: "explore/q-口", text: "口交" },
-      { id: "explore/q-乳", text: "乳交" },
-      { id: "explore/q-颜射", text: "颜射" },
-      { id: "explore/q-无码", text: "无码" },
-      { id: "explore/q-中文字幕", text: "中文字幕" }
+      { id: "explore/q-对白", text: "对白" },
+      { id: "explore/q-巨乳", text: "巨乳" },
+      { id: "explore/q-萝莉", text: "萝莉" },
+      { id: "explore/q-白虎", text: "白虎" },
+      { id: "explore/q-吞精", text: "吞精" },
+      { id: "explore/q-内射", text: "内射" },
+      { id: "explore/q-自慰", text: "自慰" },
+      { id: "explore/q-喷水", text: "喷水" },
+      { id: "explore/q-高潮", text: "高潮" },
+      { id: "explore/q-Ai", text: "AI" },
+      { id: "explore/q-极品", text: "极品" },
+      { id: "explore/q-妹妹", text: "妹妹" },
+      { id: "explore/q-姐姐", text: "姐姐" },
+      { id: "explore/q-ts", text: "人妖" }
     ];
   }
 

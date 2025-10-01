@@ -13,26 +13,37 @@ export default class AV123Source implements Handle {
     return [
       { id: "publish-time/sort-desc", text: "最新" },
       { id: "view-count/sort-asc", text: "推荐" },
-      { id: "comment-count/sort-desc", text: "点评" },
+      { id: "comment-count/sort-desc", text: "评论" },
       { id: "favorite-count/sort-desc", text: "收藏" }
     ];
   }
 
   async getCategoryPage() {
-    const tid = env.get("category"); // e.g. "publish-time/sort-desc"
-    const pg = env.get("page"); // page number
+    const tid = env.get("category");
+    const pg = env.get("page");
     const url = `https://123av.fun/zh-cn/${tid}/page-${pg}`;
-
     const html = await req(url);
     const $ = kitty.load(html);
-    const items = $("a[href*='/detail/']").toArray().map(el => {
+    const items = $(".video-card").toArray().map(el => {
       const id = $(el).attr("href") ?? "";
-      const title = $(el).find("img").attr("alt") ?? "";
+      const title = $(el).find(".truncate").text().trim();
       const cover = $(el).find("img").attr("data-src") ?? $(el).find("img").attr("src") ?? "";
-      const remark = $(el).find(".video-tag").text().trim();
-      return { id, title, cover, desc: "", remark, playlist: [] };
+      const videoUrl = $(el).find(".video-play").attr("data-src") ?? "";
+      const remark = $(el).find(".video-date").text().trim() + " / " + $(el).find(".view-count").text().trim();
+      return {
+        id,
+        title,
+        cover,
+        desc: "",
+        remark,
+        playlist: [
+          {
+            title: "主线路",
+            videos: [{ text: "播放", type: "mp4", url: videoUrl }]
+          }
+        ]
+      };
     });
-
     return items;
   }
 
@@ -69,14 +80,26 @@ export default class AV123Source implements Handle {
     const wd = env.get("keyword");
     const html = await req(`https://123av.fun/explore/q-${encodeURIComponent(wd)}`);
     const $ = kitty.load(html);
-    const items = $("a[href*='/detail/']").toArray().map(el => {
+    const items = $(".video-card").toArray().map(el => {
       const id = $(el).attr("href") ?? "";
-      const title = $(el).find("img").attr("alt") ?? "";
+      const title = $(el).find(".truncate").text().trim();
       const cover = $(el).find("img").attr("data-src") ?? $(el).find("img").attr("src") ?? "";
-      const remark = $(el).find(".video-tag").text().trim();
-      return { id, title, cover, desc: "", remark, playlist: [] };
+      const videoUrl = $(el).find(".video-play").attr("data-src") ?? "";
+      const remark = $(el).find(".video-date").text().trim() + " / " + $(el).find(".view-count").text().trim();
+      return {
+        id,
+        title,
+        cover,
+        desc: "",
+        remark,
+        playlist: [
+          {
+            title: "主线路",
+            videos: [{ text: "播放", type: "mp4", url: videoUrl }]
+          }
+        ]
+      };
     });
-
     return items;
   }
 

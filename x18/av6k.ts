@@ -2,7 +2,7 @@ export default class AV6KSource implements Handle {
   getConfig() {
     return <Iconfig>{
       id: 'av6k',
-      name: '6KAV',
+      name: 'AV6K',
       api: 'https://av6k.com',
       nsfw: true,
       type: 1,
@@ -26,7 +26,24 @@ export default class AV6KSource implements Handle {
   async getHome() {
     const cate = env.get<string>('category') ?? '';
     const page = env.get<number>('page') ?? 1;
-    const url = `${env.baseUrl}/${cate ? cate + '/' : ''}page/${page}.html`;
+
+    let url = '';
+    if (cate === '') {
+      url = `${env.baseUrl}/`;
+    } else if (page === 1) {
+      url = `${env.baseUrl}/${cate}/`;
+    } else {
+      const html = await req(`${env.baseUrl}/${cate}/`);
+      const $ = kitty.load(html);
+      const link = $('.pages_c li a')
+        .toArray()
+        .find(a => $(a).text().trim() === `${page}`);
+      const href = link ? $(link).attr('href') : null;
+      url = href
+        ? `${env.baseUrl}/${cate}/${href}`
+        : `${env.baseUrl}/${cate}/`;
+    }
+
     const $ = kitty.load(await req(url));
     return $('.listA').toArray().map(item => {
       const a = $(item).find('a');

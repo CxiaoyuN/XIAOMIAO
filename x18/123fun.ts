@@ -2,7 +2,7 @@ export default class AV123Source implements Handle {
   getConfig() {
     return {
       id: "123avfun",
-      name: "123av",
+      name: "123Fun",
       api: "https://123av.fun",
       type: 1,
       nsfw: true
@@ -23,7 +23,10 @@ export default class AV123Source implements Handle {
 
   async getCategoryPage() {
     const tid = env.get("category");
-    const url = `https://123av.fun/zh-cn/${tid}`;
+    const url = tid === "page-1"
+      ? `https://123av.fun/zh-cn/page-1`
+      : `https://123av.fun/zh-cn/${tid}`;
+
     const html = await req(url);
     const $ = kitty.load(html);
     const items: any[] = [];
@@ -52,11 +55,19 @@ export default class AV123Source implements Handle {
     const cover = $("video.detail-video").attr("poster") ?? "";
     const videoUrl = $("video.detail-video").attr("data-src") ?? "";
 
-    const playlist = videoUrl
-      ? [{ title: "主线路", videos: [{ text: "在线播放", type: "m3u8", url: videoUrl }] }]
-      : [];
-
-    return { id, title, cover, desc: "", remark: "", playlist };
+    return {
+      id,
+      title,
+      cover,
+      desc: "",
+      remark: "",
+      playlist: [
+        {
+          title: "主线路",
+          videos: [{ text: "在线播放", type: "m3u8", url: videoUrl }]
+        }
+      ]
+    };
   }
 
   async getSearch() {

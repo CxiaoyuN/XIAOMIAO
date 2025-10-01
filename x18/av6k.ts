@@ -2,7 +2,7 @@ export default class AV6KSource implements Handle {
   getConfig() {
     return <Iconfig>{
       id: 'av6k',
-      name: 'AV6K',
+      name: '6KAV',
       api: 'https://av6k.com',
       nsfw: true,
       type: 1,

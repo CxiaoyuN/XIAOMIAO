@@ -2,7 +2,7 @@ export default class AV123Source implements Handle {
   getConfig() {
     return {
       id: "123avfun",
-      name: "123AV",
+      name: "AvFun",
       api: "https://123av.fun",
       type: 1,
       nsfw: true
@@ -15,10 +15,8 @@ export default class AV123Source implements Handle {
       { id: "long", text: "长视频" },
       { id: "explore/q-巨乳", text: "巨乳" },
       { id: "explore/q-口", text: "口" },
-      { id: "explore/q-COSPLAY", text: "COSPLAY" },
       { id: "explore/q-人妻", text: "人妻" },
       { id: "explore/q-蘿莉", text: "蘿莉" },
-      { id: "explore/q-sm", text: "SM" },
       { id: "explore/q-中出", text: "中出" }
     ];
   }
@@ -26,23 +24,18 @@ export default class AV123Source implements Handle {
   async getCategoryPage() {
     const tid = env.get("category");
     const pg = env.get("page");
-    let url = "";
-
-    if (!tid || tid === "") {
-      url = `https://123av.fun/zh-cn/page-${pg}`;
-    } else {
-      url = `https://123av.fun/zh-cn/${tid}/page-${pg}`;
-    }
+    const url = tid === ""
+      ? `https://123av.fun/zh-tw/?page=${pg}`
+      : `https://123av.fun/zh-tw/${tid}?page=${pg}`;
 
     const html = await req(url);
     const $ = kitty.load(html);
     const items: any[] = [];
 
-    $(".video-card").each((_, el) => {
-      const a = $(el).find("a[href*='/detail/']");
-      const id = a.attr("href") ?? "";
-      const title = a.find("img").attr("alt")?.trim() ?? "";
-      const cover = a.find("img").attr("data-src") ?? a.find("img").attr("src") ?? "";
+    $("a[href*='/detail/']").each((_, el) => {
+      const id = $(el).attr("href") ?? "";
+      const title = $(el).find("img").attr("alt")?.trim() ?? "";
+      const cover = $(el).find("img").attr("data-src") ?? $(el).find("img").attr("src") ?? "";
       items.push({ id, title, cover, desc: "", remark: "", playlist: [] });
     });
 
@@ -80,17 +73,14 @@ export default class AV123Source implements Handle {
 
   async getSearch() {
     const wd = env.get("keyword");
-    const pg = env.get("page");
-    const url = `https://123av.fun/zh-cn/explore/q-${encodeURIComponent(wd)}/page-${pg}`;
-    const html = await req(url);
+    const html = await req(`https://123av.fun/search/${wd}`);
     const $ = kitty.load(html);
     const items: any[] = [];
 
-    $(".video-card").each((_, el) => {
-      const a = $(el).find("a[href*='/detail/']");
-      const id = a.attr("href") ?? "";
-      const title = a.find("img").attr("alt")?.trim() ?? "";
-      const cover = a.find("img").attr("data-src") ?? a.find("img").attr("src") ?? "";
+    $("a[href*='/detail/']").each((_, el) => {
+      const id = $(el).attr("href") ?? "";
+      const title = $(el).find("img").attr("alt")?.trim() ?? "";
+      const cover = $(el).find("img").attr("data-src") ?? $(el).find("img").attr("src") ?? "";
       items.push({ id, title, cover, desc: "", remark: "搜索结果", playlist: [] });
     });
 

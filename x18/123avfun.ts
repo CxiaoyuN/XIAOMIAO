@@ -2,7 +2,7 @@ export default class AV123Source implements Handle {
   getConfig() {
     return {
       id: "av123",
-      name: "AVFUN",
+      name: "123AV",
       api: "https://123av.fun/zh-cn",
       type: 1,
       nsfw: true
@@ -61,21 +61,23 @@ export default class AV123Source implements Handle {
     });
     const $ = kitty.load(html);
 
-    const title = $("h1").text().trim();
-    const cover = $("video").attr("poster") ?? "";
-    const videoUrl = $("video source").attr("src") ?? "";
-    const remark = $(".video-duration").text().trim();
+    const video = $("video.detail-video");
+    const videoUrl = video.attr("data-src") ?? "";
+    const cover = video.attr("poster") ?? "";
+    const title = $("img[alt]").attr("alt")?.trim() ?? `视频 ${video.attr("data-id")}`;
+    const desc = $(".bg-header").text().trim();
+    const remark = $(".ct-time span").text().trim() ?? "";
 
     const playlist = [{
       name: "默认线路",
-      videos: [{ title, url: videoUrl }]
+      videos: [{ title: "", url: videoUrl }]
     }];
 
     return {
       id,
       title,
       cover,
-      desc: "",
+      desc,
       remark,
       playlist
     };

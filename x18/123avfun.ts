@@ -2,7 +2,7 @@ export default class AV123Source implements Handle {
   getConfig() {
     return {
       id: "123avfun",
-      name: "123FUN",
+      name: "123av",
       api: "https://123av.fun",
       type: 1,
       nsfw: true
@@ -11,24 +11,19 @@ export default class AV123Source implements Handle {
 
   async getCategory() {
     return [
-      { id: "", text: "短视频" },
-      { id: "long", text: "长视频" },
-      { id: "explore/q-巨乳", text: "巨乳" },
-      { id: "explore/q-口", text: "口" },
-      { id: "explore/q-人妻", text: "人妻" },
-      { id: "explore/q-蘿莉", text: "蘿莉" },
-      { id: "explore/q-中出", text: "中出" }
+      { id: "page-1", text: "短视频" },
+      { id: "long/page-1", text: "长视频" },
+      { id: "explore/q-巨乳/page-1", text: "巨乳" },
+      { id: "explore/q-口/page-1", text: "口" },
+      { id: "explore/q-人妻/page-1", text: "人妻" },
+      { id: "explore/q-蘿莉/page-1", text: "蘿莉" },
+      { id: "explore/q-中出/page-1", text: "中出" }
     ];
   }
 
   async getCategoryPage() {
     const tid = env.get("category");
-    const pg = env.get("page");
-
-    let url = `https://123av.fun/zh-cn/${tid}/page-${pg}`;
-    if (tid === "") url = `https://123av.fun/zh-cn/page-${pg}`;
-    if (tid === "long") url = `https://123av.fun/zh-cn/long/page-${pg}`;
-
+    const url = `https://123av.fun/zh-cn/${tid}`;
     const html = await req(url);
     const $ = kitty.load(html);
     const items: any[] = [];
@@ -38,21 +33,14 @@ export default class AV123Source implements Handle {
       const id = a.attr("href") ?? "";
       const title = a.find("img").attr("alt")?.trim() ?? "";
       const cover = a.find("img").attr("data-src") ?? a.find("img").attr("src") ?? "";
-      const videoUrl = $(el).find(".video-play").attr("data-src") ?? "";
-
-      const playlist = videoUrl
-        ? [{ title: "主线路", videos: [{ text: "在线播放", type: "m3u8", url: videoUrl }] }]
-        : [];
-
-      items.push({ id, title, cover, desc: "", remark: "", playlist });
+      items.push({ id, title, cover, desc: "", remark: "", playlist: [] });
     });
 
     return items;
   }
 
   async getHome() {
-    env.set("category", "");
-    env.set("page", 1);
+    env.set("category", "page-1");
     return await this.getCategoryPage();
   }
 
@@ -73,8 +61,7 @@ export default class AV123Source implements Handle {
 
   async getSearch() {
     const wd = env.get("keyword");
-    const pg = env.get("page");
-    const url = `https://123av.fun/zh-cn/explore/q-${encodeURIComponent(wd)}/page-${pg}`;
+    const url = `https://123av.fun/zh-cn/explore/q-${encodeURIComponent(wd)}/page-1`;
     const html = await req(url);
     const $ = kitty.load(html);
     const items: any[] = [];
@@ -84,13 +71,7 @@ export default class AV123Source implements Handle {
       const id = a.attr("href") ?? "";
       const title = a.find("img").attr("alt")?.trim() ?? "";
       const cover = a.find("img").attr("data-src") ?? a.find("img").attr("src") ?? "";
-      const videoUrl = $(el).find(".video-play").attr("data-src") ?? "";
-
-      const playlist = videoUrl
-        ? [{ title: "主线路", videos: [{ text: "在线播放", type: "m3u8", url: videoUrl }] }]
-        : [];
-
-      items.push({ id, title, cover, desc: "", remark: "搜索结果", playlist });
+      items.push({ id, title, cover, desc: "", remark: "搜索结果", playlist: [] });
     });
 
     return items;

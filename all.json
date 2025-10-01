@@ -2163,6 +2163,16 @@
     }
   },
   {
+    "id": "t4-badnews",
+    "name": "BadNews(T4)",
+    "api": "https://py.doube.eu.org/spider?site=BadNews",
+    "nsfw": false,
+    "type": 1,
+    "extra": {
+      "template": "t4"
+    }
+  },
+  {
     "id": "t4-duboku",
     "name": "独播库(T4)",
     "api": "https://tvbot.ggff.net/duboku",
@@ -2186,16 +2196,6 @@
     "id": "t4-pinguo",
     "name": "苹果源(T4)",
     "api": "https://tvbot.ggff.net/pingguo",
-    "nsfw": false,
-    "type": 1,
-    "extra": {
-      "template": "t4"
-    }
-  },
-  {
-    "id": "t4-yhdm",
-    "name": "樱花动漫(T4)",
-    "api": "https://tvbot.ggff.net/yhdm",
     "nsfw": false,
     "type": 1,
     "extra": {

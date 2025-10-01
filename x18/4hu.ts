@@ -11,11 +11,23 @@ export default class FourHu implements Handle {
 
   async getCategory() {
     return [
-      { id: "9", text: "国产" },
-      { id: "10", text: "SWAG专区" },
+      { id: "1", text: "国产" },
+      { id: "2", text: "自拍视频" },
+      { id: "3", text: "淫妻作乐" },
+      { id: "4", text: "国产传媒" },
+      { id: "5", text: "热门探花" },
+      { id: "6", text: "开放青年" },
+      { id: "7", text: "JVID专区" },
+      { id: "8", text: "SWAG专区" },
+      { id: "9", text: "直播录屏" },
+      { id: "10", text: "短视频" },
       { id: "11", text: "无码破解" },
       { id: "12", text: "动漫卡通" },
-      { id: "13", text: "三级伦理" }
+      { id: "13", text: "三级伦理" },
+      { id: "14", text: "热门女优" },
+      { id: "15", text: "女性向純愛" },
+      { id: "16", text: "GIGA女战士" },
+      { id: "17", text: "男男视频" }
     ];
   }
 

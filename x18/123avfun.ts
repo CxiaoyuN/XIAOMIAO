@@ -2,7 +2,7 @@ export default class AV123Source implements Handle {
   getConfig() {
     return {
       id: "123avfun",
-      name: "AVFUN",
+      name: "AvFun",
       api: "https://123av.fun",
       type: 1,
       nsfw: true
@@ -11,15 +11,15 @@ export default class AV123Source implements Handle {
 
   async getCategory() {
     return [
-      { id: "", text: "短视频" },
-      { id: "long", text: "长视频" }
+      { id: "page", text: "短视频" },
+      { id: "long/page", text: "长视频" }
     ];
   }
 
   async getCategoryPage() {
-    const tid = env.get("category"); // "" or "long"
+    const tid = env.get("category"); // "page" or "long/page"
     const pg = env.get("page"); // page number
-    const url = `https://123av.fun/zh-cn/${tid}/page-${pg}`;
+    const url = `https://123av.fun/zh-cn/${tid}-${pg}`;
 
     const html = await req(url);
     const $ = kitty.load(html);
@@ -35,7 +35,7 @@ export default class AV123Source implements Handle {
   }
 
   async getHome() {
-    env.set("category", "");
+    env.set("category", "page");
     env.set("page", 1);
     return await this.getCategoryPage();
   }

@@ -1,0 +1,10 @@
+{
+    "id": "t4-hitv",
+    "name": "HiTv(T4)",
+    "api": "https://py.doube.eu.org/spider?site=hitv",
+    "nsfw": false,
+    "type": 1,
+    "extra": {
+      "template": "t4"
+    }
+}

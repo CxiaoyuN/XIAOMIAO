@@ -1233,7 +1233,7 @@
   },
   {
     "id": "123avfun",
-    "name": "123AV",
+    "name": "AVFUN",
     "api": "https://123av.fun/zh-cn",
     "type": 1,
     "nsfw": true,
@@ -1242,22 +1242,22 @@
         "category": [
           {
             "id": "publish-time/sort-desc",
-            "text": "发布时间"
+            "text": "最新"
           },
           {
             "id": "view-count/sort-asc",
-            "text": "播放数"
+            "text": "推荐"
           },
           {
             "id": "comment-count/sort-desc",
-            "text": "评论数"
+            "text": "排行"
           },
           {
             "id": "favorite-count/sort-desc",
-            "text": "收藏数"
+            "text": "收藏"
           }
         ],
-        "home": "env.set(\"category\",\"publish-time/sort-desc\");env.set(\"page\",1);return await this.getCategoryPage()",
+        "home": "env.set(\"category\",\"publish-time/sort-desc\");return await this.getCategoryPage()",
         "detail": "const id=env.get(\"movieId\");const html=await req(`https://123av.fun${id}`);const $=kitty.load(html);const title=$(\"h1\").text().trim();const cover=$(\"video.detail-video\").attr(\"poster\")??\"\";const videoUrl=$(\"video.detail-video\").attr(\"data-src\")??\"\";return{id,title,cover,desc:\"\",remark:\"\",playlist:[{title:\"\\u4E3B\\u7EBF\\u8DEF\",videos:[{text:\"\\u64AD\\u653E\",type:\"m3u8\",url:videoUrl}]}]}",
         "search": "const wd=env.get(\"keyword\");const html=await req(`https://123av.fun/explore/q-${encodeURIComponent(wd)}`);const $=kitty.load(html);const items=$(\".video-card\").toArray().map(el=>{const id=$(el).attr(\"href\")??\"\";const title=$(el).find(\".truncate\").text().trim();const cover=$(el).find(\"img\").attr(\"data-src\")??$(el).find(\"img\").attr(\"src\")??\"\";const videoUrl=$(el).find(\".video-play\").attr(\"data-src\")??\"\";const remark=$(el).find(\".video-date\").text().trim()+\" / \"+$(el).find(\".view-count\").text().trim();return{id,title,cover,desc:\"\",remark,playlist:[{title:\"\\u4E3B\\u7EBF\\u8DEF\",videos:[{text:\"\\u64AD\\u653E\",type:\"mp4\",url:videoUrl}]}]}});return items"
       }

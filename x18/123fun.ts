@@ -11,23 +11,28 @@ export default class AV123Source implements Handle {
 
   async getCategory() {
     return [
-      { id: "page-1", text: "短视频" },
-      { id: "long/page-1", text: "长视频" },
-      { id: "explore/q-巨乳/page-1", text: "巨乳" },
-      { id: "explore/q-口/page-1", text: "口" },
-      { id: "explore/q-COSPLAY/page-1", text: "COSPLAY" },
-      { id: "explore/q-人妻/page-1", text: "人妻" },
-      { id: "explore/q-蘿莉/page-1", text: "蘿莉" },
-      { id: "explore/q-sm/page-1", text: "SM" },
-      { id: "explore/q-中出/page-1", text: "中出" }
+      { id: "", text: "短视频" },
+      { id: "long", text: "长视频" },
+      { id: "explore/q-巨乳", text: "巨乳" },
+      { id: "explore/q-口", text: "口" },
+      { id: "explore/q-COSPLAY", text: "COSPLAY" },
+      { id: "explore/q-人妻", text: "人妻" },
+      { id: "explore/q-蘿莉", text: "蘿莉" },
+      { id: "explore/q-sm", text: "SM" },
+      { id: "explore/q-中出", text: "中出" }
     ];
   }
 
   async getCategoryPage() {
     const tid = env.get("category");
-    const url = tid === "page-1"
-      ? `https://123av.fun/zh-cn/page-1`
-      : `https://123av.fun/zh-cn/${tid}`;
+    const pg = env.get("page");
+    let url = "";
+
+    if (!tid || tid === "") {
+      url = `https://123av.fun/zh-cn/page-${pg}`;
+    } else {
+      url = `https://123av.fun/zh-cn/${tid}/page-${pg}`;
+    }
 
     const html = await req(url);
     const $ = kitty.load(html);
@@ -45,7 +50,8 @@ export default class AV123Source implements Handle {
   }
 
   async getHome() {
-    env.set("category", "page-1");
+    env.set("category", "");
+    env.set("page", 1);
     return await this.getCategoryPage();
   }
 
@@ -74,7 +80,8 @@ export default class AV123Source implements Handle {
 
   async getSearch() {
     const wd = env.get("keyword");
-    const url = `https://123av.fun/zh-cn/explore/q-${encodeURIComponent(wd)}/page-1`;
+    const pg = env.get("page");
+    const url = `https://123av.fun/zh-cn/explore/q-${encodeURIComponent(wd)}/page-${pg}`;
     const html = await req(url);
     const $ = kitty.load(html);
     const items: any[] = [];

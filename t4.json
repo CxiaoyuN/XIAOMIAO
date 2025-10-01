@@ -20,6 +20,16 @@
     }
   },
   {
+    "id": "t4-aidou",
+    "name": "AiDou(T4)",
+    "api": "https://py.doube.eu.org/spider?site=AiDou",
+    "nsfw": true,
+    "type": 1,
+    "extra": {
+      "template": "t4"
+    }
+  },
+  {
     "id": "t4-badnews",
     "name": "BadNews(T4)",
     "api": "https://py.doube.eu.org/spider?site=BadNews",

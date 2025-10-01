@@ -1,8 +1,8 @@
-export default class AV123 implements Handle {
+export default class AV123Source implements Handle {
   getConfig() {
     return {
-      id: "123avfun",
-      name: "123AV",
+      id: "av123",
+      name: "AVFUN",
       api: "https://123av.fun/zh-cn",
       type: 1,
       nsfw: true
@@ -11,100 +11,109 @@ export default class AV123 implements Handle {
 
   async getCategory() {
     return [
-      { id: "publish-time/sort-desc", text: "最新" },
-      { id: "view-count/sort-asc", text: "播放数" },
-      { id: "comment-count/sort-desc", text: "评论数" },
-      { id: "favorite-count/sort-desc", text: "收藏数" }
+      { id: "explore/q-口", text: "口交" },
+      { id: "explore/q-乳", text: "乳交" },
+      { id: "explore/q-颜射", text: "颜射" },
+      { id: "explore/q-无码", text: "无码" },
+      { id: "explore/q-中文字幕", text: "中文字幕" }
     ];
   }
 
-  async getCategoryPage() {
-    const tid = env.get("category");
-    const page = env.get("page", "1");
-    const url = `${env.baseUrl}/${tid}/page-${page}`;
-    const html = await req(url);
-    const $ = kitty.load(html);
-    const items = $(".video-card").toArray().map(el => {
-      const id = $(el).attr("href") ?? "";
-      const title = $(el).find(".truncate").text().trim();
-      const cover = $(el).find("img").attr("src") ?? "";
-      const remark = $(el).find(".video-date").text().trim() + " / " + $(el).find(".view-count").text().trim();
-      return {
-        id,
-        title,
-        cover,
-        desc: "",
-        remark
-      };
-    });
-    return items;
-  }
-
   async getHome() {
-    env.set("category", "publish-time/sort-desc");
-    return await this.getCategoryPage();
-  }
-
-  async getSearch() {
-    const keyword = env.get("keyword");
-    const url = `${env.baseUrl}/explore/q-${encodeURIComponent(keyword)}`;
-    const html = await req(url);
+    const cate = env.get("category");
+    const page = env.get("page");
+    const url = `${env.baseUrl}/${cate}?page=${page}`;
+    const html = await req(url, {
+      headers: {
+        "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 Chrome/117 Safari/537.36"
+      }
+    });
     const $ = kitty.load(html);
-    const items = $(".video-card").toArray().map(el => {
-      const id = $(el).attr("href") ?? "";
-      const title = $(el).find(".truncate").text().trim();
-      const cover = $(el).find("img").attr("src") ?? "";
-      const remark = $(el).find(".video-date").text().trim() + " / " + $(el).find(".view-count").text().trim();
+
+    const result = $(".video-card").toArray().map(card => {
+      const a = $(card).find("a");
+      const id = a.attr("href") ?? "";
+      const title = $(card).find(".video-title").text().trim();
+      let cover = $(card).find("img").attr("data-src") ?? $(card).find("img").attr("src") ?? "";
+      if (cover.startsWith("//")) cover = "https:" + cover;
+      const remark = $(card).find(".video-duration").text().trim();
+
       return {
         id,
         title,
         cover,
         desc: "",
-        remark
+        remark,
+        playlist: []
       };
     });
-    return items;
+
+    return result;
   }
 
   async getDetail() {
     const id = env.get("movieId");
     const url = `${env.baseUrl}${id}`;
-    const html = await req(url);
+    const html = await req(url, {
+      headers: {
+        "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 Chrome/117 Safari/537.36"
+      }
+    });
     const $ = kitty.load(html);
-    const title = $("h1").text().trim() || $(".truncate").text().trim();
-    const cover = $("video.detail-video").attr("poster") ?? "";
-    const videoUrl = $("video.detail-video").attr("data-src") ?? "";
-    const desc = $(".bg-header").text().trim();
-    const remark = $(".text-xs:contains(发表于)").text().trim();
+
+    const title = $("h1").text().trim();
+    const cover = $("video").attr("poster") ?? "";
+    const videoUrl = $("video source").attr("src") ?? "";
+    const remark = $(".video-duration").text().trim();
+
+    const playlist = [{
+      name: "默认线路",
+      videos: [{ title, url: videoUrl }]
+    }];
+
     return {
       id,
       title,
       cover,
-      desc,
+      desc: "",
       remark,
-      playlist: [
-        {
-          title: "主线路",
-          videos: [
-            {
-              text: "播放",
-              type: "m3u8",
-              url: videoUrl
-            }
-          ]
-        }
-      ]
+      playlist
     };
   }
 
-  async play(flag: string, id: string) {
-    return {
-      parse: 0,
-      url: id,
-      header: {
-        "User-Agent": "Mozilla/5.0",
-        Referer: "https://123av.fun/"
+  async getSearch() {
+    const wd = env.get("keyword");
+    const page = env.get("page");
+    const url = `${env.baseUrl}/search/${wd}?page=${page}`;
+    const html = await req(url, {
+      headers: {
+        "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 Chrome/117 Safari/537.36"
       }
-    };
+    });
+    const $ = kitty.load(html);
+
+    const result = $(".video-card").toArray().map(card => {
+      const a = $(card).find("a");
+      const id = a.attr("href") ?? "";
+      const title = $(card).find(".video-title").text().trim();
+      let cover = $(card).find("img").attr("data-src") ?? $(card).find("img").attr("src") ?? "";
+      if (cover.startsWith("//")) cover = "https:" + cover;
+      const remark = $(card).find(".video-duration").text().trim();
+
+      return {
+        id,
+        title,
+        cover,
+        desc: "",
+        remark,
+        playlist: []
+      };
+    });
+
+    return result;
+  }
+
+  async parseIframe() {
+    return kitty.utils.getM3u8WithIframe(env);
   }
 }

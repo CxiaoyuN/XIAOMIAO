@@ -2,7 +2,7 @@ export default class AV123Source implements Handle {
   getConfig() {
     return {
       id: "123avfun",
-      name: "123Fun",
+      name: "123AV",
       api: "https://123av.fun",
       type: 1,
       nsfw: true
@@ -11,80 +11,67 @@ export default class AV123Source implements Handle {
 
   async getCategory() {
     return [
-      { id: "page-1", text: "短视频" },
-      { id: "long/page-1", text: "长视频" },
-      { id: "explore/q-巨乳/page-1", text: "巨乳" },
-      { id: "explore/q-口/page-1", text: "口" },
-      { id: "explore/q-人妻/page-1", text: "人妻" },
-      { id: "explore/q-蘿莉/page-1", text: "蘿莉" },
-      { id: "explore/q-中出/page-1", text: "中出" }
+      { id: "", text: "短视频" },
+      { id: "long", text: "长视频" },
     ];
   }
 
   async getCategoryPage() {
-    const tid = env.get("category");
-    const url = tid === "page-1"
-      ? `https://123av.fun/zh-cn/page-1`
-      : `https://123av.fun/zh-cn/${tid}`;
-
+    const tid = env.get("category"); // e.g. "long"
+    const pg = env.get("page");
+    const url = `https://123av.fun/zh-tw/${tid}?page=${pg}`;
     const html = await req(url);
     const $ = kitty.load(html);
-    const items: any[] = [];
-
-    $(".video-card").each((_, el) => {
-      const a = $(el).find("a[href*='/detail/']");
-      const id = a.attr("href") ?? "";
-      const title = a.find("img").attr("alt")?.trim() ?? "";
-      const cover = a.find("img").attr("data-src") ?? a.find("img").attr("src") ?? "";
-      items.push({ id, title, cover, desc: "", remark: "", playlist: [] });
+    const items = $("a[href*='/detail/']").toArray().map(el => {
+      const id = $(el).attr("href") ?? "";
+      const title = $(el).find("img").attr("alt") ?? $(el).find("h1").text().trim();
+      const cover = $(el).find("img").attr("data-src") ?? $(el).find("img").attr("src") ?? "";
+      const remark = $(el).find(".video-tag").text().trim();
+      return { id, title, cover, desc: "", remark, playlist: [] };
     });
-
     return items;
   }
 
   async getHome() {
-    env.set("category", "page-1");
-    return await this.getCategoryPage();
+    const html = await req("https://123av.fun/zh-tw/");
+    const $ = kitty.load(html);
+    const items = $("a[href*='/detail/']").toArray().map(el => {
+      const id = $(el).attr("href") ?? "";
+      const title = $(el).find("img").attr("alt") ?? $(el).find("h1").text().trim();
+      const cover = $(el).find("img").attr("data-src") ?? $(el).find("img").attr("src") ?? "";
+      const remark = $(el).find(".video-tag").text().trim();
+      return { id, title, cover, desc: "", remark, playlist: [] };
+    });
+    return items;
   }
 
   async getDetail() {
-    const id = env.get("movieId");
+    const id = env.get("movieId"); // e.g. "/zh-tw/detail/4505"
     const html = await req(`https://123av.fun${id}`);
     const $ = kitty.load(html);
     const title = $("h1").text().trim();
     const cover = $("video.detail-video").attr("poster") ?? "";
     const videoUrl = $("video.detail-video").attr("data-src") ?? "";
-
-    return {
-      id,
-      title,
-      cover,
-      desc: "",
-      remark: "",
-      playlist: [
-        {
-          title: "主线路",
-          videos: [{ text: "在线播放", type: "m3u8", url: videoUrl }]
-        }
-      ]
-    };
+    const playlist = [
+      {
+        title: "主线路",
+        videos: [{ text: "在线播放", type: "m3u8", url: videoUrl }]
+      }
+    ];
+    return { id, title, cover, desc: "", remark: "", playlist };
   }
 
   async getSearch() {
     const wd = env.get("keyword");
-    const url = `https://123av.fun/zh-cn/explore/q-${encodeURIComponent(wd)}/page-1`;
-    const html = await req(url);
+    const html = await req(`https://123av.fun/search/${wd}`);
     const $ = kitty.load(html);
-    const items: any[] = [];
-
-    $(".video-card").each((_, el) => {
-      const a = $(el).find("a[href*='/detail/']");
-      const id = a.attr("href") ?? "";
-      const title = a.find("img").attr("alt")?.trim() ?? "";
-      const cover = a.find("img").attr("data-src") ?? a.find("img").attr("src") ?? "";
-      items.push({ id, title, cover, desc: "", remark: "搜索结果", playlist: [] });
+    const items = $("a[href*='/detail/']").toArray().map(el => {
+      const id = $(el).attr("href") ?? "";
+      const title = $(el).find("img").attr("alt") ?? $(el).find("h1").text().trim();
+      const cover = $(el).find("img").attr("data-src") ?? $(el).find("img").attr("src") ?? "";
+      const remark = $(el).find(".video-tag").text().trim();
+      return { id, title, cover, desc: "", remark, playlist: [] };
     });
-
     return items;
   }
 

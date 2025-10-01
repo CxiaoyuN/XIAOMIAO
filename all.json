@@ -2240,6 +2240,16 @@
     }
   },
   {
+    "id": "t4-mrjav",
+    "name": "MrJav(T4)",
+    "api": "https://py.doube.eu.org/spider?site=MrJav",
+    "nsfw": true,
+    "type": 1,
+    "extra": {
+      "template": "t4"
+    }
+  },
+  {
     "id": "t4-pinguo",
     "name": "苹果源(T4)",
     "api": "https://tvbot.ggff.net/pingguo",

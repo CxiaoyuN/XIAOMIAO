@@ -2230,16 +2230,6 @@
     }
   },
   {
-    "id": "t4-madou",
-    "name": "麻豆(T4)",
-    "api": "https://json.doube.eu.org/madou.php",
-    "nsfw": true,
-    "type": 1,
-    "extra": {
-      "template": "t4"
-    }
-  },
-  {
     "id": "t4-pinguo",
     "name": "苹果源(T4)",
     "api": "https://tvbot.ggff.net/pingguo",

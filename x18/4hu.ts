@@ -2,7 +2,7 @@ export default class FourHu implements Handle {
   getConfig() {
     return {
       id: "4hu",
-      name: "四虎成人",
+      name: "四虎成人测试",
       api: "https://www.4hu.tv",
       type: 1,
       nsfw: true

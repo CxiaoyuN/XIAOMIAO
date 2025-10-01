@@ -1247,6 +1247,38 @@
     }
   },
   {
+    "id": "av6k",
+    "name": "AV6K",
+    "api": "https://av6k.com",
+    "nsfw": true,
+    "type": 1,
+    "extra": {
+      "js": {
+        "category": [
+          {
+            "text": "最新影片",
+            "id": "最新影片"
+          },
+          {
+            "text": "日韓無碼",
+            "id": "日韓無碼"
+          },
+          {
+            "text": "國產AV",
+            "id": "國產AV"
+          },
+          {
+            "text": "自拍偷拍",
+            "id": "自拍偷拍"
+          }
+        ],
+        "home": "const cate=env.get(\"category\");const page=env.get(\"page\");const url=`${env.baseUrl}/sp/index.php/vod/search/page/${page}/wd/${cate}.html`;const $=kitty.load(await req(url));return $(\".stui-vodlist li\").toArray().map(item=>{const a=$(item).find(\"a\");const title=a.attr(\"title\")??\"\";const cover=a.attr(\"data-original\")??\"\";const id=a.attr(\"href\")??\"\";const remark=a.find(\".pic-text.text-right\").text().trim();return{title,cover,id,remark}})",
+        "detail": "const id=env.get(\"movieId\");const url=`${env.baseUrl}${id}`;const html=await req(url);const $=kitty.load(html);const m3u8=kitty.utils.getM3u8WithStr(html);const title=$(\"h1.title\").text();return{title,playlist:[{title:\"\\u9ED8\\u8BA4\",videos:[{text:\"\\u64AD\\u653E\",url:m3u8}]}]}",
+        "search": "const wd=env.get(\"keyword\");const page=env.get(\"page\");const url=`${env.baseUrl}/sp/index.php/vod/search/page/${page}/wd/${wd}.html`;const $=kitty.load(await req(url));return $(\".stui-vodlist li\").toArray().map(item=>{const a=$(item).find(\"a\");const title=a.attr(\"title\")??\"\";const cover=a.attr(\"data-original\")??\"\";const id=a.attr(\"href\")??\"\";const remark=a.find(\".pic-text.text-right\").text().trim();return{title,cover,id,remark}})"
+      }
+    }
+  },
+  {
     "id": "avple",
     "name": "AVPLE",
     "api": "https://avple.tv",

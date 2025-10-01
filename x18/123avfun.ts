@@ -13,101 +13,67 @@ export default class AV123Source implements Handle {
     return [
       { id: "", text: "短视频" },
       { id: "long", text: "长视频" },
-      { id: "explore/q-巨乳", text: "巨乳" },
-      { id: "explore/q-COSPLAY", text: "COSPLAY" },
-      { id: "explore/q-人妻", text: "人妻" },
-      { id: "explore/q-蘿莉", text: "蘿莉" },
-      { id: "explore/q-sm", text: "SM" },
-      { id: "explore/q-中出", text: "中出" }
+      { id: "explore", text: "探索" },
+      { id: "list", text: "榜单" }
     ];
   }
 
   async getCategoryPage() {
-    const tid = env.get("category");
+    const tid = env.get("category"); // e.g. "long"
     const pg = env.get("page");
-    let url = `https://123av.fun/zh-tw/${tid}/page-${pg}`;
-    if (tid === "") url = `https://123av.fun/zh-tw/page-${pg}`;
-    if (tid === "long") url = `https://123av.fun/zh-tw/long/page-${pg}`;
-
+    const url = `https://123av.fun/zh-tw/${tid}?page=${pg}`;
     const html = await req(url);
     const $ = kitty.load(html);
-    const items: any[] = [];
-
-    $(".video-play").each((_, el) => {
-      const videoUrl = $(el).attr("data-src") ?? "";
-      const cover = $(el).attr("data-poster") ?? "";
-      const id = $(el).attr("data-id") ?? "";
-      const a = $(el).prev("a");
-      const title = a.find("img").attr("alt") ?? "";
-
-      if (videoUrl && id) {
-        items.push({
-          id: `/zh-tw/detail/${id}`,
-          title,
-          cover,
-          desc: "",
-          remark: "",
-          playlist: [
-            {
-              title: "主线路",
-              videos: [{ text: "在线播放", type: "m3u8", url: videoUrl }]
-            }
-          ]
-        });
-      }
+    const items = $("a[href*='/detail/']").toArray().map(el => {
+      const id = $(el).attr("href") ?? "";
+      const title = $(el).find("img").attr("alt") ?? $(el).find("h1").text().trim();
+      const cover = $(el).find("img").attr("data-src") ?? $(el).find("img").attr("src") ?? "";
+      const remark = $(el).find(".video-tag").text().trim();
+      return { id, title, cover, desc: "", remark, playlist: [] };
     });
-
     return items;
   }
 
   async getHome() {
-    env.set("category", "");
-    env.set("page", 1);
-    return await this.getCategoryPage();
+    const html = await req("https://123av.fun/zh-tw/");
+    const $ = kitty.load(html);
+    const items = $("a[href*='/detail/']").toArray().map(el => {
+      const id = $(el).attr("href") ?? "";
+      const title = $(el).find("img").attr("alt") ?? $(el).find("h1").text().trim();
+      const cover = $(el).find("img").attr("data-src") ?? $(el).find("img").attr("src") ?? "";
+      const remark = $(el).find(".video-tag").text().trim();
+      return { id, title, cover, desc: "", remark, playlist: [] };
+    });
+    return items;
   }
 
   async getDetail() {
-    // 详情页不再使用，直接复用分类页数据
-    return {
-      id: env.get("movieId"),
-      title: "详情页已整合至分类页",
-      cover: "",
-      desc: "",
-      remark: "",
-      playlist: []
-    };
+    const id = env.get("movieId"); // e.g. "/zh-tw/detail/4505"
+    const html = await req(`https://123av.fun${id}`);
+    const $ = kitty.load(html);
+    const title = $("h1").text().trim();
+    const cover = $("video.detail-video").attr("poster") ?? "";
+    const videoUrl = $("video.detail-video").attr("data-src") ?? "";
+    const playlist = [
+      {
+        title: "主线路",
+        videos: [{ text: "在线播放", type: "m3u8", url: videoUrl }]
+      }
+    ];
+    return { id, title, cover, desc: "", remark: "", playlist };
   }
 
   async getSearch() {
     const wd = env.get("keyword");
     const html = await req(`https://123av.fun/search/${wd}`);
     const $ = kitty.load(html);
-    const items: any[] = [];
-
-    $(".video-play").each((_, el) => {
-      const videoUrl = $(el).attr("data-src") ?? "";
-      const cover = $(el).attr("data-poster") ?? "";
-      const id = $(el).attr("data-id") ?? "";
-      const a = $(el).prev("a");
-      const title = a.find("img").attr("alt") ?? "";
-
-      if (videoUrl && id) {
-        items.push({
-          id: `/zh-tw/detail/${id}`,
-          title,
-          cover,
-          desc: "",
-          remark: "搜索结果",
-          playlist: [
-            {
-              title: "主线路",
-              videos: [{ text: "在线播放", type: "m3u8", url: videoUrl }]
-            }
-          ]
-        });
-      }
+    const items = $("a[href*='/detail/']").toArray().map(el => {
+      const id = $(el).attr("href") ?? "";
+      const title = $(el).find("img").attr("alt") ?? $(el).find("h1").text().trim();
+      const cover = $(el).find("img").attr("data-src") ?? $(el).find("img").attr("src") ?? "";
+      const remark = $(el).find(".video-tag").text().trim();
+      return { id, title, cover, desc: "", remark, playlist: [] };
     });
-
     return items;
   }
 

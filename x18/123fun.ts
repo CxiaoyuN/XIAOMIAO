@@ -12,14 +12,14 @@ export default class AV123Source implements Handle {
   async getCategory() {
     return [
       { id: "", text: "短视频" },
-      { id: "long", text: "长视频" },
+      { id: "long", text: "长视频" }
     ];
   }
 
   async getCategoryPage() {
-    const tid = env.get("category"); // e.g. "long"
+    const tid = env.get("category");
     const pg = env.get("page");
-    const url = `https://123av.fun/zh-tw/${tid}?page=${pg}`;
+    const url = `https://123av.fun/zh-cn/${tid}?page=${pg}`;
     const html = await req(url);
     const $ = kitty.load(html);
     const items = $("a[href*='/detail/']").toArray().map(el => {
@@ -33,7 +33,7 @@ export default class AV123Source implements Handle {
   }
 
   async getHome() {
-    const html = await req("https://123av.fun/zh-tw/");
+    const html = await req("https://123av.fun/zh-cn/");
     const $ = kitty.load(html);
     const items = $("a[href*='/detail/']").toArray().map(el => {
       const id = $(el).attr("href") ?? "";
@@ -46,7 +46,7 @@ export default class AV123Source implements Handle {
   }
 
   async getDetail() {
-    const id = env.get("movieId"); // e.g. "/zh-tw/detail/4505"
+    const id = env.get("movieId");
     const html = await req(`https://123av.fun${id}`);
     const $ = kitty.load(html);
     const title = $("h1").text().trim();
@@ -55,7 +55,9 @@ export default class AV123Source implements Handle {
     const playlist = [
       {
         title: "主线路",
-        videos: [{ text: "在线播放", type: "m3u8", url: videoUrl }]
+        videos: [
+          { text: "在线播放", type: "m3u8", url: videoUrl }
+        ]
       }
     ];
     return { id, title, cover, desc: "", remark: "", playlist };
@@ -63,7 +65,7 @@ export default class AV123Source implements Handle {
 
   async getSearch() {
     const wd = env.get("keyword");
-    const html = await req(`https://123av.fun/search/${wd}`);
+    const html = await req(`https://123av.fun/zh-cn/explore/q-${wd}`);
     const $ = kitty.load(html);
     const items = $("a[href*='/detail/']").toArray().map(el => {
       const id = $(el).attr("href") ?? "";

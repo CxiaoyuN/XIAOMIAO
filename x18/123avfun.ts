@@ -14,10 +14,8 @@ export default class AV123Source implements Handle {
       { id: "", text: "短视频" },
       { id: "long", text: "长视频" },
       { id: "explore/q-巨乳", text: "巨乳" },
-      { id: "explore/q-COSPLAY", text: "COSPLAY" },
       { id: "explore/q-人妻", text: "人妻" },
       { id: "explore/q-蘿莉", text: "蘿莉" },
-      { id: "explore/q-sm", text: "SM" },
       { id: "explore/q-中出", text: "中出" }
     ];
   }

@@ -2,7 +2,7 @@ export default class BadNewsSource implements Handle {
   getConfig() {
     return {
       id: "badnews",
-      name: "BadNews",
+      name: "Bad.News",
       api: "https://bad.news",
       type: 1,
       nsfw: true
@@ -23,11 +23,12 @@ export default class BadNewsSource implements Handle {
     const html = await req(url);
     const $ = kitty.load(html);
 
-    const result = $("article").toArray().map(item => {
-      const id = $(item).find("a").attr("href") ?? "";
-      const title = $(item).find("a").text().trim();
-      const cover = $(item).find("video").attr("poster") ?? "";
-      const remark = $(item).find("time").text().trim();
+    const result = $("video.my-videos").toArray().map(video => {
+      const id = video.attr("data-id") ?? "";
+      const title = `视频 ${id}`;
+      const cover = video.attr("poster") ?? "";
+      const remark = $(video).closest(".coverdiv").find(".ct-time span").text().trim();
+      const videoUrl = video.attr("data-source") ?? "";
 
       return {
         id,
@@ -35,39 +36,14 @@ export default class BadNewsSource implements Handle {
         cover,
         desc: "",
         remark,
-        playlist: []
+        playlist: [{
+          name: "默认线路",
+          videos: [{ title, url: videoUrl }]
+        }]
       };
     });
 
     return result;
-  }
-
-  async getDetail() {
-    const id = env.get("movieId");
-    const url = `${env.baseUrl}${id}`;
-    const html = await req(url);
-    const $ = kitty.load(html);
-
-    const title = $("h1").text().trim();
-    const cover = $("video").attr("poster") ?? "";
-    const desc = $(".entry-content").text().trim();
-    const remark = $("time").text().trim();
-
-    const videoUrl = $("video source").attr("src") ?? "";
-
-    const playlist = [{
-      name: "默认",
-      videos: [{ title, url: videoUrl }]
-    }];
-
-    return {
-      id,
-      title,
-      cover,
-      desc,
-      remark,
-      playlist
-    };
   }
 
   async getSearch() {
@@ -77,11 +53,12 @@ export default class BadNewsSource implements Handle {
     const html = await req(url);
     const $ = kitty.load(html);
 
-    const result = $("article").toArray().map(item => {
-      const id = $(item).find("a").attr("href") ?? "";
-      const title = $(item).find("a").text().trim();
-      const cover = $(item).find("video").attr("poster") ?? "";
-      const remark = $(item).find("time").text().trim();
+    const result = $("video.my-videos").toArray().map(video => {
+      const id = video.attr("data-id") ?? "";
+      const title = `搜索结果 ${id}`;
+      const cover = video.attr("poster") ?? "";
+      const remark = $(video).closest(".coverdiv").find(".ct-time span").text().trim();
+      const videoUrl = video.attr("data-source") ?? "";
 
       return {
         id,
@@ -89,11 +66,19 @@ export default class BadNewsSource implements Handle {
         cover,
         desc: "",
         remark,
-        playlist: []
+        playlist: [{
+          name: "默认线路",
+          videos: [{ title, url: videoUrl }]
+        }]
       };
     });
 
     return result;
+  }
+
+  async getDetail() {
+    // 无详情页，直接返回空对象或抛出错误
+    throw new Error("此源无详情页，所有信息已在分类页中提供");
   }
 
   async parseIframe() {

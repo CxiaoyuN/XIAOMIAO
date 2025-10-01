@@ -2,7 +2,7 @@ export default class BadNewsSource implements Handle {
   getConfig() {
     return {
       id: "badnews",
-      name: "Bad.News",
+      name: "BadNews",
       api: "https://bad.news/tag/porn",
       type: 1,
       nsfw: true

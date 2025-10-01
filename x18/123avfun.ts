@@ -2,7 +2,7 @@ export default class AV123Source implements Handle {
   getConfig() {
     return {
       id: "123avfun",
-      name: "123AV",
+      name: "123fun",
       api: "https://123av.fun",
       type: 1,
       nsfw: true
@@ -13,8 +13,14 @@ export default class AV123Source implements Handle {
     return [
       { id: "", text: "短视频" },
       { id: "long", text: "长视频" },
-      { id: "list", text: "榜单" },
-      { id: "explore", text: "探索" }
+      { id: "explore/q-口", text: "口" },
+      { id: "explore/q-COSPLAY", text: "COSPLAY" },
+      { id: "explore/q-巨乳", text: "巨乳" },
+      { id: "explore/q-人妻", text: "人妻" },
+      { id: "explore/q-蘿莉", text: "蘿莉" },
+      { id: "explore/q-sm", text: "SM" },
+      { id: "explore/q-中出", text: "中出" }
+      // 可继续添加更多标签
     ];
   }
 
@@ -22,43 +28,19 @@ export default class AV123Source implements Handle {
     const tid = env.get("category");
     const pg = env.get("page");
 
-    let url = `https://123av.fun/zh-tw/${tid}`;
-    if (tid !== "explore") url += `/page-${pg}`;
+    let url = `https://123av.fun/zh-tw/${tid}/page-${pg}`;
+    if (tid === "") url = `https://123av.fun/zh-tw/page-${pg}`;
+    if (tid === "long") url = `https://123av.fun/zh-tw/long/page-${pg}`;
 
     const html = await req(url);
     const $ = kitty.load(html);
 
-    let items: any[] = [];
-
-    if (tid === "long") {
-      items = $("[style='aspect-ratio: 4/3;']").toArray().map(el => {
-        const id = $(el).closest("a").attr("href") ?? "";
-        const title = $(el).find("img").attr("alt") ?? "";
-        const cover = $(el).find("img").attr("data-src") ?? "";
-        return { id, title, cover, desc: "", remark: "长视频", playlist: [] };
-      });
-    } else if (tid === "") {
-      items = $("[style='aspect-ratio: 3/4;']").toArray().map(el => {
-        const id = $(el).closest("a").attr("href") ?? "";
-        const title = $(el).find("img").attr("alt") ?? "";
-        const cover = $(el).find("img").attr("data-src") ?? "";
-        return { id, title, cover, desc: "", remark: "短视频", playlist: [] };
-      });
-    } else if (tid === "list") {
-      items = $("a[href*='/detail/']").toArray().map(el => {
-        const id = $(el).attr("href") ?? "";
-        const title = $(el).find("img").attr("alt") ?? "";
-        const cover = $(el).find("img").attr("data-src") ?? "";
-        return { id, title, cover, desc: "", remark: "榜单", playlist: [] };
-      });
-    } else if (tid === "explore") {
-      items = $("a[href*='/detail/']").toArray().map(el => {
-        const id = $(el).attr("href") ?? "";
-        const title = $(el).find("img").attr("alt") ?? "";
-        const cover = $(el).find("img").attr("data-src") ?? "";
-        return { id, title, cover, desc: "", remark: "探索", playlist: [] };
-      });
-    }
+    const items = $("a[href*='/detail/']").toArray().map(el => {
+      const id = $(el).attr("href") ?? "";
+      const title = $(el).find("img").attr("alt") ?? "";
+      const cover = $(el).find("img").attr("data-src") ?? $(el).find("img").attr("src") ?? "";
+      return { id, title, cover, desc: "", remark: "", playlist: [] };
+    });
 
     return items;
   }
@@ -69,7 +51,7 @@ export default class AV123Source implements Handle {
     const items = $("a[href*='/detail/']").toArray().map(el => {
       const id = $(el).attr("href") ?? "";
       const title = $(el).find("img").attr("alt") ?? "";
-      const cover = $(el).find("img").attr("data-src") ?? "";
+      const cover = $(el).find("img").attr("data-src") ?? $(el).find("img").attr("src") ?? "";
       return { id, title, cover, desc: "", remark: "", playlist: [] };
     });
     return items;
@@ -98,7 +80,7 @@ export default class AV123Source implements Handle {
     const items = $("a[href*='/detail/']").toArray().map(el => {
       const id = $(el).attr("href") ?? "";
       const title = $(el).find("img").attr("alt") ?? "";
-      const cover = $(el).find("img").attr("data-src") ?? "";
+      const cover = $(el).find("img").attr("data-src") ?? $(el).find("img").attr("src") ?? "";
       return { id, title, cover, desc: "", remark: "搜索结果", playlist: [] };
     });
     return items;

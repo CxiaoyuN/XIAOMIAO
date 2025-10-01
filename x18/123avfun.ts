@@ -1,7 +1,7 @@
 export default class AV123Source implements Handle {
   getConfig() {
     return {
-      id: "123Fun",
+      id: "123avfun",
       name: "123AV",
       api: "https://123av.fun",
       type: 1,
@@ -32,37 +32,65 @@ export default class AV123Source implements Handle {
 
     const html = await req(url);
     const $ = kitty.load(html);
-
     const items: any[] = [];
 
-    $("[style='aspect-ratio: 3/4;'], [style='aspect-ratio: 4/3;']").each((_, el) => {
-      const style = $(el).attr("style") ?? "";
-      const isLong = style.includes("4/3");
-      const a = $(el).closest("a");
-      const id = a.attr("href") ?? "";
-      const title = a.find("img").attr("alt") ?? "";
-      const cover = a.find("img").attr("src") ?? "";
-      const videoDiv = a.next(".video-play");
-      const videoUrl = videoDiv.attr("data-src") ?? "";
-      const remark = isLong ? "长视频" : "短视频";
+    $(".video-play").each((_, el) => {
+      const videoUrl = $(el).attr("data-src") ?? "";
+      const cover = $(el).attr("data-poster") ?? "";
+      const id = $(el).attr("data-id") ?? "";
+      const parent = $(el).prev("a");
+      const title = parent.find("img").attr("alt") ?? "";
 
-      items.push({
-        id,
-        title,
-        cover,
-        desc: "",
-        remark,
-        playlist: videoUrl
-          ? [{ title: "主线路", videos: [{ text: "在线播放", type: "m3u8", url: videoUrl }] }]
-          : []
-      });
+      if (videoUrl && id) {
+        items.push({
+          id: `/zh-tw/detail/${id}`,
+          title,
+          cover,
+          desc: "",
+          remark: "",
+          playlist: [
+            {
+              title: "主线路",
+              videos: [{ text: "在线播放", type: "m3u8", url: videoUrl }]
+            }
+          ]
+        });
+      }
     });
 
     return items;
   }
 
   async getHome() {
-    return await this.getCategoryPage(); // 首页结构一致，直接复用
+    const html = await req("https://123av.fun/zh-tw/");
+    const $ = kitty.load(html);
+    const items: any[] = [];
+
+    $(".video-play").each((_, el) => {
+      const videoUrl = $(el).attr("data-src") ?? "";
+      const cover = $(el).attr("data-poster") ?? "";
+      const id = $(el).attr("data-id") ?? "";
+      const parent = $(el).prev("a");
+      const title = parent.find("img").attr("alt") ?? "";
+
+      if (videoUrl && id) {
+        items.push({
+          id: `/zh-tw/detail/${id}`,
+          title,
+          cover,
+          desc: "",
+          remark: "",
+          playlist: [
+            {
+              title: "主线路",
+              videos: [{ text: "在线播放", type: "m3u8", url: videoUrl }]
+            }
+          ]
+        });
+      }
+    });
+
+    return items;
   }
 
   async getDetail() {
@@ -85,12 +113,32 @@ export default class AV123Source implements Handle {
     const wd = env.get("keyword");
     const html = await req(`https://123av.fun/search/${wd}`);
     const $ = kitty.load(html);
-    const items = $("a[href*='/detail/']").toArray().map(el => {
-      const id = $(el).attr("href") ?? "";
-      const title = $(el).find("img").attr("alt") ?? "";
-      const cover = $(el).find("img").attr("src") ?? "";
-      return { id, title, cover, desc: "", remark: "搜索结果", playlist: [] };
+    const items: any[] = [];
+
+    $(".video-play").each((_, el) => {
+      const videoUrl = $(el).attr("data-src") ?? "";
+      const cover = $(el).attr("data-poster") ?? "";
+      const id = $(el).attr("data-id") ?? "";
+      const parent = $(el).prev("a");
+      const title = parent.find("img").attr("alt") ?? "";
+
+      if (videoUrl && id) {
+        items.push({
+          id: `/zh-tw/detail/${id}`,
+          title,
+          cover,
+          desc: "",
+          remark: "搜索结果",
+          playlist: [
+            {
+              title: "主线路",
+              videos: [{ text: "在线播放", type: "m3u8", url: videoUrl }]
+            }
+          ]
+        });
+      }
     });
+
     return items;
   }
 

@@ -2,7 +2,7 @@ export default class BadNewsSource implements Handle {
   getConfig() {
     return {
       id: "badnews",
-      name: "Bad.News",
+      name: "BadNews",
       api: "https://bad.news",
       type: 1,
       nsfw: true
@@ -27,8 +27,8 @@ export default class BadNewsSource implements Handle {
       const id = video.attr("data-id") ?? "";
       const title = `视频 ${id}`;
       const cover = video.attr("poster") ?? "";
-      const remark = $(video).closest(".coverdiv").find(".ct-time span").text().trim();
       const videoUrl = video.attr("data-source") ?? "";
+      const remark = $(video).closest(".coverdiv").find(".ct-time span").text().trim();
 
       return {
         id,
@@ -57,8 +57,8 @@ export default class BadNewsSource implements Handle {
       const id = video.attr("data-id") ?? "";
       const title = `搜索结果 ${id}`;
       const cover = video.attr("poster") ?? "";
-      const remark = $(video).closest(".coverdiv").find(".ct-time span").text().trim();
       const videoUrl = video.attr("data-source") ?? "";
+      const remark = $(video).closest(".coverdiv").find(".ct-time span").text().trim();
 
       return {
         id,
@@ -77,7 +77,7 @@ export default class BadNewsSource implements Handle {
   }
 
   async getDetail() {
-    // 无详情页，直接返回空对象或抛出错误
+    // 无详情页，直接抛出错误或返回空
     throw new Error("此源无详情页，所有信息已在分类页中提供");
   }
 

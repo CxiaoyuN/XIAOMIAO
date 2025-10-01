@@ -1232,86 +1232,34 @@
     }
   },
   {
-    "id": "4hutv",
-    "name": "四虎TV",
-    "api": "https://www.4hu.tv",
+    "id": "123avfun",
+    "name": "123AV",
+    "api": "https://123av.fun",
     "type": 1,
     "nsfw": true,
     "extra": {
       "js": {
         "category": [
           {
-            "id": "1",
-            "text": "国产"
-          },
-          {
-            "id": "2",
-            "text": "自拍视频"
-          },
-          {
-            "id": "3",
-            "text": "淫妻作乐"
-          },
-          {
-            "id": "4",
-            "text": "国产传媒"
-          },
-          {
-            "id": "5",
-            "text": "热门探花"
-          },
-          {
-            "id": "6",
-            "text": "开放青年"
-          },
-          {
-            "id": "7",
-            "text": "JVID专区"
-          },
-          {
-            "id": "8",
-            "text": "SWAG专区"
-          },
-          {
-            "id": "9",
-            "text": "直播录屏"
-          },
-          {
-            "id": "10",
+            "id": "",
             "text": "短视频"
           },
           {
-            "id": "11",
-            "text": "无码破解"
+            "id": "long",
+            "text": "长视频"
           },
           {
-            "id": "12",
-            "text": "动漫卡通"
+            "id": "explore",
+            "text": "探索"
           },
           {
-            "id": "13",
-            "text": "三级伦理"
-          },
-          {
-            "id": "14",
-            "text": "热门女优"
-          },
-          {
-            "id": "15",
-            "text": "女性向純愛"
-          },
-          {
-            "id": "16",
-            "text": "GIGA女战士"
-          },
-          {
-            "id": "17",
-            "text": "男男视频"
+            "id": "list",
+            "text": "榜单"
           }
         ],
-        "home": "const html=await req(\"https://www.4hu.tv/\");const $=kitty.load(html);const items=$(\".video-item\").toArray().map(el=>{const id=$(el).find(\"a\").attr(\"href\")??\"\";const title=$(el).find(\"img\").attr(\"alt\")??\"\";const cover=$(el).find(\"img\").attr(\"data-src\")??\"\";const remark=$(el).find(\".video-tag\").text()??\"\";return{id,title,cover,desc:\"\",remark,playlist:[]}});return items",
-        "detail": "const id=env.get(\"movieId\");const html=await req(`${env.baseUrl}${id}`);const $=kitty.load(html);const title=$(\"h1\").text();const cover=$(\".video-player\").find(\"video\").attr(\"poster\")??\"\";const videoUrl=$(\".video-player\").find(\"video\").attr(\"src\")??\"\";const playlist=[{title:\"\\u9ED8\\u8BA4\\u7EBF\\u8DEF\",videos:[{text:\"\\u9AD8\\u6E05\\u64AD\\u653E\",type:\"mp4\",url:videoUrl}]}];return{id,title,cover,desc:\"\",remark:\"\",playlist}",
-        "search": "const wd=env.get(\"keyword\");const html=await req(`https://www.4hu.tv/search/${wd}`);const $=kitty.load(html);const items=$(\".video-item\").toArray().map(el=>{const id=$(el).find(\"a\").attr(\"href\")??\"\";const title=$(el).find(\"img\").attr(\"alt\")??\"\";const cover=$(el).find(\"img\").attr(\"data-src\")??\"\";const remark=$(el).find(\".video-tag\").text()??\"\";return{id,title,cover,desc:\"\",remark,playlist:[]}});return items"
+        "home": "const html=await req(\"https://123av.fun/zh-tw/\");const $=kitty.load(html);const items=$(\"a[href*='/detail/']\").toArray().map(el=>{const id=$(el).attr(\"href\")??\"\";const title=$(el).find(\"img\").attr(\"alt\")??$(el).find(\"h1\").text().trim();const cover=$(el).find(\"img\").attr(\"data-src\")??$(el).find(\"img\").attr(\"src\")??\"\";const remark=$(el).find(\".video-tag\").text().trim();return{id,title,cover,desc:\"\",remark,playlist:[]}});return items",
+        "detail": "const id=env.get(\"movieId\");const html=await req(`https://123av.fun${id}`);const $=kitty.load(html);const title=$(\"h1\").text().trim();const cover=$(\"video.detail-video\").attr(\"poster\")??\"\";const videoUrl=$(\"video.detail-video\").attr(\"data-src\")??\"\";const playlist=[{title:\"\\u4E3B\\u7EBF\\u8DEF\",videos:[{text:\"\\u5728\\u7EBF\\u64AD\\u653E\",type:\"m3u8\",url:videoUrl}]}];return{id,title,cover,desc:\"\",remark:\"\",playlist}",
+        "search": "const wd=env.get(\"keyword\");const html=await req(`https://123av.fun/search/${wd}`);const $=kitty.load(html);const items=$(\"a[href*='/detail/']\").toArray().map(el=>{const id=$(el).attr(\"href\")??\"\";const title=$(el).find(\"img\").attr(\"alt\")??$(el).find(\"h1\").text().trim();const cover=$(el).find(\"img\").attr(\"data-src\")??$(el).find(\"img\").attr(\"src\")??\"\";const remark=$(el).find(\".video-tag\").text().trim();return{id,title,cover,desc:\"\",remark,playlist:[]}});return items"
       }
     }
   },

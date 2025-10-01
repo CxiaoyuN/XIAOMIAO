@@ -1249,9 +1249,9 @@
             "text": "长视频"
           }
         ],
-        "home": "const html=await req(\"https://123av.fun/zh-cn/\");const $=kitty.load(html);const items=$(\"a[href*='/detail/']\").toArray().map(el=>{const id=$(el).attr(\"href\")??\"\";const title=$(el).find(\"img\").attr(\"alt\")??\"\";const cover=$(el).find(\"img\").attr(\"data-src\")??\"\";return{id,title,cover,desc:\"\",remark:\"\",playlist:[]}});return items",
+        "home": "const html=await req(\"https://123av.fun/zh-cn/\");const $=kitty.load(html);const items=$(\"a[href*='/detail/']\").toArray().map(el=>{const id=$(el).attr(\"href\")??\"\";const title=$(el).find(\"img\").attr(\"alt\")??\"\";const cover=$(el).find(\"img\").attr(\"data-src\")??$(el).find(\"img\").attr(\"src\")??\"\";return{id,title,cover,desc:\"\",remark:\"\",playlist:[]}});return items",
         "detail": "const id=env.get(\"movieId\");const html=await req(`https://123av.fun${id}`);const $=kitty.load(html);const title=$(\"h1\").text().trim();const cover=$(\"video.detail-video\").attr(\"poster\")??\"\";const videoUrl=$(\"video.detail-video\").attr(\"data-src\")??\"\";const playlist=[{title:\"\\u4E3B\\u7EBF\\u8DEF\",videos:[{text:\"\\u64AD\\u653E\",type:\"m3u8\",url:videoUrl}]}];return{id,title,cover,desc:\"\",remark:\"\",playlist}",
-        "search": "const wd=env.get(\"keyword\");const html=await req(`https://123av.fun/explore/q-${wd}`);const $=kitty.load(html);const items=$(\"a[href*='/detail/']\").toArray().map(el=>{const id=$(el).attr(\"href\")??\"\";const title=$(el).find(\"img\").attr(\"alt\")??\"\";const cover=$(el).find(\"img\").attr(\"data-src\")??\"\";return{id,title,cover,desc:\"\",remark:\"\\u641C\\u7D22\\u7ED3\\u679C\",playlist:[]}});return items"
+        "search": "const wd=env.get(\"keyword\");const html=await req(`https://123av.fun/explore/q-${wd}`);const $=kitty.load(html);const items=$(\"a[href*='/detail/']\").toArray().map(el=>{const id=$(el).attr(\"href\")??\"\";const title=$(el).find(\"img\").attr(\"alt\")??\"\";const cover=$(el).find(\"img\").attr(\"data-src\")??$(el).find(\"img\").attr(\"src\")??\"\";return{id,title,cover,desc:\"\",remark:\"\\u641C\\u7D22\\u7ED3\\u679C\",playlist:[]}});return items"
       }
     }
   },

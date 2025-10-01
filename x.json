@@ -605,7 +605,7 @@
   },
   {
     "id": "av6k",
-    "name": "6KAV",
+    "name": "AV6K",
     "api": "https://av6k.com",
     "nsfw": true,
     "type": 1,
@@ -649,7 +649,7 @@
             "text": "成人動漫"
           }
         ],
-        "home": "const cate=env.get(\"category\")??\"\";const page=env.get(\"page\")??1;const url=`${env.baseUrl}/${cate?cate+\"/\":\"\"}page/${page}.html`;const $=kitty.load(await req(url));return $(\".listA\").toArray().map(item=>{const a=$(item).find(\"a\");const title=a.attr(\"title\")?.trim()??\"\";const id=a.attr(\"href\")??\"\";const img=a.find(\"img\").attr(\"src\")??\"\";const cover=img.startsWith(\"/\")?`${env.baseUrl}${img}`:img;const preview=a.find(\"video\").attr(\"srcmv\")??\"\";const remark=$(item).find(\".video-views\").text().trim();const date=$(item).find(\".video-added\").text().trim();return{title,id,cover,preview,remark:`${remark} · ${date}`}})",
+        "home": "const cate=env.get(\"category\")??\"\";const page=env.get(\"page\")??1;let url=\"\";if(cate===\"\"){url=`${env.baseUrl}/`}else if(page===1){url=`${env.baseUrl}/${cate}/`}else{const html=await req(`${env.baseUrl}/${cate}/`);const $=kitty.load(html);const link=$(\".pages_c li a\").toArray().find(a=>$(a).text().trim()===`${page}`);const href=link?$(link).attr(\"href\"):null;url=href?`${env.baseUrl}/${cate}/${href}`:`${env.baseUrl}/${cate}/`}const $=kitty.load(await req(url));return $(\".listA\").toArray().map(item=>{const a=$(item).find(\"a\");const title=a.attr(\"title\")?.trim()??\"\";const id=a.attr(\"href\")??\"\";const img=a.find(\"img\").attr(\"src\")??\"\";const cover=img.startsWith(\"/\")?`${env.baseUrl}${img}`:img;const preview=a.find(\"video\").attr(\"srcmv\")??\"\";const remark=$(item).find(\".video-views\").text().trim();const date=$(item).find(\".video-added\").text().trim();return{title,id,cover,preview,remark:`${remark} · ${date}`}})",
         "detail": "const id=env.get(\"movieId\");const url=`${env.baseUrl}${id}`;const html=await req(url);const m3u8Match=html.match(/var\\s+sp_m3u8\\s*=\\s*\"([^\"]+)\"/);const m3u8=m3u8Match?m3u8Match[1]:\"\";const $=kitty.load(html);const title=$(\"title\").text().trim();return{title,playlist:[{title:\"\\u64AD\\u653E\",videos:[{text:\"\\u7ACB\\u5373\\u64AD\\u653E\",url:m3u8}]}]}",
         "search": "const keyword=env.get(\"keyword\");const page=env.get(\"page\")??1;const url=`${env.baseUrl}/search/${encodeURIComponent(keyword)}-${page}.html`;const $=kitty.load(await req(url));return $(\".listA\").toArray().map(item=>{const a=$(item).find(\"a\");const title=a.attr(\"title\")?.trim()??\"\";const id=a.attr(\"href\")??\"\";const img=a.find(\"img\").attr(\"src\")??\"\";const cover=img.startsWith(\"/\")?`${env.baseUrl}${img}`:img;const preview=a.find(\"video\").attr(\"srcmv\")??\"\";const remark=$(item).find(\".video-views\").text().trim();const date=$(item).find(\".video-added\").text().trim();return{title,id,cover,preview,remark:`${remark} · ${date}`}})"
       }

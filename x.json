@@ -590,7 +590,7 @@
   },
   {
     "id": "123avfun",
-    "name": "123AV",
+    "name": "AVFUN",
     "api": "https://123av.fun",
     "type": 1,
     "nsfw": true,
@@ -606,29 +606,17 @@
             "text": "长视频"
           },
           {
-            "id": "explore/q-巨乳",
-            "text": "巨乳"
+            "id": "explore",
+            "text": "探索"
           },
           {
-            "id": "explore/q-口",
-            "text": "口"
-          },
-          {
-            "id": "explore/q-人妻",
-            "text": "人妻"
-          },
-          {
-            "id": "explore/q-蘿莉",
-            "text": "蘿莉"
-          },
-          {
-            "id": "explore/q-中出",
-            "text": "中出"
+            "id": "list",
+            "text": "榜单"
           }
         ],
-        "home": "env.set(\"category\",\"\");env.set(\"page\",1);return await this.getCategoryPage()",
-        "detail": "const id=env.get(\"movieId\");const html=await req(`https://123av.fun${id}`);const $=kitty.load(html);const title=$(\"h1\").text().trim();const cover=$(\"video.detail-video\").attr(\"poster\")??\"\";const videoUrl=$(\"video.detail-video\").attr(\"data-src\")??\"\";return{id,title,cover,desc:\"\",remark:\"\",playlist:[{title:\"\\u4E3B\\u7EBF\\u8DEF\",videos:[{text:\"\\u5728\\u7EBF\\u64AD\\u653E\",type:\"m3u8\",url:videoUrl}]}]}",
-        "search": "const wd=env.get(\"keyword\");const pg=env.get(\"page\");const url=`https://123av.fun/search/${wd}?page=${pg}`;const html=await req(url);const $=kitty.load(html);const items=$(\"a[href*='/detail/']\").toArray().map(el=>{const id=$(el).attr(\"href\")??\"\";const title=$(el).find(\"img\").attr(\"alt\")??$(el).find(\"h1\").text().trim();const cover=$(el).find(\"img\").attr(\"data-src\")??$(el).find(\"img\").attr(\"src\")??\"\";const remark=$(el).find(\".video-tag\").text().trim()??\"\";return{id,title,cover,desc:\"\",remark:\"\\u641C\\u7D22\\u7ED3\\u679C\\uFF1A\"+remark,playlist:[]}});return items"
+        "home": "const html=await req(\"https://123av.fun/zh-tw/\");const $=kitty.load(html);const items=$(\"a[href*='/detail/']\").toArray().map(el=>{const id=$(el).attr(\"href\")??\"\";const title=$(el).find(\"img\").attr(\"alt\")??$(el).find(\"h1\").text().trim();const cover=$(el).find(\"img\").attr(\"data-src\")??$(el).find(\"img\").attr(\"src\")??\"\";const remark=$(el).find(\".video-tag\").text().trim();return{id,title,cover,desc:\"\",remark,playlist:[]}});return items",
+        "detail": "const id=env.get(\"movieId\");const html=await req(`https://123av.fun${id}`);const $=kitty.load(html);const title=$(\"h1\").text().trim();const cover=$(\"video.detail-video\").attr(\"poster\")??\"\";const videoUrl=$(\"video.detail-video\").attr(\"data-src\")??\"\";const playlist=[{title:\"\\u4E3B\\u7EBF\\u8DEF\",videos:[{text:\"\\u5728\\u7EBF\\u64AD\\u653E\",type:\"m3u8\",url:videoUrl}]}];return{id,title,cover,desc:\"\",remark:\"\",playlist}",
+        "search": "const wd=env.get(\"keyword\");const html=await req(`https://123av.fun/search/${wd}`);const $=kitty.load(html);const items=$(\"a[href*='/detail/']\").toArray().map(el=>{const id=$(el).attr(\"href\")??\"\";const title=$(el).find(\"img\").attr(\"alt\")??$(el).find(\"h1\").text().trim();const cover=$(el).find(\"img\").attr(\"data-src\")??$(el).find(\"img\").attr(\"src\")??\"\";const remark=$(el).find(\".video-tag\").text().trim();return{id,title,cover,desc:\"\",remark,playlist:[]}});return items"
       }
     }
   },

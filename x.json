@@ -590,8 +590,8 @@
   },
   {
     "id": "123avfun",
-    "name": "AVFUN",
-    "api": "https://123av.fun/zh-cn",
+    "name": "123AV",
+    "api": "https://123av.fun/zh-tw",
     "type": 1,
     "nsfw": true,
     "extra": {

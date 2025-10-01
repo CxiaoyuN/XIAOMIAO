@@ -2,8 +2,8 @@ export default class AV123Source implements Handle {
   getConfig() {
     return {
       id: "123avfun",
-      name: "AVFUN",
-      api: "https://123av.fun/zh-cn",
+      name: "123AV",
+      api: "https://123av.fun/zh-tw",
       type: 1,
       nsfw: true
     };
@@ -20,7 +20,7 @@ export default class AV123Source implements Handle {
 
   async getCategoryPage() {
     const tid = env.get("category");
-    const url = `https://123av.fun/zh-cn/${tid}`;
+    const url = `https://123av.fun/zh-tw/${tid}`;
     const html = await req(url);
     const $ = kitty.load(html);
     const items = $(".video-card").toArray().map(el => {

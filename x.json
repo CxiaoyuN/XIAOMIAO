@@ -603,20 +603,20 @@
           },
           {
             "id": "view-count/sort-asc",
-            "text": "推荐"
+            "text": "播放数"
           },
           {
             "id": "comment-count/sort-desc",
-            "text": "评论"
+            "text": "评论数"
           },
           {
             "id": "favorite-count/sort-desc",
-            "text": "收藏"
+            "text": "收藏数"
           }
         ],
         "home": "env.set(\"category\",\"publish-time/sort-desc\");return await this.getCategoryPage()",
-        "detail": "const id=env.get(\"movieId\");const html=await req(`${env.baseUrl}${id}`);const $=kitty.load(html);const title=$(\"h1\").text().trim();const cover=$(\"video.detail-video\").attr(\"poster\")??\"\";const videoUrl=$(\"video.detail-video\").attr(\"data-src\")??\"\";return{id,title,cover,desc:\"\",remark:\"\",playlist:[{title:\"\\u4E3B\\u7EBF\\u8DEF\",videos:[{text:\"\\u64AD\\u653E\",type:\"m3u8\",url:videoUrl}]}]}",
-        "search": "const wd=env.get(\"keyword\");const html=await req(`${env.baseUrl}/explore/q-${encodeURIComponent(wd)}`);const $=kitty.load(html);const items=$(\".video-card\").toArray().map(el=>{const id=$(el).attr(\"href\")??\"\";const title=$(el).find(\".truncate\").text().trim();const cover=$(el).find(\"img\").attr(\"data-src\")??$(el).find(\"img\").attr(\"src\")??\"\";const videoUrl=$(el).find(\".video-play\").attr(\"data-src\")??\"\";const remark=$(el).find(\".video-date\").text().trim()+\" / \"+$(el).find(\".view-count\").text().trim();return{id,title,cover,desc:\"\",remark,playlist:[{title:\"\\u4E3B\\u7EBF\\u8DEF\",videos:[{text:\"\\u64AD\\u653E\",type:\"mp4\",url:videoUrl}]}]}});return items"
+        "search": "const keyword=env.get(\"keyword\");const url=`${env.baseUrl}/explore/q-${encodeURIComponent(keyword)}`;const html=await req(url);const $=kitty.load(html);const items=$(\".video-card\").toArray().map(el=>{const id=$(el).attr(\"href\")??\"\";const title=$(el).find(\".truncate\").text().trim();const cover=$(el).find(\"img\").attr(\"src\")??\"\";const remark=$(el).find(\".video-date\").text().trim()+\" / \"+$(el).find(\".view-count\").text().trim();return{id,title,cover,desc:\"\",remark}});return items",
+        "detail": "const id=env.get(\"movieId\");const url=`${env.baseUrl}${id}`;const html=await req(url);const $=kitty.load(html);const title=$(\"h1\").text().trim()||$(\".truncate\").text().trim();const cover=$(\"video.detail-video\").attr(\"poster\")??\"\";const videoUrl=$(\"video.detail-video\").attr(\"data-src\")??\"\";const desc=$(\".bg-header\").text().trim();const remark=$(\".text-xs:contains(\\u53D1\\u8868\\u4E8E)\").text().trim();return{id,title,cover,desc,remark,playlist:[{title:\"\\u4E3B\\u7EBF\\u8DEF\",videos:[{text:\"\\u64AD\\u653E\",type:\"m3u8\",url:videoUrl}]}]}"
       }
     }
   },

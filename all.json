@@ -1688,21 +1688,6 @@
     }
   },
   {
-    "id": "maiyoux",
-    "name": "Maiyoux聚合",
-    "api": "http://api.maiyoux.com:81/mf/json.txt",
-    "nsfw": true,
-    "type": 1,
-    "extra": {
-      "js": {
-        "category": "if(!this.cateList||Object.keys(this.cateList).length===0){await this._fetchIndex()}return Object.keys(this.cateList).map(key=>({text:key,id:key}))",
-        "home": "if(!this.cateList||Object.keys(this.cateList).length===0){await this._fetchIndex()}const firstKey=Object.keys(this.cateList)[0];const list=this.cateList[firstKey]||[];return list.map(item=>{return{id:item.address,title:item.title,cover:item.xinimg,desc:\"\",remark:item.Number?.toString()||\"\",playlist:[]}})",
-        "detail": "const id=env.get(\"movieId\");const url=\"http://api.maiyoux.com:81/mf/\"+id;const text=await req(url);let data={};try{data=JSON.parse(text)}catch{data={}}const arr=data.zhubo||[];const videos=arr.map(it=>({text:it.title,url:it.address}));const playlist=[{title:\"Leospring\",videos}];return{id,title:\"\\u8BE6\\u60C5\",cover:\"\",desc:\"\\u4F5C\\u8005\\uFF1ALeospring \\u516C\\u4F17\\u53F7\\uFF1A\\u8682\\u8681\\u79D1\\u6280\\u6742\\u8C08\",playlist}",
-        "search": "return[]"
-      }
-    }
-  },
-  {
     "id": "netflav$",
     "name": "NetFlav",
     "api": "https://www.netflav.com",

@@ -19,27 +19,24 @@ export default class AV123Source implements Handle {
   async getCategoryPage() {
     const tid = env.get("category");
     const pg = env.get("page");
-
     let url = `https://123av.fun/zh-cn/${tid}`;
     if (tid !== "explore") url += `/page-${pg}`;
-
     const html = await req(url);
     const $ = kitty.load(html);
-
     let items: any[] = [];
 
     if (tid === "long") {
       items = $("[style='aspect-ratio: 4/3;']").toArray().map(el => {
         const id = $(el).closest("a").attr("href") ?? "";
         const title = $(el).find("img").attr("alt") ?? "";
-        const cover = $(el).find("img").attr("data-src") ?? "";
+        const cover = $(el).find("img").attr("data-src") ?? $(el).find("img").attr("src") ?? "";
         return { id, title, cover, desc: "", remark: "长视频", playlist: [] };
       });
     } else if (tid === "") {
       items = $("[style='aspect-ratio: 3/4;']").toArray().map(el => {
         const id = $(el).closest("a").attr("href") ?? "";
         const title = $(el).find("img").attr("alt") ?? "";
-        const cover = $(el).find("img").attr("data-src") ?? "";
+        const cover = $(el).find("img").attr("data-src") ?? $(el).find("img").attr("src") ?? "";
         return { id, title, cover, desc: "", remark: "短视频", playlist: [] };
       });
     }
@@ -53,7 +50,7 @@ export default class AV123Source implements Handle {
     const items = $("a[href*='/detail/']").toArray().map(el => {
       const id = $(el).attr("href") ?? "";
       const title = $(el).find("img").attr("alt") ?? "";
-      const cover = $(el).find("img").attr("data-src") ?? "";
+      const cover = $(el).find("img").attr("data-src") ?? $(el).find("img").attr("src") ?? "";
       return { id, title, cover, desc: "", remark: "", playlist: [] };
     });
     return items;
@@ -82,7 +79,7 @@ export default class AV123Source implements Handle {
     const items = $("a[href*='/detail/']").toArray().map(el => {
       const id = $(el).attr("href") ?? "";
       const title = $(el).find("img").attr("alt") ?? "";
-      const cover = $(el).find("img").attr("data-src") ?? "";
+      const cover = $(el).find("img").attr("data-src") ?? $(el).find("img").attr("src") ?? "";
       return { id, title, cover, desc: "", remark: "搜索结果", playlist: [] };
     });
     return items;

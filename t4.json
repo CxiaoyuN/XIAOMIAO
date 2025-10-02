@@ -89,7 +89,6 @@
       "template": "t4"
     }
   },
-  [
     {
       "id": "t4-klhj",
       "name": "老张合集",
@@ -159,8 +158,7 @@
       "extra": {
         "template": "t4"
       }
-    }
-  ],
+    },
   {
     "id": "t4-madou",
     "name": "MaDou(T4)",

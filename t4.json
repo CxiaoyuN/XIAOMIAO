@@ -50,16 +50,6 @@
     }
   },
   {
-    "id": "t4-cntv",
-    "name": "央视(T4)",
-    "api": "https://catbox.n13.club/t9/cntv.php",
-    "nsfw": false,
-    "type": 1,
-    "extra": {
-      "template": "t4"
-    }
-  },
-  {
     "id": "t4-duboku",
     "name": "独播库(T4)",
     "api": "https://tvbot.ggff.net/duboku",
@@ -133,6 +123,16 @@
     "id": "t4-uvod",
     "name": "优视频(T4)",
     "api": "https://tvbot.ggff.net/uvod",
+    "nsfw": false,
+    "type": 1,
+    "extra": {
+      "template": "t4"
+    }
+  },
+  {
+    "id": "t4-yongle",
+    "name": "永乐影视(T4)",
+    "api": "https://tvbot.ggff.net/yongle",
     "nsfw": false,
     "type": 1,
     "extra": {

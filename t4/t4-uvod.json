@@ -1,0 +1,10 @@
+{
+    "id": "t4-uvod",
+    "name": "优视频(T4)",
+    "api": "https://tvbot.ggff.net/uvod",
+    "nsfw": false,
+    "type": 1,
+    "extra": {
+      "template": "t4"
+    }
+}

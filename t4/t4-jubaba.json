@@ -1,0 +1,10 @@
+{
+    "id": "t4-jubaba",
+    "name": "嗷呜影院(T4)",
+    "api": "https://tvbot.ggff.net/jubaba",
+    "nsfw": false,
+    "type": 1,
+    "extra": {
+      "template": "t4"
+    }
+}

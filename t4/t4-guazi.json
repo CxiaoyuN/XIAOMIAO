@@ -1,0 +1,10 @@
+{
+    "id": "t4-guazi",
+    "name": "瓜子影视(T4)",
+    "api": "https://tvbot.ggff.net/guazi",
+    "nsfw": false,
+    "type": 1,
+    "extra": {
+      "template": "t4"
+    }
+}

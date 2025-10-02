@@ -8,6 +8,10 @@ export default class rouvideo implements Handle {
       type: 1,
       nsfw: true,
       api: "https://rouvz6.xyz/",
+      extra: {
+        gfw: true,
+        searchLimit: 26,
+      }
     }
   }
 
@@ -46,6 +50,7 @@ export default class rouvideo implements Handle {
         cover = $el.find('img').attr('src') || ''
       }
 
+      // @ts-ignore
       const title = ($el.find('h3').text() || '').trim() || ($(imgs && imgs.length > 0) ? $(imgs[imgs.length - 1]).attr('alt') : '')
       const remarks = $el.find('.absolute.bottom-1.left-1').text().trim() || $el.find('.text-xs').text().trim() || ''
 
@@ -189,3 +194,19 @@ export default class rouvideo implements Handle {
     }))
   }
 }
+
+// TEST
+// const env = createTestEnv('https://rouvz6.xyz')
+// const call = new rouvideo();
+// (async () => {
+//   const cates = await call.getCategory()
+//   env.set('category', cates[2].id)
+//   env.set('page', 1)
+//   const home = await call.getHome()
+//   env.set("keyword", "小宝探花")
+//   env.set("page", 2)
+//   const search = await call.getSearch()
+//   env.set('movieId', home[0].id)
+//   const detail = await call.getDetail()
+//   debugger
+// })()

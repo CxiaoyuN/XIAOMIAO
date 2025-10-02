@@ -1,0 +1,10 @@
+{
+    "id": "t4-yongle",
+    "name": "永乐影视(T4)",
+    "api": "https://tvbot.ggff.net/yongle",
+    "nsfw": false,
+    "type": 1,
+    "extra": {
+      "template": "t4"
+    }
+}

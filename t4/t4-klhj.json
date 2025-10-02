@@ -1,20 +1,10 @@
-   {
-      "id":"t4-klhj",
-      "name":"老张合集",
-      "api":"https://zhangqun66.com/klhj.php",
-      "nsfw":false,
-      "type":1,
-      "extra":{
-         "template":"t4"
-      }
-   },
-   {
-      "id":"t4-ysbf",
-      "name":"老张影视",
-      "api":"http://zhangqun1818.serv00.net/zh/2242.php",
-      "nsfw":false,
-      "type":1,
-      "extra":{
-         "template":"t4"
-      }
-   }
+{
+    "id": "t4-klhj",
+    "name": "老张合集(T4)",
+    "api": "https://zhangqun66.com/klhj.php",
+    "nsfw": false,
+    "type": 1,
+    "extra": {
+      "template": "t4"
+    }
+}

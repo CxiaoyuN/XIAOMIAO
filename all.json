@@ -1914,6 +1914,8 @@
     "nsfw": true,
     "api": "https://rouvz6.xyz/",
     "extra": {
+      "gfw": true,
+      "searchLimit": 26,
       "js": {
         "category": [
           {

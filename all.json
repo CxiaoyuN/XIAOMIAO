@@ -2460,6 +2460,78 @@
       "template": "t4"
     }
   },
+  [
+    {
+      "id": "t4-klhj",
+      "name": "老张合集",
+      "api": "https://zhangqun66.com/klhj.php",
+      "nsfw": false,
+      "type": 1,
+      "extra": {
+        "template": "t4"
+      }
+    },
+    {
+      "id": "t4-ysbf",
+      "name": "老张影视",
+      "api": "http://zhangqun1818.serv00.net/zh/2242.php",
+      "nsfw": false,
+      "type": 1,
+      "extra": {
+        "template": "t4"
+      }
+    },
+    {
+      "id": "t4-qdbf",
+      "name": "老张清单",
+      "api": "https://zhangqun66.com/zh/2243.php",
+      "nsfw": false,
+      "type": 1,
+      "extra": {
+        "template": "t4"
+      }
+    },
+    {
+      "id": "t4-ygqdbf",
+      "name": "老张油管",
+      "api": "https://zhangqun66.com/zh/yt/2243.php",
+      "nsfw": false,
+      "type": 1,
+      "extra": {
+        "template": "t4"
+      }
+    },
+    {
+      "id": "t4-ygbf1",
+      "name": "油管播放",
+      "api": "https://zhangqun66.com/ytlb.php",
+      "nsfw": false,
+      "type": 1,
+      "extra": {
+        "template": "t4"
+      }
+    },
+    {
+      "id": "t4-ygbf2",
+      "name": "油管列表",
+      "api": "https://zhangqun66.com/ytlb1.php",
+      "nsfw": false,
+      "type": 1,
+      "extra": {
+        "template": "t4"
+      }
+    },
+    {
+      "id": "t4-fwqyg",
+      "name": "服务油管",
+      "api": "https://zhangqun66.com/yt/yt0021.php",
+      "nsfw": false,
+      "type": 1,
+      "extra": {
+        "template": "t4"
+      }
+    }
+  ],
   {
     "id": "t4-madou",
     "name": "MaDou(T4)",

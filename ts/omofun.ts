@@ -2,7 +2,7 @@ export default class OmofunSource implements Handle {
   getConfig(): IConfig {
     return {
       id: 'omofun',
-      name: 'Omofun,
+      name: 'Omofun动漫',
       type: 1,
       api: 'https://omofun.link',
       nsfw: true
@@ -11,8 +11,11 @@ export default class OmofunSource implements Handle {
 
   async getCategory(): Promise<ICategory[]> {
     return [
+      { text: '电影', id: '1' },
+      { text: '连续剧', id: '2' },
+      { text: '综艺', id: '3' },
       { text: '动漫', id: '4' },
-      { text: '里番', id: '5' }
+      { text: '里番绅士专区', id: '5' }
     ];
   }
 
@@ -87,9 +90,9 @@ export default class OmofunSource implements Handle {
   async parseIframe(): Promise<string> {
     const iframeUrl = env.get<string>('iframe');
     const html = await req(iframeUrl);
-    const match = html.match(/"url":"(https:[^"]+\.m3u8)"/);
+    const match = html.match(/"url":"(https:[^"]+\\.m3u8)"/);
     if (match) {
-      return match[1].replace(/\\\//g, '/'); // ✅ 解码 JSON 中的转义字符
+      return match[1].replace(/\\\\\//g, '/'); // 解码 JSON 中的转义字符
     }
     throw new Error('未找到真实播放地址');
   }

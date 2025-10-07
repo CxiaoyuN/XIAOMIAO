@@ -1,8 +1,8 @@
 export default class OmofunSource implements Handle {
   getConfig() {
     return {
-      id: 'omofuntv',
-      name: 'Omofun',
+      id: 'omofun',
+      name: 'Omofun_WEB',
       api: 'https://omofun.link',
       type: 1,
       nsfw: false,

@@ -70,8 +70,8 @@ export default class Fengche implements Handle {
     const cover = $('div.leftimg .img_wrapper').attr('data-original') ?? ''
     const remark = $('p.zy span').text().trim()
 
-    // 简介提取（优先详细剧情）
-    const desc = $('div.yp_context').text().trim() || $('div.yp_detail').text().trim()
+    // 使用“详细剧情”作为简介
+    const desc = $('div:contains("详细剧情")').next().text().trim()
 
     const playlist: IPlaylist[] = []
 
@@ -79,9 +79,10 @@ export default class Fengche implements Handle {
       const tabTitle = $(el).attr('id')?.replace('tab_con_playlist_', '') || `线路${i + 1}`
       const videos: IPlaylistVideo[] = $(el).find('ul.con_c2_list li a').toArray().map(a => {
         const $a = $(a)
+        const href = $a.attr('href') ?? ''
         return {
           text: $a.text().trim(),
-          id: $a.attr('href') ?? ''
+          id: href.startsWith('/') ? `${env.baseUrl}${href}` : href
         }
       })
       if (videos.length > 0) {

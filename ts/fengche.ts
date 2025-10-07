@@ -1,4 +1,4 @@
-//import { env, req, kitty } from 'kitty-js'
+// import { env, req, kitty } from 'kitty-js'
 
 export default {
   getConfig() {
@@ -27,7 +27,7 @@ export default {
     const html = await req(url)
     const $ = kitty.load(html)
 
-    const result = $('.c2_list li').toArray().map(item => {
+    return $('.c2_list li').toArray().map(item => {
       const el = $(item)
       const a = el.find('a.tcl-img')
       const img = el.find('div.tc_img').attr('data-original') || ''
@@ -43,8 +43,6 @@ export default {
         playlist: []
       }
     })
-
-    return result
   },
 
   async getSearch() {
@@ -54,7 +52,7 @@ export default {
     const html = await req(url)
     const $ = kitty.load(html)
 
-    const result = $('.c2_list li').toArray().map(item => {
+    return $('.c2_list li').toArray().map(item => {
       const el = $(item)
       const a = el.find('a.tcl-img')
       const img = el.find('div.tc_img').attr('data-original') || ''
@@ -70,8 +68,6 @@ export default {
         playlist: []
       }
     })
-
-    return result
   },
 
   async getDetail() {
@@ -85,17 +81,19 @@ export default {
     const remark = $('p.tc_wz').text() || ''
     const desc = $('p.time').text() || ''
 
-    const playlist: any[] = []
-    $('.play_list ul').each((i, ul) => {
+    const playlist = $('.play_list ul').toArray().map(ul => {
       const name = $(ul).prev('h2').text().trim()
       const list = $(ul).find('li').toArray().map(li => {
         const a = $(li).find('a')
         return {
-          name: a.text(),
-          url: a.attr('href')
+          text: a.text(),
+          id: a.attr('href')
         }
       })
-      playlist.push({ name, list })
+      return {
+        title: name,
+        videos: list
+      }
     })
 
     return {

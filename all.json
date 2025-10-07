@@ -859,6 +859,39 @@
     }
   },
   {
+    "id": "fengche",
+    "name": "风车动漫_WEB",
+    "api": "https://www.fengche.one",
+    "type": 1,
+    "nsfw": false,
+    "extra": {
+      "js": {
+        "category": [
+          {
+            "text": "日本动漫",
+            "id": "ribendongman"
+          },
+          {
+            "text": "国产动漫",
+            "id": "guochandongman"
+          },
+          {
+            "text": "动漫电影",
+            "id": "dongmandianying"
+          },
+          {
+            "text": "欧美动漫",
+            "id": "oumeidongman"
+          }
+        ],
+        "home": "const cate=env.get(\"category\")||\"ribendongman\";const page=env.get(\"page\")||\"1\";const url=`${env.baseUrl}/type/${cate}-${page}.html`;const html=await req(url);const $=kitty.load(html);return $(\".c2_list li\").toArray().map(item=>{const el=$(item);const a=el.find(\"a.tcl-img\");return{id:a.attr(\"href\")??\"\",title:a.attr(\"title\")??\"\",cover:el.find(\"div.tc_img\").attr(\"data-original\")??\"\",remark:el.find(\"p.tc_wz\").text().trim(),playlist:[]}})",
+        "detail": "const id=env.get(\"movieId\");const html=await req(`${env.baseUrl}${id}`);const $=kitty.load(html);const title=$(\"div.name a\").text().trim();const desc=$(\"p.time\").text().trim();const cover=$(\"div.tc_img\").attr(\"data-original\")??\"\";const remark=$(\"p.tc_wz\").text().trim();const playlists=[];$(\".play_list ul\").each((_,ul)=>{const tabTitle=$(ul).prev(\"h2\").text().trim()||\"\\u9ED8\\u8BA4\\u7EBF\\u8DEF\";const videos=$(ul).find(\"li\").toArray().map(li=>{const a=$(li).find(\"a\");return{text:a.text().trim(),id:a.attr(\"href\")??\"\"}});if(videos.length>0){playlists.push({title:tabTitle,videos})}});return{id,title,cover:cover.startsWith(\"//\")?`https:${cover}`:cover,desc,remark,playlist:playlists}",
+        "search": "const wd=env.get(\"keyword\");const page=env.get(\"page\")||\"1\";const html=await req(`${env.baseUrl}/search/${wd}-${page}.html`);const $=kitty.load(html);return $(\".c2_list li\").toArray().map(item=>{const el=$(item);const a=el.find(\"a.tcl-img\");return{id:a.attr(\"href\")??\"\",title:a.attr(\"title\")??\"\",cover:el.find(\"div.tc_img\").attr(\"data-original\")??\"\",remark:el.find(\"p.tc_wz\").text().trim(),playlist:[]}})",
+        "parseIframe": "return env.get(\"id\")"
+      }
+    }
+  },
+  {
     "id": "jsdy$",
     "name": "极速电影",
     "api": "https://32d.cc",

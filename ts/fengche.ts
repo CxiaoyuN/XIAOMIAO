@@ -1,4 +1,4 @@
-// import { kitty, req } from 'utils'
+// import { env, req, kitty } from 'kitty-js'
 
 export default class Fengche implements Handle {
   getConfig() {
@@ -40,45 +40,11 @@ export default class Fengche implements Handle {
     })
   }
 
-  async getDetail() {
-    const id = env.get('movieId')
-    const html = await req(`${env.baseUrl}${id}`)
-    const $ = kitty.load(html)
-
-    const title = $('div.name a').text().trim()
-    const desc = $('p.time').text().trim()
-    const cover = $('div.tc_img').attr('data-original') ?? ''
-    const remark = $('p.tc_wz').text().trim()
-
-    const playlists: IPlaylist[] = []
-    $('.play_list ul').each((_, ul) => {
-      const tabTitle = $(ul).prev('h2').text().trim() || '默认线路'
-      const videos: IPlaylistVideo[] = $(ul).find('li').toArray().map(li => {
-        const a = $(li).find('a')
-        return {
-          text: a.text().trim(),
-          id: a.attr('href') ?? ''
-        }
-      })
-      if (videos.length > 0) {
-        playlists.push({ title: tabTitle, videos })
-      }
-    })
-
-    return {
-      id,
-      title,
-      cover: cover.startsWith('//') ? `https:${cover}` : cover,
-      desc,
-      remark,
-      playlist: playlists
-    }
-  }
-
   async getSearch() {
-    const wd = env.get('keyword')
+    const keyword = env.get('keyword')
     const page = env.get('page') || '1'
-    const html = await req(`${env.baseUrl}/search/${wd}-${page}.html`)
+    const url = `${env.baseUrl}/search/${keyword}-${page}.html`
+    const html = await req(url)
     const $ = kitty.load(html)
 
     return $('.c2_list li').toArray().map(item => {
@@ -94,7 +60,49 @@ export default class Fengche implements Handle {
     })
   }
 
+  async getDetail() {
+    const id = env.get('movieId')
+    const url = `${env.baseUrl}${id}`
+    const html = await req(url)
+    const $ = kitty.load(html)
+
+    const title = $('div.con_name h1 span').text().trim()
+    const cover = $('div.leftimg .img_wrapper').attr('data-original') ?? ''
+    const remark = $('p.zy span').text().trim()
+
+    // 简介提取（优先详细剧情）
+    const desc = $('div.yp_context').text().trim() || $('div.yp_detail').text().trim()
+
+    const playlist: IPlaylist[] = []
+
+    $('div.tab-content').each((i, el) => {
+      const tabTitle = $(el).attr('id')?.replace('tab_con_playlist_', '') || `线路${i + 1}`
+      const videos: IPlaylistVideo[] = $(el).find('ul.con_c2_list li a').toArray().map(a => {
+        const $a = $(a)
+        return {
+          text: $a.text().trim(),
+          id: $a.attr('href') ?? ''
+        }
+      })
+      if (videos.length > 0) {
+        playlist.push({
+          title: `线路${tabTitle}`,
+          videos
+        })
+      }
+    })
+
+    return {
+      id,
+      title,
+      cover: cover.startsWith('//') ? `https:${cover}` : cover,
+      remark,
+      desc,
+      playlist
+    }
+  }
+
   async parseIframe() {
-    return env.get('id') // ✅ 小猫自动解析 iframe 地址
+    return env.get('id') // 小猫自动处理 iframe 播放地址
   }
 }

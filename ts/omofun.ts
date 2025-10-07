@@ -49,23 +49,52 @@ export default class OmofunSource implements Handle {
 
     const playlist: Playlist[] = [];
 
-    $('.module-tab-item.tab-item').each((i, el) => {
-      const lineName = $(el).text().trim();
-      const urls: PlayUrl[] = [];
+    const tabItems = $('.module-tab-item.tab-item');
+    const playContents = $('.module-play-list-content');
 
-      $('.module-play-list-content').eq(i).find('a.module-play-list-link').each((_, a) => {
-        const $a = $(a);
-        const name = $a.find('span').text().trim();
-        const url = $a.attr('href') ?? '';
-        if (url) {
+    if (tabItems.length > 0 && tabItems.length === playContents.length) {
+      tabItems.each((i, el) => {
+        let lineName = $(el).text().trim();
+        if (!lineName || lineName === '默认') {
+          lineName = `线路${i + 1}`;
+        }
+
+        const urls: PlayUrl[] = [];
+        playContents.eq(i).find('a.module-play-list-link').each((_, a) => {
+          const $a = $(a);
+          const name = $a.find('span').text().trim();
+          let url = $a.attr('href') ?? '';
+          if (url.startsWith('/')) {
+            url = `${env.baseUrl}${url}`;
+          }
           urls.push({ name, url });
+        });
+
+        if (urls.length > 0) {
+          playlist.push({ name: lineName, urls });
         }
       });
+    } else {
+      // fallback：无线路标签时直接遍历所有播放块
+      playContents.each((i, el) => {
+        const lineName = `线路${i + 1}`;
+        const urls: PlayUrl[] = [];
 
-      if (urls.length > 0) {
-        playlist.push({ name: lineName, urls });
-      }
-    });
+        $(el).find('a.module-play-list-link').each((_, a) => {
+          const $a = $(a);
+          const name = $a.find('span').text().trim();
+          let url = $a.attr('href') ?? '';
+          if (url.startsWith('/')) {
+            url = `${env.baseUrl}${url}`;
+          }
+          urls.push({ name, url });
+        });
+
+        if (urls.length > 0) {
+          playlist.push({ name: lineName, urls });
+        }
+      });
+    }
 
     return {
       id,
@@ -98,7 +127,6 @@ export default class OmofunSource implements Handle {
   }
 
   async parseIframe() {
-    const iframe = env.get('iframe');
     return kitty.utils.getM3u8WithIframe(env);
   }
 }

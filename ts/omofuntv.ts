@@ -1,8 +1,8 @@
 export default class OmofunSource implements Handle {
   getConfig() {
     return {
-      id: 'omofun',
-      name: 'Omofun动漫',
+      id: 'omofuntv',
+      name: 'Omofun',
       api: 'https://omofun.link',
       type: 1,
       nsfw: false,
@@ -23,7 +23,7 @@ export default class OmofunSource implements Handle {
     const html = await req(url);
     const $ = kitty.load(html);
 
-    const result = $('.module-poster-item').toArray().map(item => {
+    return $('.module-poster-item').toArray().map(item => {
       const img = $(item).find('img.lazy');
       const id = $(item).attr('href') ?? '';
       const title = img.attr('alt') ?? '';
@@ -32,8 +32,6 @@ export default class OmofunSource implements Handle {
       const remark = $(item).find('.module-item-note').text() ?? '';
       return { id, title, cover, desc: '', remark, playlist: [] };
     });
-
-    return result;
   }
 
   async getDetail() {
@@ -47,51 +45,52 @@ export default class OmofunSource implements Handle {
     const desc = $('.module-info-introduction-content p').text().trim();
     const remark = $('.module-info-tag-link').eq(0).text().trim();
 
-    const playlist: Playlist[] = [];
+    const baseUrl = env.baseUrl;
+    const playlists: IPlaylist[] = [];
 
     const tabItems = $('.module-tab-item.tab-item');
     const playContents = $('.module-play-list-content');
 
     if (tabItems.length > 0 && tabItems.length === playContents.length) {
       tabItems.each((i, el) => {
-        let lineName = $(el).text().trim();
-        if (!lineName || lineName === '默认') {
-          lineName = `线路${i + 1}`;
+        let lineTitle = $(el).text().trim();
+        if (!lineTitle || lineTitle === '默认') {
+          lineTitle = `线路${i + 1}`;
         }
 
-        const urls: PlayUrl[] = [];
+        const videos: IPlaylistVideo[] = [];
         playContents.eq(i).find('a.module-play-list-link').each((_, a) => {
           const $a = $(a);
-          const name = $a.find('span').text().trim();
-          let url = $a.attr('href') ?? '';
-          if (url.startsWith('/')) {
-            url = `${env.baseUrl}${url}`;
+          const text = $a.find('span').text().trim();
+          let href = $a.attr('href') ?? '';
+          if (href.startsWith('/')) {
+            href = `${baseUrl}${href}`;
           }
-          urls.push({ name, url });
+          videos.push({ text, id: href });
         });
 
-        if (urls.length > 0) {
-          playlist.push({ name: lineName, urls });
+        if (videos.length > 0) {
+          playlists.push({ title: lineTitle, videos });
         }
       });
     } else {
       // fallback：无线路标签时直接遍历所有播放块
       playContents.each((i, el) => {
-        const lineName = `线路${i + 1}`;
-        const urls: PlayUrl[] = [];
+        const lineTitle = `线路${i + 1}`;
+        const videos: IPlaylistVideo[] = [];
 
         $(el).find('a.module-play-list-link').each((_, a) => {
           const $a = $(a);
-          const name = $a.find('span').text().trim();
-          let url = $a.attr('href') ?? '';
-          if (url.startsWith('/')) {
-            url = `${env.baseUrl}${url}`;
+          const text = $a.find('span').text().trim();
+          let href = $a.attr('href') ?? '';
+          if (href.startsWith('/')) {
+            href = `${baseUrl}${href}`;
           }
-          urls.push({ name, url });
+          videos.push({ text, id: href });
         });
 
-        if (urls.length > 0) {
-          playlist.push({ name: lineName, urls });
+        if (videos.length > 0) {
+          playlists.push({ title: lineTitle, videos });
         }
       });
     }
@@ -102,7 +101,7 @@ export default class OmofunSource implements Handle {
       cover,
       desc,
       remark,
-      playlist,
+      playlist: playlists,
     };
   }
 
@@ -113,7 +112,7 @@ export default class OmofunSource implements Handle {
     const html = await req(url);
     const $ = kitty.load(html);
 
-    const result = $('.module-poster-item').toArray().map(item => {
+    return $('.module-poster-item').toArray().map(item => {
       const img = $(item).find('img.lazy');
       const id = $(item).attr('href') ?? '';
       const title = img.attr('alt') ?? '';
@@ -122,8 +121,6 @@ export default class OmofunSource implements Handle {
       const remark = $(item).find('.module-item-note').text() ?? '';
       return { id, title, cover, desc: '', remark, playlist: [] };
     });
-
-    return result;
   }
 
   async parseIframe() {

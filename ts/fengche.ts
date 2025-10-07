@@ -71,7 +71,7 @@ export default class Fengche implements Handle {
     const remark = $('p.zy span').text().trim()
 
     // 使用“详细剧情”作为简介
-    const desc = $('div:contains("详细剧情")').next().text().trim()
+    const desc = $('meta[name="description"]').attr('content')?.trim() || ''
 
     const playlist: IPlaylist[] = []
 
@@ -104,6 +104,6 @@ export default class Fengche implements Handle {
   }
 
   async parseIframe() {
-    return env.get('id') // 小猫自动处理 iframe 播放地址
+    return kitty.utils.getM3u8WithIframe(env)
   }
 }

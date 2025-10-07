@@ -1,15 +1,15 @@
-// import { env, req, kitty } from 'kitty-js'
+// import { kitty, req } from 'utils'
 
-export default {
+export default class Fengche implements Handle {
   getConfig() {
     return {
       id: 'fengche',
-      name: '风车动漫',
+      name: '风车动漫_WEB',
       api: 'https://www.fengche.one',
       type: 1,
       nsfw: false
     }
-  },
+  }
 
   async getCategory() {
     return [
@@ -18,7 +18,7 @@ export default {
       { text: '动漫电影', id: 'dongmandianying' },
       { text: '欧美动漫', id: 'oumeidongman' }
     ]
-  },
+  }
 
   async getHome() {
     const cate = env.get('category') || 'ribendongman'
@@ -30,69 +30,38 @@ export default {
     return $('.c2_list li').toArray().map(item => {
       const el = $(item)
       const a = el.find('a.tcl-img')
-      const img = el.find('div.tc_img').attr('data-original') || ''
-      const title = a.attr('title') || ''
-      const id = a.attr('href') || ''
-      const remark = el.find('p.tc_wz').text() || ''
       return {
-        id,
-        title,
-        cover: img.startsWith('//') ? `https:${img}` : img,
-        desc: '',
-        remark,
+        id: a.attr('href') ?? '',
+        title: a.attr('title') ?? '',
+        cover: el.find('div.tc_img').attr('data-original') ?? '',
+        remark: el.find('p.tc_wz').text().trim(),
         playlist: []
       }
     })
-  },
-
-  async getSearch() {
-    const keyword = env.get('keyword')
-    const page = env.get('page') || '1'
-    const url = `${env.baseUrl}/search/${keyword}-${page}.html`
-    const html = await req(url)
-    const $ = kitty.load(html)
-
-    return $('.c2_list li').toArray().map(item => {
-      const el = $(item)
-      const a = el.find('a.tcl-img')
-      const img = el.find('div.tc_img').attr('data-original') || ''
-      const title = a.attr('title') || ''
-      const id = a.attr('href') || ''
-      const remark = el.find('p.tc_wz').text() || ''
-      return {
-        id,
-        title,
-        cover: img.startsWith('//') ? `https:${img}` : img,
-        desc: '',
-        remark,
-        playlist: []
-      }
-    })
-  },
+  }
 
   async getDetail() {
     const id = env.get('movieId')
-    const url = `${env.baseUrl}${id}`
-    const html = await req(url)
+    const html = await req(`${env.baseUrl}${id}`)
     const $ = kitty.load(html)
 
-    const title = $('div.name a').text()
-    const cover = $('div.tc_img').attr('data-original') || ''
-    const remark = $('p.tc_wz').text() || ''
-    const desc = $('p.time').text() || ''
+    const title = $('div.name a').text().trim()
+    const desc = $('p.time').text().trim()
+    const cover = $('div.tc_img').attr('data-original') ?? ''
+    const remark = $('p.tc_wz').text().trim()
 
-    const playlist = $('.play_list ul').toArray().map(ul => {
-      const name = $(ul).prev('h2').text().trim()
-      const list = $(ul).find('li').toArray().map(li => {
+    const playlists: IPlaylist[] = []
+    $('.play_list ul').each((_, ul) => {
+      const tabTitle = $(ul).prev('h2').text().trim() || '默认线路'
+      const videos: IPlaylistVideo[] = $(ul).find('li').toArray().map(li => {
         const a = $(li).find('a')
         return {
-          text: a.text(),
-          id: a.attr('href')
+          text: a.text().trim(),
+          id: a.attr('href') ?? ''
         }
       })
-      return {
-        title: name,
-        videos: list
+      if (videos.length > 0) {
+        playlists.push({ title: tabTitle, videos })
       }
     })
 
@@ -100,13 +69,32 @@ export default {
       id,
       title,
       cover: cover.startsWith('//') ? `https:${cover}` : cover,
-      remark,
       desc,
-      playlist
+      remark,
+      playlist: playlists
     }
-  },
+  }
+
+  async getSearch() {
+    const wd = env.get('keyword')
+    const page = env.get('page') || '1'
+    const html = await req(`${env.baseUrl}/search/${wd}-${page}.html`)
+    const $ = kitty.load(html)
+
+    return $('.c2_list li').toArray().map(item => {
+      const el = $(item)
+      const a = el.find('a.tcl-img')
+      return {
+        id: a.attr('href') ?? '',
+        title: a.attr('title') ?? '',
+        cover: el.find('div.tc_img').attr('data-original') ?? '',
+        remark: el.find('p.tc_wz').text().trim(),
+        playlist: []
+      }
+    })
+  }
 
   async parseIframe() {
-    return kitty.utils.getM3u8WithIframe(env)
+    return env.get('id') // ✅ 小猫自动解析 iframe 地址
   }
 }

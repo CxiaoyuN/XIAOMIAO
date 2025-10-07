@@ -2,7 +2,7 @@ export default class OmofunSource implements Handle {
   getConfig() {
     return {
       id: 'omofun',
-      name: 'Omofun',
+      name: 'Omofun动漫',
       api: 'https://omofun.link',
       type: 1,
       nsfw: false,
@@ -42,15 +42,37 @@ export default class OmofunSource implements Handle {
     const html = await req(url);
     const $ = kitty.load(html);
 
-    // TODO: 提取播放列表
-    const playlist = [];
+    const title = $('h1').text().trim();
+    const cover = $('.module-info-poster img').attr('data-original') ?? '';
+    const desc = $('.module-info-introduction-content p').text().trim();
+    const remark = $('.module-info-tag-link').eq(0).text().trim();
+
+    const playlist: Playlist[] = [];
+
+    $('.module-tab-item.tab-item').each((i, el) => {
+      const lineName = $(el).text().trim();
+      const urls: PlayUrl[] = [];
+
+      $('.module-play-list-content').eq(i).find('a.module-play-list-link').each((_, a) => {
+        const $a = $(a);
+        const name = $a.find('span').text().trim();
+        const url = $a.attr('href') ?? '';
+        if (url) {
+          urls.push({ name, url });
+        }
+      });
+
+      if (urls.length > 0) {
+        playlist.push({ name: lineName, urls });
+      }
+    });
 
     return {
       id,
-      title: $('title').text(),
-      cover: '', // 可从页面中提取
-      desc: '',  // 可从页面中提取
-      remark: '',
+      title,
+      cover,
+      desc,
+      remark,
       playlist,
     };
   }
@@ -62,8 +84,17 @@ export default class OmofunSource implements Handle {
     const html = await req(url);
     const $ = kitty.load(html);
 
-    // TODO: 提取搜索结果
-    return [];
+    const result = $('.module-poster-item').toArray().map(item => {
+      const img = $(item).find('img.lazy');
+      const id = $(item).attr('href') ?? '';
+      const title = img.attr('alt') ?? '';
+      let cover = img.attr('data-original') ?? '';
+      if (cover.startsWith('//')) cover = 'https:' + cover;
+      const remark = $(item).find('.module-item-note').text() ?? '';
+      return { id, title, cover, desc: '', remark, playlist: [] };
+    });
+
+    return result;
   }
 
   async parseIframe() {

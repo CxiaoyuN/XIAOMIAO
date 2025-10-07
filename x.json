@@ -447,11 +447,11 @@
     }
   },
   {
-    "id": "omofun",
-    "name": "Omofun动漫",
-    "type": 1,
+    "id": "omofuntv",
+    "name": "Omofun",
     "api": "https://omofun.link",
-    "nsfw": true,
+    "type": 1,
+    "nsfw": false,
     "extra": {
       "js": {
         "category": [
@@ -460,7 +460,7 @@
             "id": "1"
           },
           {
-            "text": "连续剧",
+            "text": "剧集",
             "id": "2"
           },
           {
@@ -472,13 +472,10 @@
             "id": "4"
           },
           {
-            "text": "里番绅士专区",
+            "text": "里番",
             "id": "5"
           }
-        ],
-        "search": "const keyword=env.get(\"keyword\");const page=env.get(\"page\");const html=await req(`${env.baseUrl}/vod/search/page/${page}/wd/${keyword}.html`);const $=kitty.load(html);return $(\".module-poster-item\").toArray().map(el=>{const a=$(el).attr(\"href\")??$(el).find(\"a\").attr(\"href\")??\"\";const title=$(el).attr(\"title\")??$(el).find(\".module-poster-item-title\").text().trim();let cover=$(el).find(\"img\").attr(\"data-original\")??\"\";if(cover.startsWith(\"//\"))cover=\"https:\"+cover;return{id:a,title,cover,desc:\"\",remark:$(el).find(\".module-item-note\").text().trim(),playlist:[]}})",
-        "detail": "const id=env.get(\"movieId\");const html=await req(`${env.baseUrl}${id}`);const $=kitty.load(html);const title=$(\".module-info-heading h1\").text().trim();const cover=$(\".module-info-poster img\").attr(\"data-original\")??\"\";const remark=$(\".module-info-tag\").text().trim();const desc=$(\".module-info-introduction-content\").text().trim();const playlist=[];$(\".module-play-list\").each((_,el)=>{const sourceTitle=$(el).find(\".module-play-list-title\").text().trim();const videos=$(el).find(\"a\").toArray().map(a=>{const text=$(a).text().trim();const href=$(a).attr(\"href\")??\"\";return{text,id:href}});playlist.push({title:sourceTitle,videos})});return{id,title,cover,remark,desc,playlist}",
-        "parseIframe": "const iframeUrl=env.get(\"iframe\");const html=await req(iframeUrl);const match=html.match(/\"url\":\"(https:[^\"]+\\\\.m3u8)\"/);if(match){return match[1].replace(/\\\\\\\\\\//g,\"/\")}throw new Error(\"\\u672A\\u627E\\u5230\\u771F\\u5B9E\\u64AD\\u653E\\u5730\\u5740\")"
+        ]
       }
     }
   },

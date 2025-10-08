@@ -24,6 +24,7 @@ export default class NivodSource implements Handle {
     const url = `https://www.nivod.vip/k/${cate}--------${page}---/`;
     const html = await req(url);
     const $ = kitty.load(html);
+
     return $('.module-item').toArray().map(item => {
       const a = $(item).find('a');
       const img = $(item).find('img');
@@ -44,6 +45,7 @@ export default class NivodSource implements Handle {
     const url = `https://www.nivod.vip/s/${encodeURIComponent(wd)}-------------/page/${page}/`;
     const html = await req(url);
     const $ = kitty.load(html);
+
     return $('.module-item').toArray().map(item => {
       const a = $(item).find('a');
       const img = $(item).find('img');
@@ -106,22 +108,33 @@ export default class NivodSource implements Handle {
     const remark = `${episode} · ${update}`;
 
     const playlist: Playlist[] = [];
-    const tabNames = $('.module-tab-item').toArray().map(el =>
-      $(el).attr('data-dropdown-value')?.trim() || `线路${el}`
-    );
 
     $('.module-play-list').each((i, el) => {
-      const sourceName = tabNames[i] || `线路${i + 1}`;
+      let lineName = $('.module-tab-item').eq(i).attr('data-dropdown-value')?.trim();
+      if (!lineName || lineName === '默认') {
+        lineName = `线路${i + 1}`;
+      }
+
       const videos: Video[] = [];
-      $(el).find('.module-play-list-link').each((j, a) => {
-        const href = $(a).attr('href') ?? '';
-        const name = $(a).attr('title')?.replace('播放', '').trim() || $(a).text().trim();
+      $(el).find('.module-play-list-link').each((_, a) => {
+        const $a = $(a);
+        const name =
+          $a.find('span').text().trim() ||
+          $a.attr('title')?.replace('播放', '').trim() ||
+          $a.text().trim();
+        let href = $a.attr('href') ?? '';
+        if (href.startsWith('/')) {
+          href = `https://www.nivod.vip${href}`;
+        }
         if (href) videos.push({ name, url: href });
       });
-      if (videos.length) playlist.push({ name: sourceName, videos });
+
+      if (videos.length) {
+        playlist.push({ name: lineName, videos });
+      }
     });
 
-    // 如果没有播放列表，从 script 中兜底提取
+    // 兜底：从 script 中提取 player_aaaa
     if (playlist.length === 0) {
       const scriptText = $('script')
         .toArray()

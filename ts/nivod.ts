@@ -24,19 +24,18 @@ export default class NivodSource implements Handle {
     const url = `https://www.nivod.vip/k/${cate}--------${page}---/`;
     const html = await req(url);
     const $ = kitty.load(html);
-    const items = $('.module-item').toArray().map(item => {
+    return $('.module-item').toArray().map(item => {
       const a = $(item).find('a');
       const img = $(item).find('img');
       const id = a.attr('href') ?? '';
       const title = img.attr('alt') ?? '';
       let rawCover = img.attr('data-original') ?? img.attr('src') ?? '';
-      let cover = rawCover.startsWith('/')
+      const cover = rawCover.startsWith('/')
         ? `https://www.nivod.vip${rawCover}`
         : rawCover;
       const remark = $(item).find('.module-item-note').text().trim();
       return { id, title, cover, desc: '', remark, playlist: [] };
     });
-    return items;
   }
 
   async getSearch() {
@@ -45,19 +44,18 @@ export default class NivodSource implements Handle {
     const url = `https://www.nivod.vip/s/${encodeURIComponent(wd)}-------------/page/${page}/`;
     const html = await req(url);
     const $ = kitty.load(html);
-    const items = $('.module-item').toArray().map(item => {
+    return $('.module-item').toArray().map(item => {
       const a = $(item).find('a');
       const img = $(item).find('img');
       const id = a.attr('href') ?? '';
       const title = img.attr('alt') ?? '';
       let rawCover = img.attr('data-original') ?? img.attr('src') ?? '';
-      let cover = rawCover.startsWith('/')
+      const cover = rawCover.startsWith('/')
         ? `https://www.nivod.vip${rawCover}`
         : rawCover;
       const remark = $(item).find('.module-item-note').text().trim();
       return { id, title, cover, desc: '', remark, playlist: [] };
     });
-    return items;
   }
 
   async getDetail() {
@@ -67,14 +65,11 @@ export default class NivodSource implements Handle {
     const $ = kitty.load(html);
 
     const title = $('.module-info-heading > h1').text().trim() || '未知标题';
-
     let rawCover = $('.module-info-poster img').attr('data-original') ?? '';
     const cover = rawCover.startsWith('/')
       ? `https://www.nivod.vip${rawCover}`
       : rawCover;
 
-    // 提取简介信息
-    let desc = '';
     const intro = $('.module-info-introduction-content').text().trim();
     const getTextList = (label: string) =>
       $(`.module-info-item:contains("${label}")`)
@@ -94,7 +89,7 @@ export default class NivodSource implements Handle {
     const language = getSingleText('语言');
     const release = getSingleText('上映');
 
-    desc = [
+    const desc = [
       intro,
       director && `导演：${director}`,
       writer && `编剧：${writer}`,
@@ -104,21 +99,20 @@ export default class NivodSource implements Handle {
       release && `上映：${release}`
     ]
       .filter(Boolean)
-      .join('\n');
+      .join('\n') || '暂无简介';
 
     const update = getSingleText('更新');
     const episode = getSingleText('集数');
     const remark = `${episode} · ${update}`;
 
-    // 播放列表解析
     const playlist: Playlist[] = [];
     $('.module-play-list').each((i, el) => {
       const sourceName = `线路${i + 1}`;
       const videos: Video[] = [];
       $(el).find('a').each((j, a) => {
         const href = $(a).attr('href') ?? '';
-        const name = $(a).attr('title')?.replace('播放', '').trim() ?? $(a).text().trim();
-        if (href) videos.push({ name, url: href });
+        const text = $(a).attr('title')?.replace('播放', '').trim() ?? $(a).text().trim();
+        if (href) videos.push({ name: text, url: href });
       });
       if (videos.length) playlist.push({ name: sourceName, videos });
     });

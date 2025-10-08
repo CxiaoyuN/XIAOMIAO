@@ -1,15 +1,10 @@
 // import { env, req, kitty } from 'utils'
 
-function fixCover(cover: string): string {
-  if (!cover) return 'https://www.nivod.vip/loading.png'
-  return cover.startsWith('http') ? cover : `https://www.nivod.vip${cover}`
-}
-
 export default class NivodSource implements Handle {
   getConfig(): IConfig {
     return {
-      id: 'nivodtv',
-      name: '泥视频TV',
+      id: 'nivod',
+      name: '泥视频',
       api: 'https://www.nivod.vip',
       type: 1,
       nsfw: false
@@ -36,13 +31,16 @@ export default class NivodSource implements Handle {
       const $el = $(el)
       const title = $el.attr('title')?.trim() || ''
       const id = $el.attr('href') || ''
-      const rawCover = $el.find('img').attr('data-original') || ''
+      const rawCover = $el.find('img').attr('data-original')
+      const cover = rawCover
+        ? (rawCover.startsWith('http') ? rawCover : `https://www.nivod.vip${rawCover}`)
+        : 'https://www.nivod.vip/loading.png'
       const remark = $el.find('.module-item-note').text().trim()
 
       return {
         id,
         title,
-        cover: fixCover(rawCover),
+        cover,
         desc: '',
         remark,
         playlist: []
@@ -57,11 +55,14 @@ export default class NivodSource implements Handle {
     const $ = kitty.load(html)
 
     const title = $('title').text().trim()
-    const rawCover = $('.module-item-pic img').attr('data-original') || ''
+    const rawCover = $('.module-item-pic img').attr('data-original')
+    const cover = rawCover
+      ? (rawCover.startsWith('http') ? rawCover : `https://www.nivod.vip${rawCover}`)
+      : 'https://www.nivod.vip/loading.png'
     const desc = $('.module-info-introduction-content').text().trim()
     const remark = $('.module-info-item:contains("备注：") .module-info-item-content').text().trim()
-
     const playUrl = $('.module-info-play a').attr('href') || ''
+
     const playlist: IPlaylist[] = [{
       title: '默认',
       videos: [{
@@ -74,7 +75,7 @@ export default class NivodSource implements Handle {
     return {
       id,
       title,
-      cover: fixCover(rawCover),
+      cover,
       desc,
       remark,
       playlist
@@ -92,13 +93,16 @@ export default class NivodSource implements Handle {
       const $el = $(el)
       const title = $el.find('.module-card-item-title a').text().trim()
       const id = $el.find('.module-card-item-title a').attr('href') || ''
-      const rawCover = $el.find('img').attr('data-original') || ''
+      const rawCover = $el.find('img').attr('data-original')
+      const cover = rawCover
+        ? (rawCover.startsWith('http') ? rawCover : `https://www.nivod.vip${rawCover}`)
+        : 'https://www.nivod.vip/loading.png'
       const remark = $el.find('.module-item-note').text().trim()
 
       return {
         id,
         title,
-        cover: fixCover(rawCover),
+        cover,
         desc: '',
         remark,
         playlist: []

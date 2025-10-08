@@ -19,7 +19,7 @@ export default class NivodSource implements Handle {
   }
 
   async getHome() {
-    const cate = env.get('category') || '2';
+    const cate = env.get('category') || '1';
     const page = env.get('page') || '1';
     const url = `https://www.nivod.vip/k/${cate}--------${page}---/`;
     const html = await req(url);
@@ -29,9 +29,11 @@ export default class NivodSource implements Handle {
       const img = $(item).find('img');
       const id = a.attr('href') ?? '';
       const title = img.attr('alt') ?? '';
-      let cover = img.attr('data-src') ?? '';
-      if (cover.startsWith('//')) cover = 'https:' + cover;
-      const remark = $(item).find('.tag1').text() ?? '';
+      let rawCover = img.attr('data-original') ?? img.attr('src') ?? '';
+      let cover = rawCover.startsWith('/')
+        ? `https://www.nivod.vip${rawCover}`
+        : rawCover;
+      const remark = $(item).find('.tag1').text().trim();
       return { id, title, cover, desc: '', remark, playlist: [] };
     });
     return items;
@@ -48,9 +50,11 @@ export default class NivodSource implements Handle {
       const img = $(item).find('img');
       const id = a.attr('href') ?? '';
       const title = img.attr('alt') ?? '';
-      let cover = img.attr('data-src') ?? '';
-      if (cover.startsWith('//')) cover = 'https:' + cover;
-      const remark = $(item).find('.tag1').text() ?? '';
+      let rawCover = img.attr('data-original') ?? img.attr('src') ?? '';
+      let cover = rawCover.startsWith('/')
+        ? `https://www.nivod.vip${rawCover}`
+        : rawCover;
+      const remark = $(item).find('.tag1').text().trim();
       return { id, title, cover, desc: '', remark, playlist: [] };
     });
     return items;
@@ -62,20 +66,25 @@ export default class NivodSource implements Handle {
     const html = await req(url);
     const $ = kitty.load(html);
     const title = $('.module-info-heading > h1').text().trim();
-    const cover = $('.module-info-poster > .module-item-pic > img').attr('data-src') ?? '';
-    const desc = $('.module-info-introduction-content').text().trim();
-    const remark = $('.module-info-tag > .tag').eq(0).text().trim();
+    let rawCover = $('.module-info-poster img').attr('data-original') ?? '';
+    const cover = rawCover.startsWith('/')
+      ? `https://www.nivod.vip${rawCover}`
+      : rawCover;
+    const desc = $('.module-info-introduction-content').text().trim()
+      || $('.module-info-introduction').text().trim()
+      || '';
+    const remark = $('.module-info-tag .tag').eq(0).text().trim();
     const playlist: Playlist[] = [];
 
     $('.module-play-list').each((i, el) => {
-      const sourceName = $(el).find('.module-play-list-name').text().trim();
+      const sourceName = $(el).find('.module-play-list-name').text().trim() || `线路${i + 1}`;
       const videos: Video[] = [];
       $(el).find('a').each((j, a) => {
         const href = $(a).attr('href') ?? '';
         const name = $(a).text().trim();
-        videos.push({ name, url: href });
+        if (href) videos.push({ name, url: href });
       });
-      playlist.push({ name: sourceName, videos });
+      if (videos.length) playlist.push({ name: sourceName, videos });
     });
 
     return { id, title, cover, desc, remark, playlist };

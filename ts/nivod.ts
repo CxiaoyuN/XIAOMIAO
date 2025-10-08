@@ -1,8 +1,8 @@
 export default class NivodSource implements Handle {
   getConfig() {
     return {
-      id: 'nivod',
-      name: '泥视频',
+      id: 'nivodtv',
+      name: '泥视频TV',
       api: 'https://www.nivod.vip',
       type: 1,
       nsfw: false
@@ -64,7 +64,7 @@ export default class NivodSource implements Handle {
     const html = await req(url);
     const $ = kitty.load(html);
 
-    const title = $('.module-info-heading > h1').text().trim() || '未知标题';
+    const title = $('.module-info-heading h1').text().trim() || '未知标题';
     let rawCover = $('.module-info-poster img').attr('data-original') ?? '';
     const cover = rawCover.startsWith('/')
       ? `https://www.nivod.vip${rawCover}`
@@ -106,15 +106,15 @@ export default class NivodSource implements Handle {
     const remark = `${episode} · ${update}`;
 
     const playlist: Playlist[] = [];
-    const tabNames = $('.module-tab-item').toArray().map(el => $(el).text().trim());
+    const tabNames = $('.module-tab-item').toArray().map(el => $(el).attr('data-dropdown-value')?.trim() || `线路${el}`);
 
     $('.module-play-list').each((i, el) => {
       const sourceName = tabNames[i] || `线路${i + 1}`;
       const videos: Video[] = [];
       $(el).find('.module-play-list-link').each((j, a) => {
         const href = $(a).attr('href') ?? '';
-        const text = $(a).attr('title')?.replace('播放', '').trim() || $(a).text().trim();
-        if (href) videos.push({ name: text, url: href });
+        const name = $(a).attr('title')?.replace('播放', '').trim() || $(a).text().trim();
+        if (href) videos.push({ name, url: href });
       });
       if (videos.length) playlist.push({ name: sourceName, videos });
     });

@@ -1015,8 +1015,8 @@
     }
   },
   {
-    "id": "nivodtv",
-    "name": "泥视频TV",
+    "id": "nivod",
+    "name": "泥视频",
     "api": "https://www.nivod.vip",
     "type": 1,
     "nsfw": false,
@@ -1040,9 +1040,9 @@
             "id": "4"
           }
         ],
-        "home": "const cate=env.get(\"category\",\"1\");const page=env.get(\"page\",\"1\");const url=`https://www.nivod.vip/k/${cate}--------${page}---/`;const html=await req(url);const $=kitty.load(html);return $(\".module-poster-item\").toArray().map(el=>{const $el=$(el);const title=$el.attr(\"title\")?.trim()||\"\";const id=$el.attr(\"href\")||\"\";const cover=$el.find(\"img\").attr(\"data-original\")||\"\";const remark=$el.find(\".module-item-note\").text().trim();return{id,title,cover:`https://www.nivod.vip${cover}`,desc:\"\",remark,playlist:[]}})",
-        "detail": "const id=env.get(\"movieId\");const url=`https://www.nivod.vip${id}`;const html=await req(url);const $=kitty.load(html);const title=$(\"title\").text().trim();const cover=$(\".module-item-pic img\").attr(\"data-original\")||\"\";const desc=$(\".module-info-introduction-content\").text().trim();const remark=$(\".module-info-item:contains(\\\"\\u5907\\u6CE8\\uFF1A\\\") .module-info-item-content\").text().trim();const playUrl=$(\".module-info-play a\").attr(\"href\")||\"\";const playlist=[{title:\"\\u9ED8\\u8BA4\",videos:[{text:\"\\u7ACB\\u5373\\u64AD\\u653E\",id:playUrl,type:\"iframe\"}]}];return{id,title,cover:`https://www.nivod.vip${cover}`,desc,remark,playlist}",
-        "search": "const keyword=env.get(\"keyword\");const page=env.get(\"page\",\"1\");const url=`https://www.nivod.vip/s/${encodeURIComponent(keyword)}-------------/`;const html=await req(url);const $=kitty.load(html);return $(\".module-card-item\").toArray().map(el=>{const $el=$(el);const title=$el.find(\".module-card-item-title a\").text().trim();const id=$el.find(\".module-card-item-title a\").attr(\"href\")||\"\";const cover=$el.find(\"img\").attr(\"data-original\")||\"\";const remark=$el.find(\".module-item-note\").text().trim();return{id,title,cover:`https://www.nivod.vip${cover}`,desc:\"\",remark,playlist:[]}})",
+        "home": "const cate=env.get(\"category\",\"1\");const page=env.get(\"page\",\"1\");const url=`https://www.nivod.vip/k/${cate}--------${page}---/`;const html=await req(url);const $=kitty.load(html);return $(\".module-poster-item\").toArray().map(el=>{const $el=$(el);const title=$el.attr(\"title\")?.trim()||\"\";const id=$el.attr(\"href\")||\"\";const cover=$el.find(\"img\").attr(\"data-original\")||\"\";const remark=$el.find(\".module-item-note\").text().trim();return{id,title,cover:fixCover(cover),desc:\"\",remark,playlist:[]}})",
+        "detail": "const id=env.get(\"movieId\");const url=`https://www.nivod.vip${id}`;const html=await req(url);const $=kitty.load(html);const title=$(\"title\").text().trim();const cover=$(\".module-item-pic img\").attr(\"data-original\")||\"\";const desc=$(\".module-info-introduction-content\").text().trim();const remark=$(\".module-info-item:contains(\\\"\\u5907\\u6CE8\\uFF1A\\\") .module-info-item-content\").text().trim();const playUrl=$(\".module-info-play a\").attr(\"href\")||\"\";const playlist=[{title:\"\\u9ED8\\u8BA4\",videos:[{text:\"\\u7ACB\\u5373\\u64AD\\u653E\",id:playUrl,type:\"iframe\"}]}];return{id,title,cover:fixCover(cover),desc,remark,playlist}",
+        "search": "const keyword=env.get(\"keyword\");const page=env.get(\"page\",\"1\");const url=`https://www.nivod.vip/s/${encodeURIComponent(keyword)}-------------/`;const html=await req(url);const $=kitty.load(html);return $(\".module-card-item\").toArray().map(el=>{const $el=$(el);const title=$el.find(\".module-card-item-title a\").text().trim();const id=$el.find(\".module-card-item-title a\").attr(\"href\")||\"\";const cover=$el.find(\"img\").attr(\"data-original\")||\"\";const remark=$el.find(\".module-item-note\").text().trim();return{id,title,cover:fixCover(cover),desc:\"\",remark,playlist:[]}})",
         "parseIframe": "const iframe=env.get(\"iframe\");const html=await req(`https://www.nivod.vip${iframe}`);const match=html.match(/\"url\":\"(https?:\\\\\\/\\\\\\/[^\"]+\\.m3u8)\"/);if(match){return match[1].replace(/\\\\\\//g,\"/\")}return\"\""
       }
     }

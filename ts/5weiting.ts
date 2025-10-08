@@ -41,8 +41,8 @@ export default class LiuYueTingShu implements Handle {
   }
 
   async getCategoryDetail() {
-    const id = env.get('categoryId') // 分类路径，如 /ys/t1
-    const page = env.get('page') || 1 // 当前页码
+    const id = env.get('categoryId')
+    const page = env.get('page') || 1
     const html = await req(`${env.baseUrl}${id}/o1/p${page}`)
     const $ = kitty.load(html)
     const result = $('.album-item').toArray().map(item => {
@@ -92,7 +92,7 @@ export default class LiuYueTingShu implements Handle {
   async parseIframe() {
     const iframe = env.get('iframe')
     const html = await req(`${env.baseUrl}${iframe}`)
-    const match = html.match(/"(http:\/\/61\.160\.194\.89:20001\/[^"]+\.mp3[^"]*)"/)
+    const match = html.match(/"(http:\\/\\/61\\.160\\.194\\.89:20001\\/[^"]+\\.mp3[^"]*)"/)
     if (match) {
       return { type: 'mp3', url: match[1] }
     }

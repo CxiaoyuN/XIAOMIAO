@@ -1,8 +1,8 @@
 export default class LiuYueTingShu implements Handle {
   getConfig() {
     return {
-      id: '6weiting',
-      name: '六月听书',
+      id: '5weiting',
+      name: '六月听书网',
       type: 1,
       api: 'http://www.5weiting.com',
       nsfw: false
@@ -24,25 +24,26 @@ export default class LiuYueTingShu implements Handle {
       { text: '百家讲坛', id: '/ys/t10' },
       { text: '通俗文学', id: '/ys/t11' },
       { text: '历史纪实', id: '/ys/t12' },
-      { text: '军事小说', id: '/ys/t13' },
+      { text: '军事', id: '/ys/t13' },
       { text: '悬疑推理', id: '/ys/t14' },
       { text: '官场商战', id: '/ys/t15' },
       { text: '儿童读物', id: '/ys/t16' },
       { text: '广播剧', id: '/ys/t17' },
       { text: 'ebc5系列', id: '/ys/t18' },
-      { text: '商业文学', id: '/ys/t19' },
-      { text: '生活文学', id: '/ys/t20' },
-      { text: '教材文学', id: '/ys/t21' },
+      { text: '商业', id: '/ys/t19' },
+      { text: '生活', id: '/ys/t20' },
+      { text: '教材', id: '/ys/t21' },
       { text: '外文原版', id: '/ys/t22' },
       { text: '期刊杂志', id: '/ys/t23' },
       { text: '脱口秀', id: '/ys/t27' },
-      { text: '戏曲相声', id: '/ys/t24' }
+      { text: '戏曲', id: '/ys/t24' }
     ]
   }
 
   async getCategoryDetail() {
-    const id = env.get('categoryId')
-    const html = await req(`${env.baseUrl}${id}`)
+    const id = env.get('categoryId') // 分类路径，如 /ys/t1
+    const page = env.get('page') || 1 // 当前页码
+    const html = await req(`${env.baseUrl}${id}/o1/p${page}`)
     const $ = kitty.load(html)
     const result = $('.album-item').toArray().map(item => {
       const title = $(item).find('.book-item-name a').text().trim()
@@ -56,7 +57,7 @@ export default class LiuYueTingShu implements Handle {
   }
 
   async getHome() {
-    const html = await req(`${env.baseUrl}/ys/t1`)
+    const html = await req(`${env.baseUrl}/ys/t1/o1/p1`)
     const $ = kitty.load(html)
     const result = $('.album-item').toArray().map(item => {
       const title = $(item).find('.book-item-name a').text().trim()
@@ -79,7 +80,7 @@ export default class LiuYueTingShu implements Handle {
     const desc = $('.bookinfo .intro').text().trim()
     const playlist = [{
       title: '播放列表',
-      videos: $('.playlist li a').toArray().map(a => {
+      videos: $('.book-play-list li a').toArray().map(a => {
         const text = $(a).text().trim()
         const url = $(a).attr('href') ?? ''
         return { text, url, type: 'iframe' }

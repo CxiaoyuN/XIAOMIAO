@@ -1,168 +1,113 @@
+//import { env, req, kitty } from 'utils'
+
 export default class NivodSource implements Handle {
-  getConfig() {
+  getConfig(): IConfig {
     return {
       id: 'nivod',
       name: '泥视频',
       api: 'https://www.nivod.vip',
       type: 1,
       nsfw: false
-    };
-  }
-
-  async getCategory() {
-    return [
-      { id: '1', text: '电影' },
-      { id: '2', text: '剧集' },
-      { id: '3', text: '综艺' },
-      { id: '4', text: '动漫' }
-    ];
-  }
-
-  async getHome() {
-    const cate = env.get('category') || '1';
-    const page = env.get('page') || '1';
-    const url = `https://www.nivod.vip/k/${cate}--------${page}---/`;
-    const html = await req(url);
-    const $ = kitty.load(html);
-
-    return $('.module-item').toArray().map(item => {
-      const a = $(item).find('a');
-      const img = $(item).find('img');
-      const id = a.attr('href') ?? '';
-      const title = img.attr('alt') ?? '';
-      const rawCover = img.attr('data-original') ?? img.attr('src') ?? '';
-      const cover = rawCover.startsWith('/')
-        ? `https://www.nivod.vip${rawCover}`
-        : rawCover;
-      const remark = $(item).find('.module-item-note').text().trim();
-      return { id, title, cover, desc: '', remark, playlist: [] };
-    });
-  }
-
-  async getSearch() {
-    const wd = env.get('keyword');
-    const page = env.get('page') || '1';
-    const url = `https://www.nivod.vip/s/${encodeURIComponent(wd)}-------------/page/${page}/`;
-    const html = await req(url);
-    const $ = kitty.load(html);
-
-    return $('.module-item').toArray().map(item => {
-      const a = $(item).find('a');
-      const img = $(item).find('img');
-      const id = a.attr('href') ?? '';
-      const title = img.attr('alt') ?? '';
-      const rawCover = img.attr('data-original') ?? img.attr('src') ?? '';
-      const cover = rawCover.startsWith('/')
-        ? `https://www.nivod.vip${rawCover}`
-        : rawCover;
-      const remark = $(item).find('.module-item-note').text().trim();
-      return { id, title, cover, desc: '', remark, playlist: [] };
-    });
-  }
-
-  async getDetail() {
-    const id = env.get('movieId');
-    const url = `https://www.nivod.vip${id}`;
-    const html = await req(url);
-    const $ = kitty.load(html);
-
-    const title = $('.module-info-heading h1').text().trim() || '未知标题';
-    const rawCover = $('.module-info-poster img').attr('data-original') ?? '';
-    const cover = rawCover.startsWith('/')
-      ? `https://www.nivod.vip${rawCover}`
-      : rawCover;
-
-    const intro = $('.module-info-introduction-content').text().trim();
-    const getTextList = (label: string) =>
-      $(`.module-info-item:contains("${label}")`)
-        .find('a')
-        .toArray()
-        .map(a => $(a).text().trim())
-        .filter(Boolean)
-        .join(' / ');
-
-    const getSingleText = (label: string) =>
-      $(`.module-info-item:contains("${label}") .module-info-item-content`).text().trim();
-
-    const director = getTextList('导演');
-    const writer = getTextList('编剧');
-    const actor = getTextList('主演');
-    const duration = getSingleText('片长');
-    const language = getSingleText('语言');
-    const release = getSingleText('上映');
-
-    const desc = [
-      intro,
-      director && `导演：${director}`,
-      writer && `编剧：${writer}`,
-      actor && `主演：${actor}`,
-      duration && `片长：${duration}`,
-      language && `语言：${language}`,
-      release && `上映：${release}`
-    ]
-      .filter(Boolean)
-      .join('\n') || '暂无简介';
-
-    const update = getSingleText('更新');
-    const episode = getSingleText('集数');
-    const remark = `${episode} · ${update}`;
-
-    const playlist: Playlist[] = [];
-
-    $('.module-play-list').each((i, el) => {
-      let lineName = $('.module-tab-item').eq(i).attr('data-dropdown-value')?.trim();
-      if (!lineName || lineName === '默认') {
-        lineName = `线路${i + 1}`;
-      }
-
-      const videos: Video[] = [];
-      $(el).find('.module-play-list-link').each((_, a) => {
-        const $a = $(a);
-        const name =
-          $a.find('span').text().trim() ||
-          $a.attr('title')?.replace('播放', '').trim() ||
-          $a.text().trim();
-        let href = $a.attr('href') ?? '';
-        if (href.startsWith('/')) {
-          href = `https://www.nivod.vip${href}`;
-        }
-        if (href) videos.push({ name, url: href });
-      });
-
-      if (videos.length) {
-        playlist.push({ name: lineName, videos });
-      }
-    });
-
-    // 兜底：从 script 中提取 player_aaaa
-    if (playlist.length === 0) {
-      const scriptText = $('script')
-        .toArray()
-        .map(s => $(s).html())
-        .find(t => t?.includes('var player_aaaa='));
-      if (scriptText) {
-        const match = scriptText.match(/var player_aaaa\s*=\s*(\{[\s\S]*?\});/);
-        if (match) {
-          try {
-            const playerData = JSON.parse(match[1]);
-            const playUrl = playerData.url ?? playerData.link ?? '';
-            if (playUrl) {
-              playlist.push({
-                name: '正片',
-                videos: [{ name: '播放', url: playUrl }]
-              });
-            }
-          } catch (e) {
-            console.log('player_aaaa 解析失败');
-          }
-        }
-      }
     }
-
-    return { id, title, cover, desc, remark, playlist };
   }
 
-  async parseIframe() {
-    return await kitty.utils.getM3u8WithIframe(env);
+  async getCategory(): Promise<ICategory[]> {
+    return [
+      { text: '电影', id: '1' },
+      { text: '电视剧', id: '2' },
+      { text: '综艺', id: '3' },
+      { text: '动漫', id: '4' }
+    ]
+  }
+
+  async getHome(): Promise<IMovie[]> {
+    const cate = env.get('category', '1')
+    const page = env.get('page', '1')
+    const url = `https://www.nivod.vip/k/${cate}--------${page}---/`
+    const html = await req(url)
+    const $ = kitty.load(html)
+
+    return $('.module-poster-item').toArray().map<IMovie>(el => {
+      const $el = $(el)
+      const title = $el.attr('title')?.trim() || ''
+      const id = $el.attr('href') || ''
+      const cover = $el.find('img').attr('data-original') || ''
+      const remark = $el.find('.module-item-note').text().trim()
+
+      return {
+        id,
+        title,
+        cover: `https://www.nivod.vip${cover}`,
+        desc: '',
+        remark,
+        playlist: []
+      }
+    })
+  }
+
+  async getDetail(): Promise<IMovie> {
+    const id = env.get('movieId')
+    const url = `https://www.nivod.vip${id}`
+    const html = await req(url)
+    const $ = kitty.load(html)
+
+    const title = $('title').text().trim()
+    const cover = $('.module-item-pic img').attr('data-original') || ''
+    const desc = $('.module-info-introduction-content').text().trim()
+    const remark = $('.module-info-item:contains("备注：") .module-info-item-content').text().trim()
+
+    const playUrl = $('.module-info-play a').attr('href') || ''
+    const playlist: IPlaylist[] = [{
+      title: '默认',
+      videos: [{
+        text: '立即播放',
+        id: playUrl,
+        type: 'iframe'
+      }]
+    }]
+
+    return {
+      id,
+      title,
+      cover: `https://www.nivod.vip${cover}`,
+      desc,
+      remark,
+      playlist
+    }
+  }
+
+  async getSearch(): Promise<IMovie[]> {
+    const keyword = env.get('keyword')
+    const page = env.get('page', '1')
+    const url = `https://www.nivod.vip/s/${encodeURIComponent(keyword)}-------------/`
+    const html = await req(url)
+    const $ = kitty.load(html)
+
+    return $('.module-card-item').toArray().map<IMovie>(el => {
+      const $el = $(el)
+      const title = $el.find('.module-card-item-title a').text().trim()
+      const id = $el.find('.module-card-item-title a').attr('href') || ''
+      const cover = $el.find('img').attr('data-original') || ''
+      const remark = $el.find('.module-item-note').text().trim()
+
+      return {
+        id,
+        title,
+        cover: `https://www.nivod.vip${cover}`,
+        desc: '',
+        remark,
+        playlist: []
+      }
+    })
+  }
+
+  async parseIframe(): Promise<string> {
+    const iframe = env.get('iframe')
+    const html = await req(`https://www.nivod.vip${iframe}`)
+    const match = html.match(/"url":"(https?:\\\/\\\/[^"]+\.m3u8)"/)
+    if (match) {
+      return match[1].replace(/\\\//g, '/')
+    }
+    return ''
   }
 }

@@ -1,8 +1,8 @@
 export default class LiuYueTingShu implements Handle {
   getConfig() {
     return {
-      id: '5weiting',
-      name: '六月听书网',
+      id: '6weiting',
+      name: '六月听书',
       type: 1,
       api: 'http://www.5weiting.com',
       nsfw: false
@@ -41,7 +41,7 @@ export default class LiuYueTingShu implements Handle {
   }
 
   async getCategoryDetail() {
-    const id = env.get('categoryId')
+    const id = env.get('categoryId') // 分类路径，如 /ys/t1
     const page = env.get('page') || 1
     const html = await req(`${env.baseUrl}${id}/o1/p${page}`)
     const $ = kitty.load(html)
@@ -57,17 +57,7 @@ export default class LiuYueTingShu implements Handle {
   }
 
   async getHome() {
-    const html = await req(`${env.baseUrl}/ys/t1/o1/p1`)
-    const $ = kitty.load(html)
-    const result = $('.album-item').toArray().map(item => {
-      const title = $(item).find('.book-item-name a').text().trim()
-      const id = $(item).find('.book-item-name a').attr('href') ?? ''
-      const cover = $(item).find('.book-item-img img').attr('src') ?? ''
-      const remark = $(item).find('.book-item-status').text().trim()
-      const desc = $(item).find('.book-item-desc').text().trim()
-      return { id, title, cover, desc, remark, playlist: [] }
-    })
-    return result
+    return [] // 首页不展示任何内容，分类页即首页
   }
 
   async getDetail() {

@@ -33,7 +33,7 @@ export default class NivodSource implements Handle {
       let cover = rawCover.startsWith('/')
         ? `https://www.nivod.vip${rawCover}`
         : rawCover;
-      const remark = $(item).find('.tag1').text().trim();
+      const remark = $(item).find('.module-item-note').text().trim(); // 状态显示
       return { id, title, cover, desc: '', remark, playlist: [] };
     });
     return items;
@@ -54,7 +54,7 @@ export default class NivodSource implements Handle {
       let cover = rawCover.startsWith('/')
         ? `https://www.nivod.vip${rawCover}`
         : rawCover;
-      const remark = $(item).find('.tag1').text().trim();
+      const remark = $(item).find('.module-item-note').text().trim();
       return { id, title, cover, desc: '', remark, playlist: [] };
     });
     return items;
@@ -65,17 +65,47 @@ export default class NivodSource implements Handle {
     const url = `https://www.nivod.vip${id}`;
     const html = await req(url);
     const $ = kitty.load(html);
+
     const title = $('.module-info-heading > h1').text().trim();
     let rawCover = $('.module-info-poster img').attr('data-original') ?? '';
     const cover = rawCover.startsWith('/')
       ? `https://www.nivod.vip${rawCover}`
       : rawCover;
-    const desc = $('.module-info-introduction-content').text().trim()
-      || $('.module-info-introduction').text().trim()
-      || '';
-    const remark = $('.module-info-tag .tag').eq(0).text().trim();
-    const playlist: Playlist[] = [];
 
+    const intro = $('.module-info-introduction-content').text().trim();
+
+    const getTextList = (selector: string) =>
+      $(selector)
+        .find('a')
+        .toArray()
+        .map(a => $(a).text().trim())
+        .filter(Boolean)
+        .join(' / ');
+
+    const director = getTextList('.module-info-item:contains("导演")');
+    const writer = getTextList('.module-info-item:contains("编剧")');
+    const actor = getTextList('.module-info-item:contains("主演")');
+    const duration = $('.module-info-item:contains("片长") .module-info-item-content').text().trim();
+    const language = $('.module-info-item:contains("语言") .module-info-item-content').text().trim();
+    const release = $('.module-info-item:contains("上映") .module-info-item-content').text().trim();
+    const update = $('.module-info-item:contains("更新") .module-info-item-content').text().trim();
+    const episode = $('.module-info-item:contains("集数") .module-info-item-content').text().trim();
+
+    const desc = [
+      intro,
+      director && `导演：${director}`,
+      writer && `编剧：${writer}`,
+      actor && `主演：${actor}`,
+      duration && `片长：${duration}`,
+      language && `语言：${language}`,
+      release && `上映：${release}`
+    ]
+      .filter(Boolean)
+      .join('\n');
+
+    const remark = `${episode} · ${update}`;
+
+    const playlist: Playlist[] = [];
     $('.module-play-list').each((i, el) => {
       const sourceName = $(el).find('.module-play-list-name').text().trim() || `线路${i + 1}`;
       const videos: Video[] = [];

@@ -1,8 +1,8 @@
 export default class LiuYueTingShu implements Handle {
   getConfig() {
     return {
-      id: '6weiting',
-      name: '六月听书',
+      id: '5weiting',
+      name: '六月听书网',
       type: 1,
       api: 'http://www.5weiting.com',
       nsfw: false
@@ -92,7 +92,7 @@ export default class LiuYueTingShu implements Handle {
   async parseIframe() {
     const iframe = env.get('iframe')
     const html = await req(`${env.baseUrl}${iframe}`)
-    const match = html.match(/"(http:\\/\\/61\\.160\\.194\\.89:20001\\/[^"]+\\.mp3[^"]*)"/)
+    const match = html.match(/"(http:\/\/61\.160\.194\.89:20001\/[^"]+\.mp3[^"]*)"/)
     if (match) {
       return { type: 'mp3', url: match[1] }
     }

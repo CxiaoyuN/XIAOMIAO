@@ -1,8 +1,8 @@
 export default class NivodSource implements Handle {
   getConfig() {
     return {
-      id: 'nivodtv',
-      name: '泥视频TV',
+      id: 'nivod',
+      name: '泥视频',
       api: 'https://www.nivod.vip',
       type: 1,
       nsfw: false
@@ -29,7 +29,7 @@ export default class NivodSource implements Handle {
       const img = $(item).find('img');
       const id = a.attr('href') ?? '';
       const title = img.attr('alt') ?? '';
-      let rawCover = img.attr('data-original') ?? img.attr('src') ?? '';
+      const rawCover = img.attr('data-original') ?? img.attr('src') ?? '';
       const cover = rawCover.startsWith('/')
         ? `https://www.nivod.vip${rawCover}`
         : rawCover;
@@ -49,7 +49,7 @@ export default class NivodSource implements Handle {
       const img = $(item).find('img');
       const id = a.attr('href') ?? '';
       const title = img.attr('alt') ?? '';
-      let rawCover = img.attr('data-original') ?? img.attr('src') ?? '';
+      const rawCover = img.attr('data-original') ?? img.attr('src') ?? '';
       const cover = rawCover.startsWith('/')
         ? `https://www.nivod.vip${rawCover}`
         : rawCover;
@@ -65,7 +65,7 @@ export default class NivodSource implements Handle {
     const $ = kitty.load(html);
 
     const title = $('.module-info-heading h1').text().trim() || '未知标题';
-    let rawCover = $('.module-info-poster img').attr('data-original') ?? '';
+    const rawCover = $('.module-info-poster img').attr('data-original') ?? '';
     const cover = rawCover.startsWith('/')
       ? `https://www.nivod.vip${rawCover}`
       : rawCover;
@@ -106,7 +106,9 @@ export default class NivodSource implements Handle {
     const remark = `${episode} · ${update}`;
 
     const playlist: Playlist[] = [];
-    const tabNames = $('.module-tab-item').toArray().map(el => $(el).attr('data-dropdown-value')?.trim() || `线路${el}`);
+    const tabNames = $('.module-tab-item').toArray().map(el =>
+      $(el).attr('data-dropdown-value')?.trim() || `线路${el}`
+    );
 
     $('.module-play-list').each((i, el) => {
       const sourceName = tabNames[i] || `线路${i + 1}`;

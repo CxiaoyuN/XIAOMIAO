@@ -1,8 +1,8 @@
 export default class NivodSource implements Handle {
   getConfig() {
     return {
-      id: 'nivodtv',
-      name: '泥视频TV',
+      id: 'nivod',
+      name: '泥视频',
       api: 'https://www.nivod.vip',
       type: 1,
       nsfw: false
@@ -116,6 +116,31 @@ export default class NivodSource implements Handle {
       });
       if (videos.length) playlist.push({ name: sourceName, videos });
     });
+
+    // 如果没有播放列表，从 script 中兜底提取
+    if (playlist.length === 0) {
+      const scriptText = $('script')
+        .toArray()
+        .map(s => $(s).html())
+        .find(t => t?.includes('var player_aaaa='));
+      if (scriptText) {
+        const match = scriptText.match(/var player_aaaa\s*=\s*(\{[\s\S]*?\});/);
+        if (match) {
+          try {
+            const playerData = JSON.parse(match[1]);
+            const playUrl = playerData.link ?? '';
+            if (playUrl) {
+              playlist.push({
+                name: '正片',
+                videos: [{ name: '播放', url: playUrl }]
+              });
+            }
+          } catch (e) {
+            console.log('player_aaaa 解析失败');
+          }
+        }
+      }
+    }
 
     return { id, title, cover, desc, remark, playlist };
   }

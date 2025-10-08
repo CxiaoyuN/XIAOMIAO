@@ -33,7 +33,7 @@ export default class NivodSource implements Handle {
       let cover = rawCover.startsWith('/')
         ? `https://www.nivod.vip${rawCover}`
         : rawCover;
-      const remark = $(item).find('.module-item-note').text().trim(); // 状态显示
+      const remark = $(item).find('.module-item-note').text().trim();
       return { id, title, cover, desc: '', remark, playlist: [] };
     });
     return items;
@@ -74,22 +74,25 @@ export default class NivodSource implements Handle {
 
     const intro = $('.module-info-introduction-content').text().trim();
 
-    const getTextList = (selector: string) =>
-      $(selector)
+    const getTextList = (label: string) =>
+      $(`.module-info-item:contains("${label}")`)
         .find('a')
         .toArray()
         .map(a => $(a).text().trim())
         .filter(Boolean)
         .join(' / ');
 
-    const director = getTextList('.module-info-item:contains("导演")');
-    const writer = getTextList('.module-info-item:contains("编剧")');
-    const actor = getTextList('.module-info-item:contains("主演")');
-    const duration = $('.module-info-item:contains("片长") .module-info-item-content').text().trim();
-    const language = $('.module-info-item:contains("语言") .module-info-item-content').text().trim();
-    const release = $('.module-info-item:contains("上映") .module-info-item-content').text().trim();
-    const update = $('.module-info-item:contains("更新") .module-info-item-content').text().trim();
-    const episode = $('.module-info-item:contains("集数") .module-info-item-content').text().trim();
+    const getSingleText = (label: string) =>
+      $(`.module-info-item:contains("${label}") .module-info-item-content`).text().trim();
+
+    const director = getTextList('导演');
+    const writer = getTextList('编剧');
+    const actor = getTextList('主演');
+    const duration = getSingleText('片长');
+    const language = getSingleText('语言');
+    const release = getSingleText('上映');
+    const update = getSingleText('更新');
+    const episode = getSingleText('集数');
 
     const desc = [
       intro,

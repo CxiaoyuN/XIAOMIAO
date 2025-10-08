@@ -14,7 +14,7 @@ export default class NivodSource implements Handle {
   async getCategory(): Promise<ICategory[]> {
     return [
       { text: '电影', id: '1' },
-      { text: '电视剧', id: '2' },
+      { text: '电视', id: '2' },
       { text: '综艺', id: '3' },
       { text: '动漫', id: '4' }
     ]
@@ -60,17 +60,33 @@ export default class NivodSource implements Handle {
       ? (rawCover.startsWith('http') ? rawCover : `https://www.nivod.vip${rawCover}`)
       : 'https://www.nivod.vip/loading.png'
     const desc = $('.module-info-introduction-content').text().trim()
-    const remark = $('.module-info-item:contains("备注：") .module-info-item-content').text().trim()
-    const playUrl = $('.module-info-play a').attr('href') || ''
+    const remark = $('.module-info-item:contains("集数") .module-info-item-content').text().trim()
 
-    const playlist: IPlaylist[] = [{
-      title: '默认',
-      videos: [{
-        text: '立即播放',
-        id: playUrl,
-        type: 'iframe'
-      }]
-    }]
+    const playlist: IPlaylist[] = []
+    $('.module-tab-items-box .module-tab-item').each((i, el) => {
+      const $el = $(el)
+      const lineTitle = $el.text().trim()
+      const videos: IVideo[] = []
+
+      const panel = $('.module-list.sort-list.tab-list.his-tab-list').eq(i)
+      panel.find('.module-play-list-link').each((_, link) => {
+        const $link = $(link)
+        const text = $link.text().trim()
+        const playId = $link.attr('href') || ''
+        videos.push({
+          text,
+          id: playId,
+          type: 'iframe'
+        })
+      })
+
+      if (videos.length > 0) {
+        playlist.push({
+          title: lineTitle,
+          videos
+        })
+      }
+    })
 
     return {
       id,

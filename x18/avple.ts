@@ -1,18 +1,18 @@
-//import { kitty, req, env } from 'utils'
+import { kitty, req, env } from 'utils'
 
 export default class avple implements Handle {
   getConfig() {
-    return <Iconfig>{
+    return {
       id: 'avple',
       name: 'AVPLE',
       api: 'https://avple.tv',
       type: 1,
-      nsfw: true,
+      nsfw: true
     }
   }
 
   async getCategory() {
-    return <ICategory[]>[
+    return [
       { text: '麻豆传媒', id: '121' },
       { text: '果冻传媒', id: '123' },
       { text: '皇家华人', id: '124' },
@@ -24,7 +24,7 @@ export default class avple implements Handle {
       { text: '乌鸦传媒', id: '130' },
       { text: '国产自拍', id: '131' },
       { text: 'SWAG', id: '132' },
-      { text: 'FC2PPV', id: '135' },
+      { text: 'FC2PPV', id: '135' }
     ]
   }
 
@@ -36,20 +36,33 @@ export default class avple implements Handle {
     const $ = kitty.load(html)
 
     const script = $('script#__NEXT_DATA__').text()?.trim()
-    if (!script) return []
+    if (!script) {
+      console.warn('页面缺少 __NEXT_DATA__')
+      return []
+    }
 
     let unsafeObj
     try {
       unsafeObj = eval(`(${script})`)
     } catch (e) {
-      console.warn('getHome eval error:', e)
+      console.warn('getHome eval 失败:', e)
       return []
     }
 
-    const data = unsafeObj?.props?.pageProps?.data
-    if (!Array.isArray(data)) return []
+    const candidates = [
+      unsafeObj?.props?.pageProps?.data,
+      unsafeObj?.props?.pageProps?.videos,
+      unsafeObj?.props?.pageProps?.list,
+      unsafeObj?.props?.pageProps?.items
+    ]
+    const data = candidates.find(d => Array.isArray(d)) ?? []
 
-    return data.map<IMovie>(item => ({
+    if (!data.length) {
+      console.warn('未找到有效视频列表字段')
+      return []
+    }
+
+    return data.map(item => ({
       id: item._id,
       title: item.title,
       cover: item.img_preview,
@@ -64,13 +77,13 @@ export default class avple implements Handle {
     const $ = kitty.load(html)
 
     const script = $('script#__NEXT_DATA__').text()?.trim()
-    if (!script) throw new Error('页面结构异常')
+    if (!script) throw new Error('页面缺少 __NEXT_DATA__')
 
     let unsafeObj
     try {
       unsafeObj = eval(`(${script})`)
     } catch (e) {
-      throw new Error('getDetail eval error: ' + e)
+      throw new Error('getDetail eval 失败: ' + e)
     }
 
     const instance = unsafeObj?.props?.pageProps?.instance
@@ -78,7 +91,7 @@ export default class avple implements Handle {
 
     const realM3u8 = this.getRealM3u8(instance.play_source_type, instance.play)
 
-    return <IMovie>{
+    return {
       id,
       title: instance.title,
       cover: instance.img_normal,
@@ -104,24 +117,17 @@ export default class avple implements Handle {
       'e2fa6.cdnedge.live', 't4tm6.cdnedge.live', 'w083g.cdnedge.live'
     ]
     const _domain = full_domain.map(e => e.split('.')[0] + '1.cdnedge.live')
-    const domains = {
-      stream_MD_CDN1: _domain,
-      stream_SWAG_CDN1: _domain,
-      stream_HOME_MADE_CDN1: _domain,
-      stream_US_CDN1: _domain,
-    }
-
     const pick = (list: string[]) => list[Math.floor(Math.random() * list.length)]
 
     switch (type) {
       case 5: return `${env.baseUrl}/${m3u8}`
       case 7:
       case 8: return `https://${pick(full_domain)}/file/avple-images/${m3u8}`
-      case 12: return `https://${pick(domains.stream_MD_CDN1)}/file/avple-asserts/${m3u8}`
-      case 13: return `https://${pick(domains.stream_SWAG_CDN1)}/file/avple-asserts/${m3u8}`
-      case 14: return `https://${pick(domains.stream_HOME_MADE_CDN1)}/file/avple-asserts/${m3u8}`
+      case 12: return `https://${pick(_domain)}/file/avple-asserts/${m3u8}`
+      case 13: return `https://${pick(_domain)}/file/avple-asserts/${m3u8}`
+      case 14: return `https://${pick(_domain)}/file/avple-asserts/${m3u8}`
       case 17:
-      case 18: return `https://${pick(domains.stream_US_CDN1)}/file/avple-asserts/${m3u8}`
+      case 18: return `https://${pick(_domain)}/file/avple-asserts/${m3u8}`
       default: return `${env.baseUrl}/${m3u8}`
     }
   }
@@ -134,20 +140,26 @@ export default class avple implements Handle {
     const $ = kitty.load(html)
 
     const script = $('script#__NEXT_DATA__').text()?.trim()
-    if (!script) return []
+    if (!script) {
+      console.warn('搜索页缺少 __NEXT_DATA__')
+      return []
+    }
 
     let unsafeObj
     try {
       unsafeObj = eval(`(${script})`)
     } catch (e) {
-      console.warn('getSearch eval error:', e)
+      console.warn('getSearch eval 失败:', e)
       return []
     }
 
     const data = unsafeObj?.props?.pageProps?.data
-    if (!Array.isArray(data)) return []
+    if (!Array.isArray(data)) {
+      console.warn('搜索结果不是数组')
+      return []
+    }
 
-    return data.map<IMovie>(item => ({
+    return data.map(item => ({
       id: item._id,
       title: item.title,
       cover: item.img_preview,

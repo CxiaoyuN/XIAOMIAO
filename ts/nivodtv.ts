@@ -1,5 +1,6 @@
 //import { env, req, kitty } from 'utils'
 
+// ✅ 封面图智能处理：完整链接保留，相对路径补全
 function fixCover(cover: string): string {
   if (!cover) return ''
   return cover.startsWith('http') ? cover : `https://www.nivod.vip${cover}`
@@ -8,8 +9,8 @@ function fixCover(cover: string): string {
 export default class NivodSource implements Handle {
   getConfig(): IConfig {
     return {
-      id: 'nivod',
-      name: '泥视频',
+      id: 'nivodtv',
+      name: '泥视频TV',
       api: 'https://www.nivod.vip',
       type: 1,
       nsfw: false
@@ -36,13 +37,13 @@ export default class NivodSource implements Handle {
       const $el = $(el)
       const title = $el.attr('title')?.trim() || ''
       const id = $el.attr('href') || ''
-      const cover = $el.find('img').attr('data-original') || ''
+      const rawCover = $el.find('img').attr('data-original') || ''
       const remark = $el.find('.module-item-note').text().trim()
 
       return {
         id,
         title,
-        cover: fixCover(cover),
+        cover: fixCover(rawCover),
         desc: '',
         remark,
         playlist: []
@@ -57,7 +58,7 @@ export default class NivodSource implements Handle {
     const $ = kitty.load(html)
 
     const title = $('title').text().trim()
-    const cover = $('.module-item-pic img').attr('data-original') || ''
+    const rawCover = $('.module-item-pic img').attr('data-original') || ''
     const desc = $('.module-info-introduction-content').text().trim()
     const remark = $('.module-info-item:contains("备注：") .module-info-item-content').text().trim()
     const playUrl = $('.module-info-play a').attr('href') || ''
@@ -74,7 +75,7 @@ export default class NivodSource implements Handle {
     return {
       id,
       title,
-      cover: fixCover(cover),
+      cover: fixCover(rawCover),
       desc,
       remark,
       playlist
@@ -92,13 +93,13 @@ export default class NivodSource implements Handle {
       const $el = $(el)
       const title = $el.find('.module-card-item-title a').text().trim()
       const id = $el.find('.module-card-item-title a').attr('href') || ''
-      const cover = $el.find('img').attr('data-original') || ''
+      const rawCover = $el.find('img').attr('data-original') || ''
       const remark = $el.find('.module-item-note').text().trim()
 
       return {
         id,
         title,
-        cover: fixCover(cover),
+        cover: fixCover(rawCover),
         desc: '',
         remark,
         playlist: []

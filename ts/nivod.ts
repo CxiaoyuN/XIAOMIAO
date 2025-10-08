@@ -145,7 +145,7 @@ export default class NivodSource implements Handle {
         if (match) {
           try {
             const playerData = JSON.parse(match[1]);
-            const playUrl = playerData.link ?? '';
+            const playUrl = playerData.url ?? playerData.link ?? '';
             if (playUrl) {
               playlist.push({
                 name: '正片',

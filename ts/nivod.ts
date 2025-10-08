@@ -1,16 +1,15 @@
-//import { env, req, kitty } from 'utils'
+// import { env, req, kitty } from 'utils'
 
-// ✅ 封面图智能处理：完整链接保留，相对路径补全
 function fixCover(cover: string): string {
-  if (!cover) return ''
+  if (!cover) return 'https://www.nivod.vip/loading.png'
   return cover.startsWith('http') ? cover : `https://www.nivod.vip${cover}`
 }
 
 export default class NivodSource implements Handle {
   getConfig(): IConfig {
     return {
-      id: 'nivodtv',
-      name: '泥视频TV',
+      id: 'nivod',
+      name: '泥视频',
       api: 'https://www.nivod.vip',
       type: 1,
       nsfw: false
@@ -61,8 +60,8 @@ export default class NivodSource implements Handle {
     const rawCover = $('.module-item-pic img').attr('data-original') || ''
     const desc = $('.module-info-introduction-content').text().trim()
     const remark = $('.module-info-item:contains("备注：") .module-info-item-content').text().trim()
-    const playUrl = $('.module-info-play a').attr('href') || ''
 
+    const playUrl = $('.module-info-play a').attr('href') || ''
     const playlist: IPlaylist[] = [{
       title: '默认',
       videos: [{

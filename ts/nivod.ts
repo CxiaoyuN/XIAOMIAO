@@ -1,8 +1,8 @@
 export default class NivodSource implements Handle {
   getConfig() {
     return {
-      id: 'nivod',
-      name: '泥视频',
+      id: 'nivodtv',
+      name: '泥视频TV',
       api: 'https://www.nivod.vip',
       type: 1,
       nsfw: false
@@ -106,12 +106,14 @@ export default class NivodSource implements Handle {
     const remark = `${episode} · ${update}`;
 
     const playlist: Playlist[] = [];
+    const tabNames = $('.module-tab-item').toArray().map(el => $(el).text().trim());
+
     $('.module-play-list').each((i, el) => {
-      const sourceName = `线路${i + 1}`;
+      const sourceName = tabNames[i] || `线路${i + 1}`;
       const videos: Video[] = [];
-      $(el).find('a').each((j, a) => {
+      $(el).find('.module-play-list-link').each((j, a) => {
         const href = $(a).attr('href') ?? '';
-        const text = $(a).attr('title')?.replace('播放', '').trim() ?? $(a).text().trim();
+        const text = $(a).attr('title')?.replace('播放', '').trim() || $(a).text().trim();
         if (href) videos.push({ name: text, url: href });
       });
       if (videos.length) playlist.push({ name: sourceName, videos });

@@ -273,6 +273,16 @@ const vods = <Iconfig[]>[
     extra: {
       gfw: false,
     },
+  },  
+  {
+    id: "duihuanziyuan$",
+    name: "兑换资源",
+    api: "https://gctf.tfdh.top/api.php/provide/vod",
+    nsfw: false,
+    type: 0,
+    extra: {
+      gfw: false,
+    }
   },
   {
     id: "suboziyuan",

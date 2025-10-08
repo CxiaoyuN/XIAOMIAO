@@ -1,8 +1,8 @@
 export default class NivodSource implements Handle {
   getConfig() {
     return {
-      id: 'nivodtv',
-      name: '泥视频TV',
+      id: 'nivod',
+      name: '泥视频',
       api: 'https://www.nivod.vip',
       type: 1,
       nsfw: false

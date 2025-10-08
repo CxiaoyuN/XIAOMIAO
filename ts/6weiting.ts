@@ -1,8 +1,8 @@
 export default class LiuYueTingShu implements Handle {
   getConfig() {
     return {
-      id: '5weiting',
-      name: '六月听书网',
+      id: '6weiting',
+      name: '六月听书',
       type: 1,
       api: 'http://www.5weiting.com',
       nsfw: false

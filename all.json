@@ -663,97 +663,58 @@
         "category": [
           {
             "text": "玄幻奇幻",
-            "id": "/ys/t1",
-            "extra": {
-              "icon": "🌀"
-            }
+            "id": "/ys/t1"
           },
           {
             "text": "都市言情",
-            "id": "/ys/t2",
-            "extra": {
-              "icon": "🏙️"
-            }
+            "id": "/ys/t2"
           },
           {
             "text": "修真武侠",
-            "id": "/ys/t3",
-            "extra": {
-              "icon": "⚔️"
-            }
+            "id": "/ys/t3"
           },
           {
             "text": "恐怖灵异",
-            "id": "/ys/t4",
-            "extra": {
-              "icon": "👻"
-            }
+            "id": "/ys/t4"
           },
           {
             "text": "古今言情",
-            "id": "/ys/t5",
-            "extra": {
-              "icon": "📖"
-            }
+            "id": "/ys/t5"
           },
           {
             "text": "穿越重生",
-            "id": "/ys/t6",
-            "extra": {
-              "icon": "🕰️"
-            }
+            "id": "/ys/t6"
           },
           {
             "text": "评书",
-            "id": "/ys/t7",
-            "extra": {
-              "icon": "🎙️"
-            }
+            "id": "/ys/t7"
           },
           {
             "text": "历史",
-            "id": "/ys/t8",
-            "extra": {
-              "icon": "🏺"
-            }
+            "id": "/ys/t8"
           },
           {
             "text": "军事",
-            "id": "/ys/t9",
-            "extra": {
-              "icon": "🪖"
-            }
+            "id": "/ys/t9"
           },
           {
             "text": "粤语",
-            "id": "/ys/t10",
-            "extra": {
-              "icon": "🎧"
-            }
+            "id": "/ys/t10"
           },
           {
             "text": "悬疑推理",
-            "id": "/ys/t11",
-            "extra": {
-              "icon": "🕵️‍♂️"
-            }
+            "id": "/ys/t11"
           },
           {
             "text": "儿童读物",
-            "id": "/ys/t12",
-            "extra": {
-              "icon": "🧒"
-            }
+            "id": "/ys/t12"
           },
           {
             "text": "广播剧",
-            "id": "/ys/t13",
-            "extra": {
-              "icon": "📻"
-            }
+            "id": "/ys/t13"
           }
         ],
-        "home": "const html=await req(`${env.api}/`);const $=kitty.load(html);return $(\".m4-list .item\").toArray().map(item=>{const title=$(item).find(\"img\").attr(\"alt\")??\"\";const cover=\"https:\"+($(item).find(\"img\").attr(\"data-src\")??\"\");const id=$(item).find(\"a.link\").attr(\"href\")??\"\";const remark=$(item).find(\".tag1\").text().trim();return{id,title,cover,desc:\"\",remark,playlist:[]}})",
+        "home": "const html=await req(`${env.api}/`);const $=kitty.load(html);return $(\".m4-list .item\").toArray().map(item=>{const title=$(item).find(\"img\").attr(\"alt\")??\"\";const cover=\"http:\"+($(item).find(\"img\").attr(\"data-src\")??\"\");const id=$(item).find(\"a.link\").attr(\"href\")??\"\";const remark=$(item).find(\".tag1\").text().trim();return{id,title,cover,desc:\"\",remark,playlist:[]}})",
         "detail": "const html=await req(`${env.api}${id}`);const $=kitty.load(html);const title=$(\"h1\").text().trim();const cover=$(\"img.cover\").attr(\"src\")??\"\";const desc=$(\".desc\").text().trim();const remark=$(\".info\").text().trim();const playlist=$(\".playlist a\").toArray().map(a=>{const href=$(a).attr(\"href\")??\"\";const name=$(a).text().trim();return{name,id:href}});return{id,title,cover,desc,remark,playlist}",
         "parseIframe": "const html=await req(`${env.api}${id}`);const match=html.match(/audioUrl\\s*=\\s*\"([^\"]+)\"/);if(match){return match[1]}return\"\""
       }

@@ -4,7 +4,7 @@ export default class FiveWeitingSource implements Handle {
   getConfig(): IConfig {
     return {
       id: '5weiting',
-      name: '5味厅',
+      name: '六月听书',
       api: 'http://www.5weiting.com',
       type: 1,
       nsfw: false
@@ -13,18 +13,20 @@ export default class FiveWeitingSource implements Handle {
 
   async getCategory(): Promise<ICategory[]> {
     return [
-      { text: '玄幻奇幻', id: 'ys/t1' },
-      { text: '武侠仙侠', id: 'ys/t2' },
-      { text: '都市言情', id: 'ys/t3' },
-      { text: '历史军事', id: 'ys/t4' },
-      { text: '科幻灵异', id: 'ys/t5' }
+      { text: '玄幻奇幻', id: 't1' },
+      { text: '武侠仙侠', id: 't2' },
+      { text: '都市言情', id: 't3' },
+      { text: '历史军事', id: 't4' },
+      { text: '科幻灵异', id: 't5' }
     ]
   }
 
   async getHome(): Promise<IMovie[]> {
-    const cate = env.get('category', 'ys/t1')
+    const cate = env.get('category', 't1')
+    const order = env.get('order', '1')   // 1=人气，2=时间
     const page = env.get('page', '1')
-    const url = `http://www.5weiting.com/${cate}/page/${page}.html`
+
+    const url = `http://www.5weiting.com/ys/${cate}/o${order}/p${page}`
     const html = await req(url)
     const $ = kitty.load(html)
 
@@ -57,30 +59,20 @@ export default class FiveWeitingSource implements Handle {
     const desc = $('.book-desc,.content_desc,.data .desc').text().trim()
     const remark = $('.book-item-status,.data .remarks').text().trim()
 
-    const playlist: IPlaylist[] = []
-    const lineEls = $('.module-tab-items-box .module-tab-item,.play_source li a,.playlist-tab li a')
-    const panelEls = $('.module-list.sort-list.tab-list.his-tab-list,.play_list_box,.playlist')
-
-    if (lineEls.length && panelEls.length) {
-      lineEls.each((i, el) => {
-        const lineTitle = $(el).text().trim() || $(el).attr('data-dropdown-value') || `线路${i + 1}`
-        const panel = panelEls.eq(i)
-        const videos: IVideo[] = []
-
-        panel.find('.module-play-list-link,.play_list a,.playlist a').each((_, link) => {
-          const $link = $(link)
-          const text = $link.text().trim() || $link.find('span').text().trim() || '播放'
-          const playId = $link.attr('href') || ''
-          if (playId) videos.push({ text, id: playId, type: 'iframe' })
-        })
-
-        if (videos.length) playlist.push({ title: lineTitle, videos })
-      })
-    } else {
-      const playUrl = $('.btn-play a,.module-info-play a,.play-btn a').attr('href') || ''
-      if (playUrl) {
-        playlist.push({ title: '默认', videos: [{ text: '立即播放', id: playUrl, type: 'iframe' }] })
+    // 播放列表（单线路，多集）
+    const videos: IVideo[] = []
+    $('ul.list.clearfix li a').each((_, link) => {
+      const $link = $(link)
+      const text = $link.text().trim()
+      const playId = $link.attr('href') || ''
+      if (playId) {
+        videos.push({ text, id: playId, type: 'iframe' })
       }
+    })
+
+    const playlist: IPlaylist[] = []
+    if (videos.length > 0) {
+      playlist.push({ title: '默认线路', videos })
     }
 
     return { id, title, cover, desc, remark, playlist }
@@ -110,16 +102,20 @@ export default class FiveWeitingSource implements Handle {
 
   async parseIframe(): Promise<string> {
     const iframe = env.get('iframe')
-    const html = await req(`http://www.5weiting.com${iframe}`)
+    const url = `http://www.5weiting.com${iframe}`
+    const html = await req(url, {
+      headers: {
+        'User-Agent': 'Mozilla/5.0 (iPhone; CPU iPhone OS 15_0 like Mac OS X)'
+      }
+    })
 
-    const m1 = html.match(/"url":"(https?:\\\/\\\/[^"]+\.m3u8)"/)
-    if (m1) return m1[1].replace(/\\\//g, '/')
+    // 匹配带签名的 mp3 链接
+    const m1 = html.match(/https?:\\/\\/[0-9.:]+\\/[0-9a-z]+\\/[0-9]+\\.mp3\\?[^'"]+/)
+    if (m1) return m1[0]
 
-    const m2 = html.match(/player\s*=\s*\{[^}]*url\s*:\s*['"]([^'"]+\.m3u8)['"]/)
+    // 兜底：player = {url: "..."}
+    const m2 = html.match(/player\\s*=\\s*\\{[^}]*url\\s*:\\s*['"]([^'"]+\\.mp3[^'"]*)['"]/)
     if (m2) return m2[1]
-
-    const m3 = html.match(/https?:\/\/[^\s'"<>]+\.m3u8/)
-    if (m3) return m3[0]
 
     return ''
   }

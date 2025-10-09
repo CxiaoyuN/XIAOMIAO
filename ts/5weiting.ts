@@ -2,7 +2,7 @@ export default class LiuYueTingShu implements Handle {
   getConfig() {
     return {
       id: '5weiting',
-      name: '六月听书',
+      name: '六月听书网',
       api: 'http://www.5weiting.com',
       type: 1, // 视频类资源（兼容小猫影视）
       nsfw: false
@@ -34,8 +34,21 @@ export default class LiuYueTingShu implements Handle {
       const title = $(item).find('img').attr('alt') ?? ''
       const cover = 'https:' + ($(item).find('img').attr('data-src') ?? '')
       const id = $(item).find('a.link').attr('href') ?? ''
-      const remark = $(item).find('.tag1').text() ?? ''
+      const remark = $(item).find('.tag1').text().trim()
       return { id, title, cover, desc: '', remark, playlist: [] }
+    })
+  }
+
+  async getCategoryDetail(id: string, pg: number) {
+    const html = await req(`${env.api}${id}/o1/p${pg}`)
+    const $ = kitty.load(html)
+    return $('.album-list .album-item').toArray().map(item => {
+      const title = $(item).find('.book-item-name a').text().trim()
+      const cover = $(item).find('.book-item-img img').attr('src') ?? ''
+      const id = $(item).find('.book-item-name a').attr('href') ?? ''
+      const desc = $(item).find('.book-item-desc').text().trim()
+      const remark = $(item).find('.book-item-status').text().trim()
+      return { id, title, cover, desc, remark, playlist: [] }
     })
   }
 

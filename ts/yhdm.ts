@@ -4,7 +4,7 @@ export default class YHDM implements Handle {
   getConfig() {
     return {
       id: 'yhdm',
-      name: '樱花动漫_测试',
+      name: '樱花动漫_测',
       api: 'https://www.857yhw.com',
       type: 1,
       nsfw: false,

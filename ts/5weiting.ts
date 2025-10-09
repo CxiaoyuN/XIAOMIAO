@@ -2,7 +2,7 @@ export default class LiuYueTingShu implements Handle {
   getConfig() {
     return {
       id: '5weiting',
-      name: '六月听书网',
+      name: '六月听书',
       api: 'http://www.5weiting.com',
       type: 1,
       nsfw: false,
@@ -21,7 +21,17 @@ export default class LiuYueTingShu implements Handle {
   async getCategory() {
     return [
       { text: '玄幻奇幻', id: '/ys/t1' },
-      { text: '都市言情', id: '/ys/t28' }
+      { text: '都市言情', id: '/ys/t28' },
+      { text: '修真武侠', id: '/ys/t2' },
+      { text: '恐怖灵异', id: '/ys/t3' },
+      { text: '古今言情', id: '/ys/t4' },
+      { text: '穿越重生', id: '/ys/t5' },
+      { text: '评书大全', id: '/ys/t8' },
+      { text: '历史纪实', id: '/ys/t12' },
+      { text: '军事', id: '/ys/t13' },
+      { text: '悬疑推理', id: '/ys/t14' },
+      { text: '儿童读物', id: '/ys/t16' },
+      { text: '广播剧', id: '/ys/t17' }
     ]
   }
 

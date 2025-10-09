@@ -1,7 +1,7 @@
 [
   {
     "id": "5weiting",
-    "name": "六月听书网",
+    "name": "六月听书",
     "api": "http://www.5weiting.com",
     "type": 1,
     "nsfw": false,
@@ -15,6 +15,46 @@
           {
             "text": "都市言情",
             "id": "/ys/t28"
+          },
+          {
+            "text": "修真武侠",
+            "id": "/ys/t2"
+          },
+          {
+            "text": "恐怖灵异",
+            "id": "/ys/t3"
+          },
+          {
+            "text": "古今言情",
+            "id": "/ys/t4"
+          },
+          {
+            "text": "穿越重生",
+            "id": "/ys/t5"
+          },
+          {
+            "text": "评书大全",
+            "id": "/ys/t8"
+          },
+          {
+            "text": "历史纪实",
+            "id": "/ys/t12"
+          },
+          {
+            "text": "军事",
+            "id": "/ys/t13"
+          },
+          {
+            "text": "悬疑推理",
+            "id": "/ys/t14"
+          },
+          {
+            "text": "儿童读物",
+            "id": "/ys/t16"
+          },
+          {
+            "text": "广播剧",
+            "id": "/ys/t17"
           }
         ],
         "home": "const html=await req(`${env.api}/`);const $=kitty.load(html);return $(\".album-list .album-item\").toArray().map(item=>{const title=$(item).find(\".book-item-name a\").text().trim();const id=$(item).find(\".book-item-name a\").attr(\"href\")??\"\";const cover=$(item).find(\".book-item-img img\").attr(\"src\")??\"\";const remark=$(item).find(\".book-item-status\").text().replace(\"\\u72B6\\u6001\\uFF1A\",\"\").trim();const desc=$(item).find(\".book-item-desc\").text().trim();return{id,title,cover,desc,remark,playlist:[]}})",

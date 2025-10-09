@@ -120,21 +120,3 @@ export default class LiuYueTingShu implements Handle {
     return null
   }
 }
-
-export const entry: Iconfig = {
-  id: '5weiting',
-  name: '六月听书网',
-  type: 1,
-  api: 'http://www.5weiting.com',
-  nsfw: false,
-  extra: {
-    js: {
-      category: 'getCategory',
-      categoryDetail: 'getCategoryDetail',
-      home: 'getHome',
-      search: 'getSearch',
-      detail: 'getDetail',
-      parseIframe: 'parseIframe'
-    }
-  }
-}

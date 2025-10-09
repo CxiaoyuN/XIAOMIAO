@@ -654,7 +654,7 @@
   },
   {
     "id": "5weiting",
-    "name": "六月听书",
+    "name": "六月听书网",
     "api": "http://www.5weiting.com",
     "type": 1,
     "nsfw": false,
@@ -753,7 +753,7 @@
             }
           }
         ],
-        "home": "const html=await req(`${env.api}/`);const $=kitty.load(html);return $(\".m4-list .item\").toArray().map(item=>{const title=$(item).find(\"img\").attr(\"alt\")??\"\";const cover=\"https:\"+($(item).find(\"img\").attr(\"data-src\")??\"\");const id=$(item).find(\"a.link\").attr(\"href\")??\"\";const remark=$(item).find(\".tag1\").text()??\"\";return{id,title,cover,desc:\"\",remark,playlist:[]}})",
+        "home": "const html=await req(`${env.api}/`);const $=kitty.load(html);return $(\".m4-list .item\").toArray().map(item=>{const title=$(item).find(\"img\").attr(\"alt\")??\"\";const cover=\"https:\"+($(item).find(\"img\").attr(\"data-src\")??\"\");const id=$(item).find(\"a.link\").attr(\"href\")??\"\";const remark=$(item).find(\".tag1\").text().trim();return{id,title,cover,desc:\"\",remark,playlist:[]}})",
         "detail": "const html=await req(`${env.api}${id}`);const $=kitty.load(html);const title=$(\"h1\").text().trim();const cover=$(\"img.cover\").attr(\"src\")??\"\";const desc=$(\".desc\").text().trim();const remark=$(\".info\").text().trim();const playlist=$(\".playlist a\").toArray().map(a=>{const href=$(a).attr(\"href\")??\"\";const name=$(a).text().trim();return{name,id:href}});return{id,title,cover,desc,remark,playlist}",
         "parseIframe": "const html=await req(`${env.api}${id}`);const match=html.match(/audioUrl\\s*=\\s*\"([^\"]+)\"/);if(match){return match[1]}return\"\""
       }

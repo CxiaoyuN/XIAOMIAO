@@ -1479,6 +1479,48 @@
     }
   },
   {
+    "id": "18jtv$",
+    "name": "18禁",
+    "api": "https://18j.tv",
+    "type": 1,
+    "nsfw": true,
+    "extra": {
+      "gfw": false,
+      "searchLimit": 16,
+      "js": {
+        "category": [
+          {
+            "text": "国产",
+            "id": "1"
+          },
+          {
+            "text": "日韩",
+            "id": "2"
+          },
+          {
+            "text": "欧美",
+            "id": "3"
+          },
+          {
+            "text": "伦理",
+            "id": "4"
+          },
+          {
+            "text": "动漫",
+            "id": "16"
+          },
+          {
+            "text": "另类",
+            "id": "39"
+          }
+        ],
+        "home": "const cate=env.get(\"category\");const page=env.get(\"page\");const url=`${env.baseUrl}/t/${cate}-${page}/`;const $=kitty.load(await req(url));return $(\"ul.list li\").toArray().map(item=>{const a=$(item).find(\"a\");const title=a.attr(\"title\")??\"\";const id=a.attr(\"href\")??\"\";const cover=a.find(\"img\").attr(\"data-original\")??\"\";const remark=a.find(\"span\").text().trim();return{id,title,cover,remark}})",
+        "detail": "const id=env.get(\"movieId\");const url=`${env.baseUrl}${id}`;const html=await req(url);const m3u8=html.match(/([^']+\\.m3u8)/)[1];return{playlist:[{title:\"\\u9ED8\\u8BA4\",videos:[{text:\"\\u64AD\\u653E\",url:m3u8}]}]}",
+        "search": "const wd=env.get(\"keyword\");const page=env.get(\"page\");const url=`${env.baseUrl}/s/page/${page}/wd/${wd}/`;const $=kitty.load(await req(url));return $(\"ul.list li\").toArray().map(item=>{const a=$(item).find(\"a\");const title=a.attr(\"title\")??\"\";const id=a.attr(\"href\")??\"\";const cover=a.find(\"img\").attr(\"data-original\")??\"\";const remark=a.find(\"span\").text().trim();return{id,title,cover,remark}})"
+      }
+    }
+  },
+  {
     "id": "91jav$",
     "name": "91Jav",
     "type": 1,

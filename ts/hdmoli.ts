@@ -16,6 +16,11 @@ export default class hdmoli implements Handle {
     }
   }
 
+  // 模拟苹果手机
+  headers = {
+    'User-Agent': 'Mozilla/5.0 (iPhone; CPU iPhone OS 15_0 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/15.0 Mobile/15E148 Safari/604.1'
+  }
+
   // 分类导航
   async getCategory() {
     return [
@@ -33,7 +38,7 @@ export default class hdmoli implements Handle {
       ? `${env.baseUrl}${cate}`
       : `${env.baseUrl}${cate.replace('.html', '')}-${page}.html`
 
-    const html = await req(url)
+    const html = await req(url, { headers: this.headers })
     const $ = kitty.load(html)
 
     return $('.myui-vodlist__box').toArray().map(item => {
@@ -53,7 +58,7 @@ export default class hdmoli implements Handle {
   // 详情页
   async getDetail() {
     const id = env.get<string>('movieId')
-    const html = await req(`${env.baseUrl}${id}`)
+    const html = await req(`${env.baseUrl}${id}`, { headers: this.headers })
     const $ = kitty.load(html)
 
     const title = $('h1.title, .myui-content__detail h1').first().text().trim()
@@ -78,7 +83,7 @@ export default class hdmoli implements Handle {
     const wd = env.get<string>('keyword') || ''
     const page = env.get<number>('page') || 1
     const url = `${env.baseUrl}/search.php?searchkey=${encodeURIComponent(wd)}&page=${page}`
-    const html = await req(url)
+    const html = await req(url, { headers: this.headers })
     const $ = kitty.load(html)
 
     return $('.myui-vodlist__box').toArray().map<IMovie>(item => {
@@ -97,7 +102,7 @@ export default class hdmoli implements Handle {
   // 播放页：提取 JS 中的 MP4 路径
   async parseIframe() {
     const iframe = env.get<string>('iframe')
-    const html = await req(`${env.baseUrl}${iframe}`)
+    const html = await req(`${env.baseUrl}${iframe}`, { headers: this.headers })
 
     const match = html.match(/var\\s+now\\s*=\\s*"([^"]+\\.mp4)"/)
     if (match) {

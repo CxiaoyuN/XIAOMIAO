@@ -94,29 +94,7 @@ export default class hanjukankan implements Handle {
   }
 
   async parseIframe() {
-    const iframe = env.get<string>('iframe')
-    const url = `${env.baseUrl}${iframe}`
-    const html = await req(url)
-
-    // 匹配 player_aaaa JSON
-    const match = html.match(/var\s+player_aaaa\s*=\s*(\{.*?\});/)
-    if (match) {
-      try {
-        const json = JSON.parse(match[1])
-        let playUrl = json.url || ""
-
-        // 去掉 player.hanjukankan.com 前缀
-        if (playUrl.includes("player.hanjukankan.com/player/?url=")) {
-          playUrl = playUrl.replace(/^https?:\/\/player\.hanjukankan\.com\/player\/\?url=/, "")
-        }
-
-        return playUrl
-      } catch (e) {
-        return url
-      }
-    }
-
-    // 兜底方案：直接返回补齐的播放页链接
-    return url
+    // 直接调用工具函数，自动解析 player_aaaa.url
+    return kitty.utils.getM3u8WithIframe(env)
   }
 }

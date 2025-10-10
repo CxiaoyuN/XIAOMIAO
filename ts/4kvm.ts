@@ -38,15 +38,15 @@ export default class fourkvm implements Handle {
     const html = await req(url, { headers: this.headers })
     const $ = kitty.load(html)
 
-    return $('.post-box').toArray().map(item => {
-      const a = $(item).find('a').first()
-      const id = a.attr('href') ?? ""
-      const title = $(item).find('.post-title').text().trim()
-      let cover = $(item).find('img').attr('data-src') ?? ""
+    return $('article.item.tvshows').toArray().map(item => {
+      const title = $(item).find('h3 a').text().trim()
+      const id = $(item).find('h3 a').attr('href') ?? ""
+      let cover = $(item).find('.poster img').attr('src') ?? ""
       if (cover.startsWith('//')) cover = 'https:' + cover
-      const remark = $(item).find('.post-rate').text().trim()
-      const desc = $(item).find('.post-excerpt').text().trim()
-      return { id, title, cover, remark, desc }
+      const remark = $(item).find('.rating').text().trim()
+      const desc = $(item).find('.texto').text().trim()
+      const genres = $(item).find('.genres a').toArray().map(a => $(a).text().trim()).join(' / ')
+      return { id, title, cover, remark, desc: genres ? `${desc}（类型：${genres}）` : desc }
     })
   }
 
@@ -80,13 +80,12 @@ export default class fourkvm implements Handle {
     const html = await req(url, { headers: this.headers })
     const $ = kitty.load(html)
 
-    return $('.post-box').toArray().map<IMovie>(item => {
-      const a = $(item).find('a').first()
-      const id = a.attr('href') ?? ""
-      const title = $(item).find('.post-title').text().trim()
-      let cover = $(item).find('img').attr('data-src') ?? ""
+    return $('article.item.tvshows').toArray().map<IMovie>(item => {
+      const title = $(item).find('h3 a').text().trim()
+      const id = $(item).find('h3 a').attr('href') ?? ""
+      let cover = $(item).find('.poster img').attr('src') ?? ""
       if (cover.startsWith('//')) cover = 'https:' + cover
-      const remark = $(item).find('.post-rate').text().trim()
+      const remark = $(item).find('.rating').text().trim()
       return { id, title, cover, desc: '', remark, playlist: [] }
     })
   }
@@ -96,7 +95,7 @@ export default class fourkvm implements Handle {
     const iframe = env.get<string>('iframe')
     const html = await req(`${env.baseUrl}${iframe}`, { headers: this.headers })
 
-    const match = html.match(/var\\s+now\\s*=\\s*"([^"]+\\.mp4)"/)
+    const match = html.match(/var\s+now\s*=\s*"([^"]+\.mp4)"/)
     if (match) {
       const mp4Path = match[1]
       return `https://v.damoli.pro/v/${mp4Path}`

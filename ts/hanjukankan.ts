@@ -52,13 +52,13 @@ export default class hanjukankan implements Handle {
                   $('.module-info-poster img, .pic img').attr('src') || ""
     const desc = $('.module-info-introduction, .content_desc, .vod_content').text().trim()
 
-    // 多线路支持
     const playlist: IPlaylist[] = []
     $('.module-play-list').each((i, el) => {
       const lineTitle = $(el).find('.module-tab-item, .title').text().trim() || `线路${i+1}`
-      const videos = $(el).find('li').toArray().map(li => {
-        const a = $(li).find('a').first()
-        return { id: a.attr('href') ?? "", text: a.text().trim() }
+      const videos = $(el).find('a').toArray().map(a => {
+        const href = $(a).attr('href') ?? ""
+        const text = $(a).text().trim()
+        return { id: href, text }
       })
       playlist.push({ title: lineTitle, videos })
     })
@@ -96,25 +96,20 @@ export default class hanjukankan implements Handle {
   async parseIframe() {
     const iframe = env.get<string>('iframe')
     const html = await req(`${env.baseUrl}${iframe}`)
-    const $ = kitty.load(html)
 
-    // 常见播放器容器
-    let playUrl = $('#mse').attr('data-url') ||
-                  $('video source').attr('src') ||
-                  $('video').attr('src') ||
-                  ""
-
-    if (!playUrl) {
-      const ifr = $('iframe').attr('src') || ""
-      if (ifr) {
-        const subHtml = await req(ifr.startsWith('http') ? ifr : `${env.baseUrl}${ifr}`)
-        const _$ = kitty.load(subHtml)
-        playUrl = _$('#mse').attr('data-url') ||
-                  _$('video source').attr('src') ||
-                  _$('video').attr('src') ||
-                  ""
+    // 匹配 player_aaaa JSON
+    const match = html.match(/var\\s+player_aaaa\\s*=\\s*(\\{.*?\\});/)
+    if (match) {
+      try {
+        const json = JSON.parse(match[1])
+        return json.url || ""
+      } catch (e) {
+        // ignore
       }
     }
-    return playUrl
+
+    // 兜底方案
+    const $ = kitty.load(html)
+    return $('video source').attr('src') || $('video').attr('src') || ""
   }
 }

@@ -87,20 +87,23 @@ export default class xlys implements Handle {
     const title = $('h1, .card-title').first().text().trim()
     let cover = $('.poster img, .module-info-poster img').attr('src') || ""
     if (cover.startsWith('//')) cover = 'https:' + cover
-    const desc = $('.desc, .module-info-introduction').text().trim()
 
+    // 摘要
+    const remark = $('strong:contains("摘要")').next('span').text().trim()
+
+    // 剧情简介
+    const desc = $('#synopsis .card-body').text().trim()
+
+    // 播放列表
     const playlist: IPlaylist[] = []
-    $('.stui-content__playlist, .playlist, .module-play-list').each((i, el) => {
-      const lineTitle = $(el).prev().text().trim() || `线路${i+1}`
-      const videos = $(el).find('a').toArray().map(a => {
-        const href = $(a).attr('href') ?? ""
-        const text = $(a).text().trim()
-        return { id: href, text }
-      })
-      if (videos.length) playlist.push({ title: lineTitle, videos })
+    const videos = $('#play-list a').toArray().map((a, i) => {
+      const href = $(a).attr('href') ?? ""
+      const text = $(a).text().trim() || `第${i + 1}集`
+      return { id: href, text }
     })
+    if (videos.length) playlist.push({ title: '默认线路', videos })
 
-    return { id, title, cover, desc, playlist }
+    return { id, title, cover, desc, remark, playlist }
   }
 
   async getSearch() {

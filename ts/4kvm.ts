@@ -16,7 +16,6 @@ export default class fourkvm implements Handle {
     'User-Agent': 'Mozilla/5.0 (iPhone; CPU iPhone OS 15_0 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/15.0 Mobile/15E148 Safari/604.1'
   }
 
-  // 分类导航（来自你贴的 HTML）
   async getCategory() {
     return [
       { text: "电影", id: "/movies" },
@@ -24,12 +23,10 @@ export default class fourkvm implements Handle {
       { text: "国产剧", id: "/classify/guochan" },
       { text: "韩剧", id: "/classify/hanju" },
       { text: "番剧", id: "/classify/fanju" },
-      { text: "高分电影", id: "/imdb" },
       { text: "热门播放", id: "/trending" },
     ]
   }
 
-  // 分类/首页列表
   async getHome() {
     const cate = env.get<string>('category') || '/movies'
     const page = env.get<number>('page') || 1
@@ -38,7 +35,7 @@ export default class fourkvm implements Handle {
     const html = await req(url, { headers: this.headers })
     const $ = kitty.load(html)
 
-    return $('article.item.tvshows').toArray().map(item => {
+    const items = $('article.item.tvshows, article.item.movies').toArray().map(item => {
       const title = $(item).find('h3 a').text().trim()
       const id = $(item).find('h3 a').attr('href') ?? ""
       let cover = $(item).find('.poster img').attr('src') ?? ""
@@ -48,9 +45,10 @@ export default class fourkvm implements Handle {
       const genres = $(item).find('.genres a').toArray().map(a => $(a).text().trim()).join(' / ')
       return { id, title, cover, remark, desc: genres ? `${desc}（类型：${genres}）` : desc }
     })
+
+    return items
   }
 
-  // 详情页
   async getDetail() {
     const id = env.get<string>('movieId')
     const html = await req(`${env.baseUrl}${id}`, { headers: this.headers })
@@ -72,7 +70,6 @@ export default class fourkvm implements Handle {
     return { id, title, cover, desc, playlist }
   }
 
-  // 搜索页
   async getSearch() {
     const wd = env.get<string>('keyword') || ''
     const page = env.get<number>('page') || 1
@@ -80,7 +77,7 @@ export default class fourkvm implements Handle {
     const html = await req(url, { headers: this.headers })
     const $ = kitty.load(html)
 
-    return $('article.item.tvshows').toArray().map<IMovie>(item => {
+    return $('article.item.tvshows, article.item.movies').toArray().map<IMovie>(item => {
       const title = $(item).find('h3 a').text().trim()
       const id = $(item).find('h3 a').attr('href') ?? ""
       let cover = $(item).find('.poster img').attr('src') ?? ""
@@ -90,7 +87,6 @@ export default class fourkvm implements Handle {
     })
   }
 
-  // 播放页：提取 JS 中的 MP4 路径
   async parseIframe() {
     const iframe = env.get<string>('iframe')
     const html = await req(`${env.baseUrl}${iframe}`, { headers: this.headers })

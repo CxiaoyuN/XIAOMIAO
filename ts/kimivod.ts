@@ -1,6 +1,3 @@
-// ts/kimivod.ts
-// 小猫影视 JS 扩展源：Kimivod.com
-
 export default class kimivod implements Handle {
   getConfig() {
     return <Iconfig>{
@@ -18,15 +15,16 @@ export default class kimivod implements Handle {
 
   async getCategory() {
     return [
-      { text: "电影", id: "/vod/type/id/1.html" },
-      { text: "电视剧", id: "/vod/type/id/2.html" },
-      { text: "动漫", id: "/vod/type/id/4.html" },
-      { text: "综艺", id: "/vod/type/id/3.html" },
+      { text: "電視劇", id: "/vod/show/id/1.html" },
+      { text: "電影", id: "/vod/show/id/2.html" },
+      { text: "動漫", id: "/vod/show/id/3.html" },
+      { text: "綜藝", id: "/vod/show/id/4.html" },
+      { text: "短劇", id: "/vod/show/id/39.html" },
     ]
   }
 
   async getHome() {
-    const cate = env.get<string>('category') || '/vod/type/id/1.html'
+    const cate = env.get<string>('category') || '/vod/show/id/1.html'
     const page = env.get<number>('page') || 1
     const url = page === 1
       ? `${env.baseUrl}${cate}`
@@ -35,13 +33,13 @@ export default class kimivod implements Handle {
     const html = await req(url, { headers: this.headers })
     const $ = kitty.load(html)
 
-    return $('.module-poster-item').toArray().map(item => {
+    return $('.grid.container_list .post').toArray().map(item => {
       const a = $(item).find('a').first()
       const id = a.attr('href') ?? ""
-      const title = $(item).find('.module-poster-item-title').text().trim()
+      const title = a.attr('title')?.trim() ?? $(item).find('div').last().text().trim()
       let cover = $(item).find('img').attr('data-src') ?? ""
       if (cover.startsWith('//')) cover = 'https:' + cover
-      const remark = $(item).find('.module-item-note').text().trim()
+      const remark = $(item).find('.absolute').text().trim()
       return { id, title, cover, remark, desc: '' }
     })
   }
@@ -59,9 +57,9 @@ export default class kimivod implements Handle {
     const playlist: IPlaylist[] = []
     $('.module-play-list').each((i, el) => {
       const groupTitle = $(el).find('.module-play-list-title').text().trim() || `线路${i + 1}`
-      const videos = $(el).find('a').toArray().map(a => {
+      const videos = $(el).find('a').toArray().map((a, i) => {
         const href = $(a).attr('href') ?? ""
-        const text = $(a).text().trim()
+        const text = $(a).text().trim() || `第${i + 1}集`
         return { id: href, text }
       })
       if (videos.length) playlist.push({ title: groupTitle, videos })
@@ -77,13 +75,13 @@ export default class kimivod implements Handle {
     const html = await req(url, { headers: this.headers })
     const $ = kitty.load(html)
 
-    return $('.module-poster-item').toArray().map<IMovie>(item => {
+    return $('.grid.container_list .post').toArray().map<IMovie>(item => {
       const a = $(item).find('a').first()
       const id = a.attr('href') ?? ""
-      const title = $(item).find('.module-poster-item-title').text().trim()
+      const title = a.attr('title')?.trim() ?? $(item).find('div').last().text().trim()
       let cover = $(item).find('img').attr('data-src') ?? ""
       if (cover.startsWith('//')) cover = 'https:' + cover
-      const remark = $(item).find('.module-item-note').text().trim()
+      const remark = $(item).find('.absolute').text().trim()
       return { id, title, cover, desc: '', remark, playlist: [] }
     })
   }

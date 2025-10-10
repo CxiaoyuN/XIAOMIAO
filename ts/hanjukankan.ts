@@ -75,7 +75,8 @@ export default class hanjukankan implements Handle {
   async getSearch() {
     const wd = env.get<string>('keyword')
     const page = env.get<number>('page') || 1
-    const url = `${env.baseUrl}/vodsearch.html?wd=${encodeURIComponent(wd)}&page=${page}`
+    // 按你指定的常规接口
+    const url = `${env.baseUrl}/xvseabcdefghigklm.html?wd=${encodeURIComponent(wd)}&page=${page}`
     const html = await req(url)
     const $ = kitty.load(html)
 

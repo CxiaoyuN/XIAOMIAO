@@ -103,9 +103,16 @@ export default class hanjukankan implements Handle {
     if (match) {
       try {
         const json = JSON.parse(match[1])
-        if (json.url) return json.url
+        let playUrl = json.url || ""
+
+        // 去掉 player.hanjukankan.com 前缀
+        if (playUrl.includes("player.hanjukankan.com/player/?url=")) {
+          playUrl = playUrl.replace(/^https?:\/\/player\.hanjukankan\.com\/player\/\?url=/, "")
+        }
+
+        return playUrl
       } catch (e) {
-        // ignore
+        return url
       }
     }
 

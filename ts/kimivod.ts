@@ -15,7 +15,7 @@ export default class kimivod implements Handle {
 
   async getCategory() {
     return [
-      { text: "電視劇", id: "/vod/show/id/1.html" },
+      { text: "電視", id: "/vod/show/id/1.html" },
       { text: "電影", id: "/vod/show/id/2.html" },
       { text: "動漫", id: "/vod/show/id/3.html" },
       { text: "綜藝", id: "/vod/show/id/4.html" },
@@ -55,11 +55,12 @@ export default class kimivod implements Handle {
     const desc = $('.module-info-introduction p').text().trim()
 
     const playlist: IPlaylist[] = []
-    $('.module-play-list').each((i, el) => {
-      const groupTitle = $(el).find('.module-play-list-title').text().trim() || `线路${i + 1}`
-      const videos = $(el).find('a').toArray().map((a, i) => {
+    $('.tabs a[data-ui]').each((i, tab) => {
+      const tabId = $(tab).attr('data-ui') ?? ""
+      const groupTitle = $(tab).find('span').text().trim() || `线路${i + 1}`
+      const videos = $(`${tabId} a`).toArray().map((a, j) => {
         const href = $(a).attr('href') ?? ""
-        const text = $(a).text().trim() || `第${i + 1}集`
+        const text = $(a).text().trim() || `第${j + 1}集`
         return { id: href, text }
       })
       if (videos.length) playlist.push({ title: groupTitle, videos })
@@ -88,6 +89,13 @@ export default class kimivod implements Handle {
 
   async parseIframe() {
     const iframe = env.get<string>('iframe')
+    const html = await req(`${env.baseUrl}${iframe}`, { headers: this.headers })
+
+    const match = html.match(/file\s*:\s*"([^"]+\.m3u8)"/)
+    if (match) {
+      return match[1]
+    }
+
     return `${env.baseUrl}${iframe}`
   }
 }

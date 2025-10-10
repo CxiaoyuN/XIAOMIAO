@@ -99,13 +99,13 @@ export default class hanjukankan implements Handle {
     const html = await req(`${env.baseUrl}${iframe}`)
 
     // 匹配 player_aaaa JSON
-    const match = html.match(/var\\s+player_aaaa\\s*=\\s*(\\{.*?\\});/)
+    const match = html.match(/var\s+player_aaaa\s*=\s*(\{.*?\});/)
     if (match) {
       try {
         const json = JSON.parse(match[1])
         return json.url || ""
       } catch (e) {
-        // ignore
+        return ""
       }
     }
 

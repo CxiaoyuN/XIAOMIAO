@@ -124,8 +124,33 @@ export default class xlys implements Handle {
     })
   }
 
-  async parseIframe() {
-    // 优先用工具函数解析 m3u8
-    return kitty.utils.getM3u8WithIframe(env)
+  // 🌱 简化版：直接返回播放页 URL
+  async parseIframeSimple() {
+    const iframe = env.get<string>('iframe')
+    return `${env.baseUrl}${iframe}`
+  }
+
+  // 🚀 增强版：尝试解析 lines 接口 → m3u8
+  //  async parseIframe() {
+  //    const iframe = env.get<string>('iframe')
+  //    const html = await req(`${env.baseUrl}${iframe}`)
+
+    // 1. 匹配 lines 接口地址
+  //    const match = html.match(/\/lines\?[^'"]+/)
+  //    if (match) {
+  //      const apiUrl = `${env.baseUrl}${match[0]}`
+  //      const json = await req(apiUrl, { headers: { 'Referer': env.baseUrl } })
+  //      const data = JSON.parse(json).data
+
+      // 2. 优先 m3u8_2，其次 m3u8，再次 url3
+  //      let playUrl = data.m3u8_2?.split(',')[0] || data.m3u8 || data.url3
+  //      if (playUrl) {
+  //        playUrl = playUrl.replace(/\.png#.+$/, '.m3u8')
+  //        return playUrl
+  //     }
+  //    }
+
+    // 3. 兜底：返回播放页 URL
+    return `${env.baseUrl}${iframe}`
   }
 }

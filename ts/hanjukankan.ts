@@ -1,4 +1,4 @@
-//import { req, kitty, createTestEnv } from "utils"
+import { req, kitty, createTestEnv } from "utils"
 
 // 小猫影视 JS 扩展源：韩剧看看
 // 作者：花专用
@@ -78,21 +78,23 @@ export default class hanjukankan implements Handle {
 
   async getSearch() {
     const wd = env.get<string>('keyword')
-    const page = env.get<number>('page')
+    const page = env.get<number>('page') || 1
     const url = `${env.baseUrl}/xvseabcdefghigklm.html?wd=${encodeURIComponent(wd)}&page=${page}`
     const html = await req(url)
     const $ = kitty.load(html)
 
-    return $('.module-items .module-item').toArray().map(item => {
-      const a = $(item).find("a")
-      const img = $(item).find('img').first()
-      return {
-        id: a.attr('href') ?? "",
-        title: a.attr('title') || img.attr('alt') || "",
-        cover: img.attr('data-original') || img.attr('src') || "",
-        remark: $(item).find('.module-item-note').text().trim() || ""
-      }
-    })
+    return $('.module-poster-item')
+      .toArray()
+      .map(item => {
+        const a = $(item).first()
+        const img = $(item).find('img').first()
+        return {
+          id: a.attr('href') ?? "",
+          title: a.attr('title') || img.attr('alt') || "",
+          cover: img.attr('data-original') || img.attr('src') || "",
+          remark: $(item).find('.module-item-note').text().trim() || ""
+        }
+      })
   }
 
   async parseIframe() {
@@ -101,16 +103,16 @@ export default class hanjukankan implements Handle {
 }
 
 // TEST
-//const env = createTestEnv("https://www.hanjukankan.com")
-//const call = new hanjukankan();
-//(async () => {
-//  const cates = await call.getCategory()
-//  env.set("category", cates[0].id)
-//  env.set("page", 1)
-//  const home = await call.getHome()
-//  env.set("keyword", "爱情")
-//  const search = await call.getSearch()
-//  env.set("movieId", search[0].id)
-//  const detail = await call.getDetail()
-//  debugger
-//})()
+const env = createTestEnv("https://www.hanjukankan.com")
+const call = new hanjukankan();
+(async () => {
+  const cates = await call.getCategory()
+  env.set("category", cates[0].id)
+  env.set("page", 1)
+  const home = await call.getHome()
+  env.set("keyword", "爱情")
+  const search = await call.getSearch()
+  env.set("movieId", search[0].id)
+  const detail = await call.getDetail()
+  debugger
+})()

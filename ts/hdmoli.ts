@@ -5,7 +5,7 @@ export default class hdmoli implements Handle {
   getConfig() {
     return <Iconfig>{
       id: "hdmoli$",
-      name: "HDmoli",
+      name: "HDmoli_WEB",
       type: 1,
       nsfw: false,
       api: "https://hdmoli.pro",

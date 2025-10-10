@@ -75,7 +75,6 @@ export default class hanjukankan implements Handle {
   async getSearch() {
     const wd = env.get<string>('keyword')
     const page = env.get<number>('page') || 1
-    // 按你指定的常规接口
     const url = `${env.baseUrl}/xvseabcdefghigklm.html?wd=${encodeURIComponent(wd)}&page=${page}`
     const html = await req(url)
     const $ = kitty.load(html)
@@ -96,21 +95,21 @@ export default class hanjukankan implements Handle {
 
   async parseIframe() {
     const iframe = env.get<string>('iframe')
-    const html = await req(`${env.baseUrl}${iframe}`)
+    const url = `${env.baseUrl}${iframe}`
+    const html = await req(url)
 
     // 匹配 player_aaaa JSON
     const match = html.match(/var\s+player_aaaa\s*=\s*(\{.*?\});/)
     if (match) {
       try {
         const json = JSON.parse(match[1])
-        return json.url || ""
+        if (json.url) return json.url
       } catch (e) {
-        return ""
+        // ignore
       }
     }
 
-    // 兜底方案
-    const $ = kitty.load(html)
-    return $('video source').attr('src') || $('video').attr('src') || ""
+    // 兜底方案：直接返回补齐的播放页链接
+    return url
   }
 }

@@ -2,7 +2,7 @@ export default class kimivod implements Handle {
   getConfig() {
     return <Iconfig>{
       id: "kimivod$",
-      name: "Kimivod",
+      name: "KimiVod",
       type: 1,
       nsfw: false,
       api: "https://kimivod.com",
@@ -15,7 +15,7 @@ export default class kimivod implements Handle {
 
   async getCategory() {
     return [
-      { text: "電視劇", id: "/vod/show/id/1.html" },
+      { text: "電視", id: "/vod/show/id/1.html" },
       { text: "電影", id: "/vod/show/id/2.html" },
       { text: "動漫", id: "/vod/show/id/3.html" },
       { text: "綜藝", id: "/vod/show/id/4.html" },
@@ -33,7 +33,17 @@ export default class kimivod implements Handle {
     const html = await req(url, { headers: this.headers })
     const $ = kitty.load(html)
 
-    return $('.grid.container_list .post').toArray().map(item => {
+    const items = $('.grid.container_list .post').toArray()
+    if (items.length === 0) {
+      // 短剧或特殊结构处理
+      return $('a[href*="/vod/"]').toArray().map(a => {
+        const id = $(a).attr('href') ?? ""
+        const title = $(a).text().trim()
+        return { id, title, cover: '', remark: '', desc: '' }
+      })
+    }
+
+    return items.map(item => {
       const a = $(item).find('a').first()
       const id = a.attr('href') ?? ""
       const title = a.attr('title')?.trim() ?? $(item).find('div').last().text().trim()
@@ -57,18 +67,25 @@ export default class kimivod implements Handle {
       || $('span.right-align').text().trim()
 
     const playlist: IPlaylist[] = []
-    $('.tabs a[data-ui]').each((i, tab) => {
-      const tabId = $(tab).attr('data-ui') ?? ""
-      const groupTitle = $(tab).find('span').text().trim() || `线路${i + 1}`
-      const videos = $(`${tabId} .playno a`).toArray().map((a, j) => {
-        const href = $(a).attr('href') ?? ""
-        const text = $(a).text().trim() || `第${j + 1}集`
-        return { id: href, text }
+    const tabs = $('.tabs a[data-ui]')
+    if (tabs.length) {
+      tabs.each((i, tab) => {
+        const tabId = $(tab).attr('data-ui') ?? ""
+        const groupTitle = $(tab).find('span').text().trim() || `线路${i + 1}`
+        const videos = $(`${tabId} .playno a`).toArray().map((a, j) => {
+          const href = $(a).attr('href') ?? ""
+          const text = $(a).text().trim() || `第${j + 1}集`
+          return { id: href, text }
+        })
+        if (videos.length) playlist.push({ title: groupTitle, videos })
       })
-      if (videos.length) playlist.push({ title: groupTitle, videos })
-    })
+    } else {
+      // 单集结构处理
+      const single = $('a[href*="/vod/"][class*="play"]').attr('href')
+      if (single) playlist.push({ title: '單集', videos: [{ id: single, text: '播放' }] })
+    }
 
-    // ✅ 自动提取每一集的真实播放地址
+    // 自动提取每集真实播放地址
     for (const line of playlist) {
       for (const video of line.videos) {
         const html = await req(`${env.baseUrl}${video.id}`, { headers: this.headers })
@@ -83,18 +100,18 @@ export default class kimivod implements Handle {
   async getSearch() {
     const wd = env.get<string>('keyword') || ''
     const page = env.get<number>('page') || 1
-    const url = `${env.baseUrl}/vod/search/page/${page}/wd/${encodeURIComponent(wd)}.html`
+    const url = page === 1
+      ? `https://cn.kimivod.com/search.php?searchword=${encodeURIComponent(wd)}`
+      : `https://cn.kimivod.com/search.php?searchword=${encodeURIComponent(wd)}&page=${page}`
+
     const html = await req(url, { headers: this.headers })
     const $ = kitty.load(html)
 
-    return $('.grid.container_list .post').toArray().map<IMovie>(item => {
-      const a = $(item).find('a').first()
-      const id = a.attr('href') ?? ""
-      const title = a.attr('title')?.trim() ?? $(item).find('div').last().text().trim()
-      let cover = $(item).find('img').attr('data-src') ?? ""
-      if (cover.startsWith('//')) cover = 'https:' + cover
-      const remark = $(item).find('.absolute').text().trim()
-      return { id, title, cover, desc: '', remark, playlist: [] }
+    return $('a[href*="/vod/"]').toArray().map((a, i) => {
+      const id = $(a).attr('href') ?? ""
+      const title = $(a).text().trim()
+      const remark = $(a).prev().text().trim().match(/(已完結|HD中字|更新至第\d+集)/)?.[0] ?? ""
+      return { id, title, cover: '', desc: '', remark, playlist: [] }
     })
   }
 

@@ -9,6 +9,10 @@ export default class hdmoli implements Handle {
       type: 1,
       nsfw: false,
       api: "https://hdmoli.pro",
+      extra: {
+        gfw: false,
+        searchLimit: 16,
+      }
     }
   }
 
@@ -25,7 +29,6 @@ export default class hdmoli implements Handle {
   async getHome() {
     const cate = env.get<string>('category') || '/mlist/index1.html'
     const page = env.get<number>('page') || 1
-    // 分页规则：index2.html → index2-2.html
     const url = page === 1
       ? `${env.baseUrl}${cate}`
       : `${env.baseUrl}${cate.replace('.html', '')}-${page}.html`
@@ -70,7 +73,7 @@ export default class hdmoli implements Handle {
     return { id, title, cover, desc, playlist }
   }
 
-  // 搜索
+  // 搜索页
   async getSearch() {
     const wd = env.get<string>('keyword') || ''
     const page = env.get<number>('page') || 1
@@ -91,9 +94,17 @@ export default class hdmoli implements Handle {
     })
   }
 
-  // 播放：直接返回播放页 URL
+  // 播放页：提取 JS 中的 MP4 路径
   async parseIframe() {
     const iframe = env.get<string>('iframe')
+    const html = await req(`${env.baseUrl}${iframe}`)
+
+    const match = html.match(/var\\s+now\\s*=\\s*"([^"]+\\.mp4)"/)
+    if (match) {
+      const mp4Path = match[1]
+      return `https://v.damoli.pro/v/${mp4Path}`
+    }
+
     return `${env.baseUrl}${iframe}`
   }
 }

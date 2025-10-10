@@ -90,12 +90,6 @@ export default class kimivod implements Handle {
   async parseIframe() {
     const iframe = env.get<string>('iframe')
     const html = await req(`${env.baseUrl}${iframe}`, { headers: this.headers })
-
-    const match = html.match(/file\s*:\s*"([^"]+\.m3u8)"/)
-    if (match) {
-      return match[1]
-    }
-
-    return `${env.baseUrl}${iframe}`
+    return kitty.utils.getM3u8WithStr(html)
   }
 }

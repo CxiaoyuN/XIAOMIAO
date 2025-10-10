@@ -15,7 +15,7 @@ export default class kimivod implements Handle {
 
   async getCategory() {
     return [
-      { text: "電視", id: "/vod/show/id/1.html" },
+      { text: "電視劇", id: "/vod/show/id/1.html" },
       { text: "電影", id: "/vod/show/id/2.html" },
       { text: "動漫", id: "/vod/show/id/3.html" },
       { text: "綜藝", id: "/vod/show/id/4.html" },
@@ -53,11 +53,9 @@ export default class kimivod implements Handle {
     let cover = $('.module-info-poster img').attr('data-src') ?? ""
     if (cover.startsWith('//')) cover = 'https:' + cover
 
-    // 简介提取：从影片簡介区块中抓取
     const desc = $('details summary:contains("影片簡介")').next('p').text().trim()
       || $('span.right-align').text().trim()
 
-    // 播放列表提取：从 tabs 和对应 page 区块中抓取
     const playlist: IPlaylist[] = []
     $('.tabs a[data-ui]').each((i, tab) => {
       const tabId = $(tab).attr('data-ui') ?? ""
@@ -69,6 +67,15 @@ export default class kimivod implements Handle {
       })
       if (videos.length) playlist.push({ title: groupTitle, videos })
     })
+
+    // ✅ 自动提取每一集的真实播放地址
+    for (const line of playlist) {
+      for (const video of line.videos) {
+        const html = await req(`${env.baseUrl}${video.id}`, { headers: this.headers })
+        const m3u8 = kitty.utils.getM3u8WithStr(html)
+        video.id = m3u8
+      }
+    }
 
     return { id, title, cover, desc, playlist }
   }

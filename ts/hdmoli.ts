@@ -22,11 +22,11 @@ export default class hdmoli implements Handle {
     ]
   }
 
-  // 首页/分类列表
+  // 分类/首页列表
   async getHome() {
     const cate = env.get<string>('category') || '/mlist/index1.html'
     const page = env.get<number>('page') || 1
-    // 分页规则：index2.html → index2-2.html
+    // HDmoli 分页规则：index2.html → index2-2.html
     const url = page === 1
       ? `${env.baseUrl}${cate}`
       : `${env.baseUrl}${cate.replace('.html', '')}-${page}.html`
@@ -56,7 +56,7 @@ export default class hdmoli implements Handle {
     let cover = $('.myui-content__thumb img').attr('data-original') || ""
     if (cover.startsWith('//')) cover = 'https:' + cover
 
-    const desc = $('.myui-content__detail p.text-muted').text().trim()
+    const desc = $('.myui-content__detail p.text-muted, .myui-panel p.text-muted').text().trim()
 
     // 播放列表
     const playlist: IPlaylist[] = []

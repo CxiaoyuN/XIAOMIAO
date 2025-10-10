@@ -6,7 +6,7 @@ export default class xlys implements Handle {
   getConfig() {
     return <Iconfig>{
       id: "xlys$",
-      name: "修罗影视",
+      name: "修罗影视_WEB",
       type: 1,
       nsfw: false,
       api: "https://xl01.com.de",

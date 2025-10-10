@@ -26,10 +26,10 @@ export default class hdmoli implements Handle {
   async getHome() {
     const cate = env.get<string>('category') || '/mlist/index1.html'
     const page = env.get<number>('page') || 1
-    // HDmoli 分页规则：index1.html → index1_2.html
+    // HDmoli 分页规则：index2.html → index2-2.html
     const url = page === 1
       ? `${env.baseUrl}${cate}`
-      : `${env.baseUrl}${cate.replace('.html', '')}_${page}.html`
+      : `${env.baseUrl}${cate.replace('.html', '')}-${page}.html`
 
     const html = await req(url)
     const $ = kitty.load(html)

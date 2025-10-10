@@ -1914,12 +1914,12 @@
   {
     "id": "hsck.app",
     "name": "黄色仓库",
-    "api": "http://6613ck.cc",
+    "api": "http://6614ck.cc",
     "type": 1,
     "nsfw": true,
     "extra": {
       "gfw": false,
-      "searchLimit": 36,
+      "searchLimit": 16,
       "js": {
         "category": [
           {

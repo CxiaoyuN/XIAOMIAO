@@ -1,6 +1,3 @@
-// ts/4kvm.ts
-// 小猫影视 JS 扩展源：4kvm.net
-
 export default class fourkvm implements Handle {
   getConfig() {
     return <Iconfig>{
@@ -60,7 +57,7 @@ export default class fourkvm implements Handle {
     const desc = $('.entry-content p').first().text().trim()
 
     const playlist: IPlaylist[] = []
-    const videos = $('.entry-content a[href*="/play/"]').toArray().map((a, i) => {
+    const videos = $('.entry-content a[href*="/play/"], .entry-content a[href*="/artplayer?id="]').toArray().map((a, i) => {
       const href = $(a).attr('href') ?? ""
       const text = $(a).text().trim() || `第${i + 1}集`
       return { id: href, text }
@@ -89,8 +86,14 @@ export default class fourkvm implements Handle {
 
   async parseIframe() {
     const iframe = env.get<string>('iframe')
-    const html = await req(`${env.baseUrl}${iframe}`, { headers: this.headers })
 
+    // 🎬 如果是电影播放页，直接返回链接作为直链
+    if (iframe.includes('/artplayer?id=')) {
+      return `${env.baseUrl}${iframe}`
+    }
+
+    // 📺 如果是剧集播放页，提取 MP4 路径
+    const html = await req(`${env.baseUrl}${iframe}`, { headers: this.headers })
     const match = html.match(/var\s+now\s*=\s*"([^"]+\.mp4)"/)
     if (match) {
       const mp4Path = match[1]

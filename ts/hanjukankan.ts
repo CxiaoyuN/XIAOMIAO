@@ -14,7 +14,6 @@ export default class hanjukankan implements Handle {
   }
 
   async getCategory() {
-    // 三大分类：韩剧、韩影、韩综
     return [
       { text: "韩剧", id: "/xvs1xatxbtxctxdtxetxftxgtxhtatbtct.html" },
       { text: "韩影", id: "/xvs2xatxbtxctxdtxetxftxgtxhtatbtct.html" },
@@ -32,7 +31,7 @@ export default class hanjukankan implements Handle {
     return $('.module-poster-item')
       .toArray()
       .map(item => {
-        const a = $(item).find('a').first()
+        const a = $(item).first()
         const img = $(item).find('img').first()
         return {
           id: a.attr('href') ?? "",
@@ -51,19 +50,25 @@ export default class hanjukankan implements Handle {
     const title = $('h1, .title, .module-info-heading .module-info-title').text().trim()
     const cover = $('.module-info-poster img, .pic img').attr('data-original') ||
                   $('.module-info-poster img, .pic img').attr('src') || ""
+    const desc = $('.module-info-introduction, .content_desc, .vod_content').text().trim()
 
-    const videos = $('.module-play-list li, .playlist li')
-      .toArray()
-      .map(li => {
+    // 多线路支持
+    const playlist: IPlaylist[] = []
+    $('.module-play-list').each((i, el) => {
+      const lineTitle = $(el).find('.module-tab-item, .title').text().trim() || `线路${i+1}`
+      const videos = $(el).find('li').toArray().map(li => {
         const a = $(li).find('a').first()
         return { id: a.attr('href') ?? "", text: a.text().trim() }
       })
+      playlist.push({ title: lineTitle, videos })
+    })
 
     return {
       id,
       title,
       cover,
-      playlist: [{ title: "默认", videos }]
+      desc,
+      playlist
     }
   }
 
@@ -77,7 +82,7 @@ export default class hanjukankan implements Handle {
     return $('.module-poster-item')
       .toArray()
       .map(item => {
-        const a = $(item).find('a').first()
+        const a = $(item).first()
         const img = $(item).find('img').first()
         return {
           id: a.attr('href') ?? "",
@@ -94,9 +99,22 @@ export default class hanjukankan implements Handle {
     const $ = kitty.load(html)
 
     // 常见播放器容器
-    return $('#mse').attr('data-url') ||
-           $('video source').attr('src') ||
-           $('iframe').attr('src') ||
-           ""
+    let playUrl = $('#mse').attr('data-url') ||
+                  $('video source').attr('src') ||
+                  $('video').attr('src') ||
+                  ""
+
+    if (!playUrl) {
+      const ifr = $('iframe').attr('src') || ""
+      if (ifr) {
+        const subHtml = await req(ifr.startsWith('http') ? ifr : `${env.baseUrl}${ifr}`)
+        const _$ = kitty.load(subHtml)
+        playUrl = _$('#mse').attr('data-url') ||
+                  _$('video source').attr('src') ||
+                  _$('video').attr('src') ||
+                  ""
+      }
+    }
+    return playUrl
   }
 }

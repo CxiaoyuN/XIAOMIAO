@@ -49,16 +49,20 @@ export default class kimivod implements Handle {
     const html = await req(`${env.baseUrl}${id}`, { headers: this.headers })
     const $ = kitty.load(html)
 
-    const title = $('.module-info-heading h1').text().trim()
+    const title = $('h1.title').text().trim()
     let cover = $('.module-info-poster img').attr('data-src') ?? ""
     if (cover.startsWith('//')) cover = 'https:' + cover
-    const desc = $('.module-info-introduction p').text().trim()
 
+    // 简介提取：从影片簡介区块中抓取
+    const desc = $('details summary:contains("影片簡介")').next('p').text().trim()
+      || $('span.right-align').text().trim()
+
+    // 播放列表提取：从 tabs 和对应 page 区块中抓取
     const playlist: IPlaylist[] = []
     $('.tabs a[data-ui]').each((i, tab) => {
       const tabId = $(tab).attr('data-ui') ?? ""
       const groupTitle = $(tab).find('span').text().trim() || `线路${i + 1}`
-      const videos = $(`${tabId} a`).toArray().map((a, j) => {
+      const videos = $(`${tabId} .playno a`).toArray().map((a, j) => {
         const href = $(a).attr('href') ?? ""
         const text = $(a).text().trim() || `第${j + 1}集`
         return { id: href, text }

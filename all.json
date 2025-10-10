@@ -1912,6 +1912,68 @@
     }
   },
   {
+    "id": "hsck.app",
+    "name": "黄色仓库",
+    "api": "http://6613ck.cc",
+    "type": 1,
+    "nsfw": true,
+    "extra": {
+      "gfw": false,
+      "searchLimit": 36,
+      "js": {
+        "category": [
+          {
+            "id": "1",
+            "text": "日韩AV"
+          },
+          {
+            "id": "2",
+            "text": "国产系列"
+          },
+          {
+            "id": "3",
+            "text": "欧美"
+          },
+          {
+            "id": "4",
+            "text": "成人动漫"
+          },
+          {
+            "id": "8",
+            "text": "无码中文字幕"
+          },
+          {
+            "id": "9",
+            "text": "有码中文字幕"
+          },
+          {
+            "id": "10",
+            "text": "日本无码"
+          },
+          {
+            "id": "7",
+            "text": "日本有码"
+          },
+          {
+            "id": "15",
+            "text": "国产视频"
+          },
+          {
+            "id": "21",
+            "text": "欧美高清"
+          },
+          {
+            "id": "22",
+            "text": "动漫剧情"
+          }
+        ],
+        "home": "const cate=env.get(\"category\");const page=env.get(\"page\");const url=`${env.baseUrl}/vodtype/${cate}-${page}.html`;const $=kitty.load(await req(url));return $(\".stui-vodlist.clearfix li\").toArray().map(item=>{const a=$(item).find(\"a\");const id=a.attr(\"href\")??\"\";if(!id.startsWith(\"/\"))return null;const title=a.attr(\"title\")??\"\";const cover=a.attr(\"data-original\")??\"\";return{id,title,cover}}).filter(item=>!!item)",
+        "detail": "const id=env.get(\"movieId\");const url=`${env.baseUrl}${id}`;const html=await req(url);const m3u8=kitty.utils.getM3u8WithStr(html);return{playlist:[{title:\"\\u9EC4\\u8272\\u4ED3\\u5E93\",videos:[{text:\"\\u64AD\\u653E\",url:m3u8}]}]}",
+        "search": "const wd=env.get(\"keyword\");const page=env.get(\"page\");const url=`${env.baseUrl}/vodsearch/${wd}----------${page}---.html`;const $=kitty.load(await req(url));return $(\".stui-vodlist.clearfix li\").toArray().map(item=>{const a=$(item).find(\"a\");const id=a.attr(\"href\")??\"\";if(!id.startsWith(\"/\"))return null;const title=a.attr(\"title\")??\"\";const cover=a.attr(\"data-original\")??\"\";return{id,title,cover}}).filter(item=>!!item)"
+      }
+    }
+  },
+  {
     "id": "javmove$",
     "name": "JavMove",
     "type": 1,

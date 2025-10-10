@@ -26,7 +26,7 @@ export default class hdmoli implements Handle {
   async getHome() {
     const cate = env.get<string>('category') || '/mlist/index1.html'
     const page = env.get<number>('page') || 1
-    // HDmoli 分页规则：index2.html → index2-2.html
+    // 分页规则：index2.html → index2-2.html
     const url = page === 1
       ? `${env.baseUrl}${cate}`
       : `${env.baseUrl}${cate.replace('.html', '')}-${page}.html`
@@ -52,20 +52,20 @@ export default class hdmoli implements Handle {
     const html = await req(`${env.baseUrl}${id}`)
     const $ = kitty.load(html)
 
-    const title = $('h1.title').first().text().trim()
+    const title = $('h1.title, .myui-content__detail h1').first().text().trim()
     let cover = $('.myui-content__thumb img').attr('data-original') || ""
     if (cover.startsWith('//')) cover = 'https:' + cover
 
-    const desc = $('.myui-panel p.text-muted:contains("简介")').text().trim()
+    const desc = $('.myui-content__detail p.text-muted').text().trim()
 
     // 播放列表
     const playlist: IPlaylist[] = []
-    const videos = $('#playlist1 a').toArray().map((a, i) => {
+    const videos = $('#playlist1 a, .stui-content__playlist a').toArray().map((a, i) => {
       const href = $(a).attr('href') ?? ""
       const text = $(a).text().trim() || `第${i + 1}集`
       return { id: href, text }
     })
-    if (videos.length) playlist.push({ title: '线路1', videos })
+    if (videos.length) playlist.push({ title: '默认线路', videos })
 
     return { id, title, cover, desc, playlist }
   }

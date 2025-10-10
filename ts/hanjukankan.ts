@@ -1,7 +1,6 @@
-// import { req, kitty, createTestEnv } from "utils"
-
 // 小猫影视 JS 扩展源：韩剧看看
 // 作者：花专用
+// import { req, kitty, createTestEnv } from "utils"
 export default class hanjukankan implements Handle {
   getConfig() {
     return <Iconfig>{
@@ -27,17 +26,23 @@ export default class hanjukankan implements Handle {
 
   async getHome() {
     const cate = env.get<string>('category')
-    const page = env.get<number>('page')
+    const page = env.get<number>('page') || 1
     const url = `${env.baseUrl}${cate}?page=${page}`
     const html = await req(url)
     const $ = kitty.load(html)
-    return $('a.module-poster-item.module-item').toArray().map(item => {
-      const id = $(item).attr("href") ?? ""
-      const title = $(item).attr("title") ?? ""
-      const cover = $(item).find("img").attr("data-original") ?? ""
-      const remark = $(item).find(".module-item-note").text().trim()
-      return { id, title, cover, remark }
-    })
+
+    return $('.module-poster-item')
+      .toArray()
+      .map(item => {
+        const a = $(item).first()
+        const img = $(item).find('img').first()
+        return {
+          id: a.attr('href') ?? "",
+          title: a.attr('title') || img.attr('alt') || "",
+          cover: img.attr('data-original') || img.attr('src') || "",
+          remark: $(item).find('.module-item-note').text().trim() || ""
+        }
+      })
   }
 
   async getDetail() {
@@ -47,12 +52,12 @@ export default class hanjukankan implements Handle {
 
     const title = $('h1, .title, .module-info-heading .module-info-title').text().trim()
     const cover = $('.module-info-poster img, .pic img').attr('data-original') ||
-      $('.module-info-poster img, .pic img').attr('src') || ""
+                  $('.module-info-poster img, .pic img').attr('src') || ""
     const desc = $('.module-info-introduction, .content_desc, .vod_content').text().trim()
 
     const playlist: IPlaylist[] = []
     $('.module-play-list').each((i, el) => {
-      const lineTitle = $(el).find('.module-tab-item, .title').text().trim() || `线路${i + 1}`
+      const lineTitle = $(el).find('.module-tab-item, .title').text().trim() || `线路${i+1}`
       const videos = $(el).find('a').toArray().map(a => {
         const href = $(a).attr('href') ?? ""
         const text = $(a).text().trim()
@@ -61,29 +66,36 @@ export default class hanjukankan implements Handle {
       playlist.push({ title: lineTitle, videos })
     })
 
-    return { id, title, cover, desc, playlist }
+    return {
+      id,
+      title,
+      cover,
+      desc,
+      playlist
+    }
   }
 
   async getSearch() {
-    const wd = env.get<string>('keyword')
-    const page = env.get<number>('page')
+    const wd = env.get<string>('keyword') || ''
+    const page = env.get<number>('page') || 1
     const url = `${env.baseUrl}/xvseabcdefghigklm.html?wd=${encodeURIComponent(wd)}&page=${page}`
     const html = await req(url)
     const $ = kitty.load(html)
 
-    return $('.module-items .module-item').toArray().map(item => {
-      const a = $(item).find("a")
-      const img = $(item).find('img').first()
-      return {
-        id: a.attr('href') ?? "",
-        title: a.attr('title') || img.attr('alt') || "",
-        cover: img.attr('data-original') || img.attr('src') || "",
-        remark: $(item).find('.module-item-note').text().trim() || ""
-      }
+    return $('.module-card-item').toArray().map<IMovie>(el => {
+      const a = $(el).find('.module-card-item-poster').first()
+      const id = a.attr('href') ?? ''
+      const title = $(el).find('.module-card-item-title a').text().trim()
+      let cover = $(el).find('img.lazy').attr('data-original') ?? ''
+      if (cover.startsWith('//')) cover = 'https:' + cover
+      const remark = $(el).find('.module-item-note').text().trim()
+
+      return { id, title, cover, desc: '', remark, playlist: [] }
     })
   }
 
   async parseIframe() {
+    // 直接调用工具函数，自动解析 player_aaaa.url
     return kitty.utils.getM3u8WithIframe(env)
   }
 }

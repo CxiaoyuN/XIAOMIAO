@@ -1,6 +1,7 @@
 // ts/hanjukankan.ts
 // 小猫影视 JS 扩展源：韩剧看看
 // 作者：花专用
+//import { req, kitty, createTestEnv } from "utils"
 
 export default class hanjukankan implements Handle {
   getConfig() {
@@ -10,7 +11,7 @@ export default class hanjukankan implements Handle {
       type: 1,
       nsfw: false,
       api: "https://www.hanjukankan.com",
-	  extra: {
+      extra: {
         gfw: false,
         searchLimit: 16,
       }
@@ -78,21 +79,23 @@ export default class hanjukankan implements Handle {
 
   async getSearch() {
     const wd = env.get<string>('keyword')
-    const page = env.get<number>('page')
+    const page = env.get<number>('page') || 1
     const url = `${env.baseUrl}/xvseabcdefghigklm.html?wd=${encodeURIComponent(wd)}&page=${page}`
     const html = await req(url)
     const $ = kitty.load(html)
 
-    return $('.module-items .module-item').toArray().map(item => {
-      const a = $(item).find("a")
-      const img = $(item).find('img').first()
-      return {
-        id: a.attr('href') ?? "",
-        title: a.attr('title') || img.attr('alt') || "",
-        cover: img.attr('data-original') || img.attr('src') || "",
-        remark: $(item).find('.module-item-note').text().trim() || ""
-      }
-    })
+    return $('.module-poster-item')
+      .toArray()
+      .map(item => {
+        const a = $(item).first()
+        const img = $(item).find('img').first()
+        return {
+          id: a.attr('href') ?? "",
+          title: a.attr('title') || img.attr('alt') || "",
+          cover: img.attr('data-original') || img.attr('src') || "",
+          remark: $(item).find('.module-item-note').text().trim() || ""
+        }
+      })
   }
 
   async parseIframe() {

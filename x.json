@@ -1,5 +1,50 @@
 [
   {
+    "id": "4kvm$",
+    "name": "4K影视",
+    "type": 1,
+    "nsfw": false,
+    "api": "https://www.4kvm.net",
+    "extra": {
+      "js": {
+        "category": [
+          {
+            "text": "电影",
+            "id": "/movies"
+          },
+          {
+            "text": "美剧",
+            "id": "/classify/meiju"
+          },
+          {
+            "text": "国产剧",
+            "id": "/classify/guochan"
+          },
+          {
+            "text": "韩剧",
+            "id": "/classify/hanju"
+          },
+          {
+            "text": "番剧",
+            "id": "/classify/fanju"
+          },
+          {
+            "text": "高分电影",
+            "id": "/imdb"
+          },
+          {
+            "text": "热门播放",
+            "id": "/trending"
+          }
+        ],
+        "home": "const cate=env.get(\"category\")||\"/movies\";const page=env.get(\"page\")||1;const url=`${env.baseUrl}${cate}?page=${page}`;const html=await req(url,{headers:this.headers});const $=kitty.load(html);return $(\".post-box\").toArray().map(item=>{const a=$(item).find(\"a\").first();const id=a.attr(\"href\")??\"\";const title=$(item).find(\".post-title\").text().trim();let cover=$(item).find(\"img\").attr(\"data-src\")??\"\";if(cover.startsWith(\"//\"))cover=\"https:\"+cover;const remark=$(item).find(\".post-rate\").text().trim();const desc=$(item).find(\".post-excerpt\").text().trim();return{id,title,cover,remark,desc}})",
+        "detail": "const id=env.get(\"movieId\");const html=await req(`${env.baseUrl}${id}`,{headers:this.headers});const $=kitty.load(html);const title=$(\"h1.entry-title\").text().trim();let cover=$(\".entry-content img\").first().attr(\"src\")??\"\";if(cover.startsWith(\"//\"))cover=\"https:\"+cover;const desc=$(\".entry-content p\").first().text().trim();const playlist=[];const videos=$(\".entry-content a[href*=\\\"/play/\\\"]\").toArray().map((a,i)=>{const href=$(a).attr(\"href\")??\"\";const text=$(a).text().trim()||`第${i+1}集`;return{id:href,text}});if(videos.length)playlist.push({title:\"\\u9ED8\\u8BA4\\u7EBF\\u8DEF\",videos});return{id,title,cover,desc,playlist}",
+        "search": "const wd=env.get(\"keyword\")||\"\";const page=env.get(\"page\")||1;const url=`${env.baseUrl}/search/${encodeURIComponent(wd)}?page=${page}`;const html=await req(url,{headers:this.headers});const $=kitty.load(html);return $(\".post-box\").toArray().map(item=>{const a=$(item).find(\"a\").first();const id=a.attr(\"href\")??\"\";const title=$(item).find(\".post-title\").text().trim();let cover=$(item).find(\"img\").attr(\"data-src\")??\"\";if(cover.startsWith(\"//\"))cover=\"https:\"+cover;const remark=$(item).find(\".post-rate\").text().trim();return{id,title,cover,desc:\"\",remark,playlist:[]}})",
+        "parseIframe": "const iframe=env.get(\"iframe\");const html=await req(`${env.baseUrl}${iframe}`,{headers:this.headers});const match=html.match(/var\\\\s+now\\\\s*=\\\\s*\"([^\"]+\\\\.mp4)\"/);if(match){const mp4Path=match[1];return`https://v.damoli.pro/v/${mp4Path}`}return`${env.baseUrl}${iframe}`"
+      }
+    }
+  },
+  {
     "id": "cnotv",
     "name": "明月影视",
     "api": "https://cnotv.com",

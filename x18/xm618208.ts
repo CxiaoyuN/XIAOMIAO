@@ -2,7 +2,7 @@ export default class XM6181035 implements Handle {
   getConfig() {
     return {
       id: 'xm6181035',
-      name: '小猫影视6181035',
+      name: '黄集资源',
       api: 'https://6181035.xyz',
       type: 1,
       nsfw: true
@@ -35,33 +35,65 @@ export default class XM6181035 implements Handle {
   async getHome() {
     const cate = env.get('category')
     const page = env.get('page')
-    const url = `${env.baseUrl}/index.php/vod/type/id/${cate}.html?page=${page}`
+    const url = `${env.baseUrl}/index.php/vod/type/id/${cate}/page/${page}.html`
     const html = await req(url)
     const $ = kitty.load(html)
 
     return $('.vodbox').toArray().map(el => {
-      const id = $(el).attr('href') ?? ''
+      const relative = $(el).attr('href') ?? ''
+      const id = relative
       const title = $(el).find('.km-script').text().trim()
       let cover = $(el).find('img.lazy').attr('data-original') ?? ''
       if (cover.startsWith('//')) cover = 'https:' + cover
-      return { id, title, cover, desc: '', remark: '', playlist: [] }
+
+      const fullUrl = `${env.baseUrl}${relative}`
+      const playlist = [{
+        name: '在线播放',
+        urls: [{ name: '立即播放', id: fullUrl }]
+      }]
+
+      return { id, title, cover, desc: '', remark: '', playlist }
+    })
+  }
+
+  async getSearch() {
+    const cate = env.get('category') || '1'
+    const keyword = env.get('keyword')
+    const page = env.get('page') || 1
+    const url = `${env.baseUrl}/index.php/vod/type/id/${cate}/wd/${encodeURIComponent(keyword)}/page/${page}.html`
+    const html = await req(url)
+    const $ = kitty.load(html)
+
+    return $('.vodbox').toArray().map(el => {
+      const relative = $(el).attr('href') ?? ''
+      const id = relative
+      const title = $(el).find('.km-script').text().trim()
+      let cover = $(el).find('img.lazy').attr('data-original') ?? ''
+      if (cover.startsWith('//')) cover = 'https:' + cover
+
+      const fullUrl = `${env.baseUrl}${relative}`
+      const playlist = [{
+        name: '在线播放',
+        urls: [{ name: '立即播放', id: fullUrl }]
+      }]
+
+      return { id, title, cover, desc: '', remark: '', playlist }
     })
   }
 
   async getDetail() {
     const id = env.get('movieId')
-    const url = `${env.baseUrl}${id}`
+    const fullUrl = `${env.baseUrl}${id}`
 
     const playlist = [{
       name: '在线播放',
-      urls: [{ name: '立即播放', id: url }]
+      urls: [{ name: '立即播放', id: fullUrl }]
     }]
 
     return { id, title: '在线播放', cover: '', desc: '', remark: '', playlist }
   }
 
   async parseIframe() {
-    // 不再使用 iframe 解析，直接跳过
     return ''
   }
 }

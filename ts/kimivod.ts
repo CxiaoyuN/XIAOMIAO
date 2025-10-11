@@ -15,12 +15,12 @@ export default class kimivod implements Handle {
 
   async getCategory() {
     return [
-      { text: "電視", id: "/vod/show/id/1.html" },
+      { text: "電視劇", id: "/vod/show/id/1.html" },
       { text: "電影", id: "/vod/show/id/2.html" },
       { text: "動漫", id: "/vod/show/id/3.html" },
       { text: "綜藝", id: "/vod/show/id/4.html" },
       { text: "短劇", id: "/vod/show/id/39.html" },
-      { text: "倫理", id: "/vod/show/id/42.html" },
+      { text: "伦理片", id: "/vod/show/id/42.html" },
     ]
   }
 
@@ -34,12 +34,12 @@ export default class kimivod implements Handle {
     const html = await req(url, { headers: this.headers })
     const $ = kitty.load(html)
 
-    // 分类页：直接抓 a[href*="/vod/"]
-    const items = $('a[href*="/vod/"]').toArray()
+    // 每个视频卡片就是一个 <a>
+    const items = $('.grid.container_list a').toArray()
     return items.map(a => {
       const id = $(a).attr('href') ?? ""
-      const title = $(a).attr('title')?.trim() || $(a).text().trim()
-      let cover = $(a).find('img').attr('data-src') ?? ""
+      const title = $(a).attr('title')?.trim() || $(a).find('img').attr('alt')?.trim() || ""
+      let cover = $(a).find('img').attr('data-src') ?? $(a).find('img').attr('src') ?? ""
       if (cover.startsWith('//')) cover = 'https:' + cover
       const remark = $(a).find('.absolute').text().trim()
       return { id, title, cover, remark, desc: '' }

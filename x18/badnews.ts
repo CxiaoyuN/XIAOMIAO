@@ -65,40 +65,49 @@ async getHome () {
   return result;
 }
 
-  async getSearch() {
-    const wd = env.get("keyword");
-    const page = env.get("page");
-    const url = `https://bad.news/?s=${encodeURIComponent(wd)}&page=${page}`;
-    const html = await req(url, {
-      headers: {
-        "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 Chrome/117 Safari/537.36"
-      }
-    });
-    const $ = kitty.load(html);
+async getSearch() {
+  const wd = env.get("keyword");
+  const page = env.get("page");
+  const url = `https://bad.news/search/q-${encodeURIComponent(wd)}/via-log/page-${page}`;
 
-    const result = $(".link.show").toArray().map(item => {
-      const video = $(item).find("video.my-videos");
-      const cover = video.attr("poster") ?? video.attr("data-poster") ?? "";
-      const videoUrl = video.attr("data-source") ?? "";
-      const remark = $(item).find(".ct-time span").text().trim();
-      const idMatch = $(item).find(".share-copy-icon").attr("onclick")?.match(/Clipboard\.copy\('([^']+)'\)/);
-      const id = idMatch ? idMatch[1] : video.attr("data-id") ?? "";
+  const html = await req(url, {
+    headers: {
+      "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 Chrome/117 Safari/537.36"
+    }
+  });
 
-      return {
-        id,
-        title: "",
-        cover,
-        desc: "",
-        remark,
-        playlist: [{
+  const $ = kitty.load(html);
+  const result = $(".link.show").toArray().map(item => {
+    const video = $(item).find("video.my-videos");
+    const cover = video.attr("poster") ?? video.attr("data-poster") ?? "";
+    const videoUrl = video.attr("data-source") ?? "";
+    const remark = $(item).find(".ct-time span").text().trim();
+    const idMatch = $(item).find(".share-copy-icon").attr("onclick")?.match(/Clipboard\.copy\('([^']+)'/);
+    const id = idMatch ? idMatch[1] : video.attr("data-id") ?? "";
+    const title = $(item).find("a.title").text().trim();
+
+    return {
+      id,
+      title,
+      cover,
+      desc: "",
+      remark,
+      playlist: [
+        {
           name: "默认线路",
-          videos: [{ title: "", url: videoUrl }]
-        }]
-      };
-    });
+          videos: [
+            {
+              title,
+              url: videoUrl
+            }
+          ]
+        }
+      ]
+    };
+  });
 
-    return result;
-  }
+  return result;
+}
 
   async getDetail() {
     throw new Error("此源无详情页，所有信息已在分类页中提供");

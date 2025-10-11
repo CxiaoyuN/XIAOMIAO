@@ -9,6 +9,10 @@ export default class kimivod implements Handle {
     }
   }
 
+  headers = {
+    'User-Agent': 'Mozilla/5.0 (iPhone; CPU iPhone OS 15_0 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/15.0 Mobile/15E148 Safari/604.1'
+  }
+
   async getCategory() {
     return [
       { text: "電視", id: "/vod/show/id/1.html" },
@@ -16,7 +20,7 @@ export default class kimivod implements Handle {
       { text: "動漫", id: "/vod/show/id/3.html" },
       { text: "綜藝", id: "/vod/show/id/4.html" },
       { text: "短劇", id: "/vod/show/id/39.html" },
-      { text: "倫理", id: "/vod/show/id/42.html" },
+      { text: "伦理", id: "/vod/show/id/42.html" },
     ]
   }
 
@@ -62,10 +66,10 @@ export default class kimivod implements Handle {
       const groupTitle = $(`.tabs a[data-ui="#${pid}"] span`).text().trim() || `线路${i+1}`
 
       const videos = $(page).find('.playno a').map((j, a) => {
-        return {
-          id: $(a).attr('href') ?? "",
-          text: $(a).text().trim()
-        }
+        const text = $(a).text().trim()
+        const href = $(a).attr('href') ?? ""
+        const link = href.startsWith('http') ? href : `${env.baseUrl}${href}`
+        return { text, id: link }
       }).get()
 
       playlist.push({ title: groupTitle, videos })

@@ -2,7 +2,7 @@ export default class kimivod implements Handle {
   getConfig() {
     return <Iconfig>{
       id: "kimivod$",
-      name: "Kimivod",
+      name: "KiMivod",
       type: 1,
       nsfw: false,
       api: "https://kimivod.com",
@@ -15,12 +15,12 @@ export default class kimivod implements Handle {
 
   async getCategory() {
     return [
-      { text: "電視劇", id: "/vod/show/id/1.html" },
+      { text: "電視", id: "/vod/show/id/1.html" },
       { text: "電影", id: "/vod/show/id/2.html" },
       { text: "動漫", id: "/vod/show/id/3.html" },
       { text: "綜藝", id: "/vod/show/id/4.html" },
       { text: "短劇", id: "/vod/show/id/39.html" },
-      { text: "伦理片", id: "/vod/show/id/42.html" },
+      { text: "倫理", id: "/vod/show/id/42.html" },
     ]
   }
 
@@ -48,47 +48,37 @@ export default class kimivod implements Handle {
   async getDetail() {
     const id = env.get<string>('movieId')
     const html = await req(`${env.baseUrl}${id}`, { headers: this.headers })
-    const $ = kitty.load(html)
 
-    const title = $('h1.title').text().trim()
-    const cover = $('img[itemprop="image"]').attr('data-src')?.trim() ?? ""
-    const remark = $('p:contains("更新")').text().trim()
-
-    const desc = $('meta[name="description"]').attr('content')?.trim()
-              ?? $('details summary:contains("影片簡介")').next('p').text().trim()
-              ?? $('details p span.right-align').text().trim()
-              ?? ""
+    const title = html.match(/<h1[^>]*class="title"[^>]*>(.*?)<\/h1>/)?.[1]?.trim() ?? ""
+    const cover = html.match(/<img[^>]*itemprop="image"[^>]*data-src="([^"]+)"/)?.[1]?.trim() ?? ""
+    const remark = html.match(/更新至?第?(\d+)集/)?.[0]?.trim() ?? ""
+    const desc = html.match(/<meta[^>]*name="description"[^>]*content="([^"]+)"/)?.[1]?.trim() ?? ""
 
     const playlist: IPlaylist[] = []
 
-    $('.page').each((i, page) => {
-      const pid = $(page).attr('id') || ''
-      const groupTitle = $(`.tabs a[data-ui="#${pid}"] span`).text().trim() || `线路${i+1}`
+    const regex = /<a[^>]*href="([^"]+)"[^>]*>(第\d+集)<\/a>/g
+    const matches = [...html.matchAll(regex)]
+    const videos = matches.map(m => ({
+      id: m[1].startsWith('http') ? m[1] : `${env.baseUrl}${m[1]}`,
+      text: m[2]
+    }))
 
-      let videos = $(page).find('.playno a').map((j, a) => {
-        const text = $(a).text().trim()
-        const href = $(a).attr('href') ?? ""
-        const link = href.startsWith('http') ? href : `${env.baseUrl}${href}`
-        return { text, id: link }
-      }).get()
+    if (videos.length > 0) {
+      playlist.push({ title: "线路1", videos })
+    } else {
+      const vid = id.match(/\d+/)?.[0] ?? ""
+      const total = parseInt(remark.match(/\d+/)?.[0] ?? "0")
+      const fallback = Array.from({ length: total }, (_, i) => {
+        const ep = i + 1
+        return {
+          text: `第${ep.toString().padStart(2, '0')}集`,
+          id: `${env.baseUrl}/vod/${vid}/1-${ep}.html`
+        }
+      })
+      playlist.push({ title: "线路1", videos: fallback })
+    }
 
-      // 如果播放项为空，自动拼接备用链接
-      if (videos.length === 0) {
-        const total = parseInt(remark.match(/\d+/)?.[0] ?? "0")
-        const vid = id.match(/\d+/)?.[0] ?? ""
-        videos = Array.from({ length: total }, (_, k) => {
-          const ep = k + 1
-          return {
-            text: `第${ep.toString().padStart(2, '0')}集`,
-            id: `${env.baseUrl}/vod/${vid}/1-${ep}.html`
-          }
-        })
-      }
-
-      playlist.push({ title: groupTitle, videos })
-    })
-
-    return { id, cover, title, remark, desc, playlist }
+    return { id, title, cover, remark, desc, playlist }
   }
 
   async getSearch() {

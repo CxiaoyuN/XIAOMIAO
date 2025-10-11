@@ -2,7 +2,7 @@ export default class kimivod implements Handle {
   getConfig() {
     return <Iconfig>{
       id: "kimivod$",
-      name: "Kimivod",
+      name: "KiMiVod",
       type: 1,
       nsfw: false,
       api: "https://kimivod.com",
@@ -13,26 +13,14 @@ export default class kimivod implements Handle {
     'User-Agent': 'Mozilla/5.0 (iPhone; CPU iPhone OS 15_0 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/15.0 Mobile/15E148 Safari/604.1'
   }
 
-  // 封面解析：只取 src，并解析 &src= 后面的真实地址
-  private normalizeCover(raw?: string): string {
-    let cover = raw?.trim() ?? ""
-    if (!cover) return ""
-    if (cover.includes("&src=")) {
-      cover = cover.split("&src=")[1]
-    }
-    if (cover.startsWith("//")) cover = "https:" + cover
-    if (cover && !cover.startsWith("http")) cover = "https://" + cover
-    return cover
-  }
-
   async getCategory() {
     return [
-      { text: "電視", id: "/vod/show/id/1.html" },
       { text: "電影", id: "/vod/show/id/2.html" },
+      { text: "電視", id: "/vod/show/id/1.html" },
       { text: "動漫", id: "/vod/show/id/3.html" },
       { text: "綜藝", id: "/vod/show/id/4.html" },
       { text: "短劇", id: "/vod/show/id/39.html" },
-      { text: "伦理", id: "/vod/show/id/42.html" },
+      { text: "倫理", id: "/vod/show/id/42.html" },
     ]
   }
 
@@ -51,7 +39,7 @@ export default class kimivod implements Handle {
       const a = $(item).find('a').first()
       const id = a.attr('href') ?? ""
       const title = a.attr('title')?.trim() ?? $(item).find('div').last().text().trim()
-      const cover = this.normalizeCover($(item).find('img').attr('src'))
+      const cover = $(item).find('img').attr('src')?.trim() ?? ""
       const remark = $(item).find('.absolute').text().trim()
       return { id, title, cover, remark, desc: '' }
     })
@@ -63,9 +51,9 @@ export default class kimivod implements Handle {
     const $ = kitty.load(html)
 
     const title = $('h1.title').text().trim()
-    let cover = this.normalizeCover($('img[itemprop="image"]').attr('src'))
+    let cover = $('img[itemprop="image"]').attr('src')?.trim() ?? ""
     if (!cover) {
-      cover = this.normalizeCover($('img.responsive').first().attr('src'))
+      cover = $('img.responsive').first().attr('src')?.trim() ?? ""
     }
 
     const desc = $('meta[name="description"]').attr('content') 
@@ -88,7 +76,6 @@ export default class kimivod implements Handle {
       playlist.push({ title: groupTitle, videos })
     })
 
-    // 尝试解析真实 m3u8，如果失败就保留原始链接
     for (const line of playlist) {
       for (const video of line.videos) {
         try {

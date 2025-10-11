@@ -1,9 +1,9 @@
-export default class XM618514 implements Handle {
+export default class XM6181035 implements Handle {
   getConfig() {
     return {
-      id: 'xm618514',
+      id: 'xm6181035',
       name: '黄集资源',
-      api: 'https://618514.xyz',
+      api: 'https://6181035.xyz',
       type: 1,
       nsfw: true
     }
@@ -11,38 +11,42 @@ export default class XM618514 implements Handle {
 
   async getCategory() {
     return [
-      { id: '40', text: '无码' },
-      { id: '39', text: '字幕' },
-      { id: '37', text: '网黄' },
-      { id: '36', text: '传媒' },
-      { id: '38', text: '国产' },
-      { id: '41', text: '推荐' },
-      { id: '28', text: '动漫' },
-      { id: '29', text: 'OnlyF' },
-      { id: '33', text: '无码2' },
-      { id: '30', text: 'FC2' },
-      { id: '27', text: '字幕2' },
-      { id: '26', text: '国产2' }
+      { id: '13', text: '香蕉' },
+      { id: '22', text: '制服' },
+      { id: '6', text: '国产' },
+      { id: '8', text: '少女' },
+      { id: '9', text: '辣妹' },
+      { id: '10', text: '女同' },
+      { id: '11', text: '素人' },
+      { id: '12', text: '角色' },
+      { id: '20', text: '人妻' },
+      { id: '23', text: '日韩' },
+      { id: '21', text: '伦理' },
+      { id: '7', text: '动漫' },
+      { id: '14', text: '二区' },
+      { id: '40', text: '三区' },
+      { id: '52', text: '无码' },
+      { id: '33', text: '中文' },
+      { id: '44', text: '传媒' },
+      { id: '32', text: '自拍' }
     ]
   }
 
   async getHome() {
     const cate = env.get('category')
-    const page = env.get('page') || 1
+    const page = env.get('page')
     const url = `${env.baseUrl}/index.php/vod/type/id/${cate}/page/${page}.html`
     const html = await req(url)
 
-    const matches = html.matchAll(/<a[^>]*class="vodbox"[^>]*href="([^"]+)"[^>]*>[\s\S]*?<img[^>]*data-cover="([^"]+)"[^>]*>[\s\S]*?<p[^>]*class="km-script"[^>]*>([^<]+)<\/p>/g)
+    // 正则提取所有 vodbox 区块
+    const matches = html.matchAll(/<a[^>]*class="vodbox"[^>]*href="([^"]+)"[^>]*>[\s\S]*?<img[^>]*data-original="([^"]+)"[^>]*>[\s\S]*?<p[^>]*class="km-script"[^>]*>([^<]+)<\/p>/g)
 
     const result = []
     for (const match of matches) {
       const relative = match[1]
       const cover = match[2]
       const title = match[3].trim()
-
-      // 提取播放地址
-      const playMatch = relative.match(/v=([^&]+)/)
-      const playUrl = playMatch ? decodeURIComponent(playMatch[1]) : `${env.baseUrl}${relative}`
+      const fullUrl = `${env.baseUrl}${relative}`
 
       result.push({
         id: relative,
@@ -52,7 +56,7 @@ export default class XM618514 implements Handle {
         remark: '',
         playlist: [{
           name: '在线播放',
-          urls: [{ name: '立即播放', id: playUrl }]
+          urls: [{ name: '立即播放', id: fullUrl }]
         }]
       })
     }
@@ -61,21 +65,20 @@ export default class XM618514 implements Handle {
   }
 
   async getSearch() {
+    const cate = env.get('category') || '1'
     const keyword = env.get('keyword')
     const page = env.get('page') || 1
-    const url = `${env.baseUrl}/index.php/vod/search/page/${page}/wd/${encodeURIComponent(keyword)}.html`
+    const url = `${env.baseUrl}/index.php/vod/type/id/${cate}/wd/${encodeURIComponent(keyword)}/page/${page}.html`
     const html = await req(url)
 
-    const matches = html.matchAll(/<a[^>]*class="vodbox"[^>]*href="([^"]+)"[^>]*>[\s\S]*?<img[^>]*data-cover="([^"]+)"[^>]*>[\s\S]*?<p[^>]*class="km-script"[^>]*>([^<]+)<\/p>/g)
+    const matches = html.matchAll(/<a[^>]*class="vodbox"[^>]*href="([^"]+)"[^>]*>[\s\S]*?<img[^>]*data-original="([^"]+)"[^>]*>[\s\S]*?<p[^>]*class="km-script"[^>]*>([^<]+)<\/p>/g)
 
     const result = []
     for (const match of matches) {
       const relative = match[1]
       const cover = match[2]
       const title = match[3].trim()
-
-      const playMatch = relative.match(/v=([^&]+)/)
-      const playUrl = playMatch ? decodeURIComponent(playMatch[1]) : `${env.baseUrl}${relative}`
+      const fullUrl = `${env.baseUrl}${relative}`
 
       result.push({
         id: relative,
@@ -85,7 +88,7 @@ export default class XM618514 implements Handle {
         remark: '',
         playlist: [{
           name: '在线播放',
-          urls: [{ name: '立即播放', id: playUrl }]
+          urls: [{ name: '立即播放', id: fullUrl }]
         }]
       })
     }
@@ -95,8 +98,7 @@ export default class XM618514 implements Handle {
 
   async getDetail() {
     const id = env.get('movieId')
-    const playMatch = id.match(/v=([^&]+)/)
-    const playUrl = playMatch ? decodeURIComponent(playMatch[1]) : `${env.baseUrl}${id}`
+    const fullUrl = `${env.baseUrl}${id}`
 
     return {
       id,
@@ -106,7 +108,7 @@ export default class XM618514 implements Handle {
       remark: '',
       playlist: [{
         name: '在线播放',
-        urls: [{ name: '立即播放', id: playUrl }]
+        urls: [{ name: '立即播放', id: fullUrl }]
       }]
     }
   }

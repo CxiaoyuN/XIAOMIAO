@@ -13,14 +13,27 @@ export default class kimivod implements Handle {
     'User-Agent': 'Mozilla/5.0 (iPhone; CPU iPhone OS 15_0 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/15.0 Mobile/15E148 Safari/604.1'
   }
 
+  // 提取真实封面地址：优先 img[src]；若包含 &src=，取其后为真实地址
+  private normalizeCover(raw?: string): string {
+    let cover = raw?.trim() ?? ""
+    if (!cover) return ""
+    const idx = cover.indexOf("&src=")
+    if (idx !== -1) {
+      cover = cover.substring(idx + 5) // after "&src="
+    }
+    if (cover.startsWith("//")) cover = "https:" + cover
+    if (cover && !cover.startsWith("http")) cover = "https://" + cover
+    return cover
+  }
+
   async getCategory() {
     return [
-      { text: "電視", id: "/vod/show/id/1.html" },
+      { text: "電視劇", id: "/vod/show/id/1.html" },
       { text: "電影", id: "/vod/show/id/2.html" },
       { text: "動漫", id: "/vod/show/id/3.html" },
       { text: "綜藝", id: "/vod/show/id/4.html" },
       { text: "短劇", id: "/vod/show/id/39.html" },
-      { text: "伦理", id: "/vod/show/id/42.html" },
+      { text: "伦理片", id: "/vod/show/id/42.html" },
     ]
   }
 
@@ -34,32 +47,37 @@ export default class kimivod implements Handle {
     const html = await req(url, { headers: this.headers })
     const $ = kitty.load(html)
 
-    let items: any[] = []
+    const results: any[] = []
+    const seen = new Set<string>()
 
-    // 普通分类
+    // 普通分类：卡片在 .grid.container_list 下的 a
     if ($('.grid.container_list').length) {
-      items = $('.grid.container_list a').toArray()
+      $('.grid.container_list a').each((_, a) => {
+        const id = $(a).attr('href') ?? ""
+        if (!id || seen.has(id)) return
+        seen.add(id)
+        const title = $(a).attr('title')?.trim() || $(a).find('img').attr('alt')?.trim() || ""
+        const cover = this.normalizeCover($(a).find('img').attr('src'))
+        const remark = $(a).find('.absolute').text().trim()
+        results.push({ id, title, cover, remark, desc: '' })
+      })
     }
 
-    // 短剧分类
+    // 短剧分类：从 div.grid 下的 div.s6.m3.l2 取首个 a.wave（带封面），避免重复
     if ($('div.grid .s6.m3.l2').length) {
-      items = $('div.grid .s6.m3.l2 a.wave').toArray() // 只取带封面的 a
+      $('div.grid .s6.m3.l2').each((_, card) => {
+        const a = $(card).find('a.wave').first()
+        const id = a.attr('href') ?? ""
+        if (!id || seen.has(id)) return
+        seen.add(id)
+        const title = a.attr('title')?.trim() || a.find('img').attr('alt')?.trim() || $(card).find('a.max div').text().trim() || ""
+        const cover = this.normalizeCover(a.find('img').attr('src'))
+        const remark = a.find('.absolute').text().trim()
+        results.push({ id, title, cover, remark, desc: '' })
+      })
     }
 
-    return items.map(a => {
-      const id = $(a).attr('href') ?? ""
-      const title = $(a).attr('title')?.trim() || $(a).find('img').attr('alt')?.trim() || ""
-
-      // 取 src 并解析真实地址
-      let cover = $(a).find('img').attr('src') ?? ""
-      if (cover.includes('&src=')) {
-        cover = cover.split('&src=')[1] // 截取 &src= 后面的真实地址
-      }
-      if (cover.startsWith('//')) cover = 'https:' + cover
-
-      const remark = $(a).find('.absolute').text().trim()
-      return { id, title, cover, remark, desc: '' }
-    })
+    return results
   }
 
   async getDetail() {
@@ -67,29 +85,30 @@ export default class kimivod implements Handle {
     const html = await req(`${env.baseUrl}${id}`, { headers: this.headers })
     const $ = kitty.load(html)
 
-    const title = $('h1.title').text().trim()
-    let cover = $('img[itemprop="image"]').attr('src') ?? ""
-    if (cover.includes('&src=')) {
-      cover = cover.split('&src=')[1]
+    const title = $('h1.title').text().trim() || $('h1').first().text().trim()
+    let cover = this.normalizeCover($('img[itemprop="image"]').attr('src'))
+    if (!cover) {
+      cover = this.normalizeCover($('img.responsive').first().attr('src'))
     }
-    if (cover.startsWith('//')) cover = 'https:' + cover
 
-    // 简介：优先 meta，再退回正文
-    const desc = $('meta[name="description"]').attr('content') 
-              ?? $('body').text().match(/本劇.*?。/)?.[0] 
-              ?? ""
+    const desc =
+      $('meta[name="description"]').attr('content')
+      ?? $('body').text().match(/本劇.*?。/)?.[0]
+      ?? ""
 
-    // 播放列表：直接抓静态 a 标签
     const playlist: IPlaylist[] = []
     $('.page').each((i, page) => {
-      const groupTitle = $(`.tabs a[data-ui="#${$(page).attr('id')}"] span`).text().trim() || `线路${i+1}`
-      const videos = $(page).find('.playno a').map((j, a) => {
+      const pid = $(page).attr('id') || ''
+      const groupTitle = $(`.tabs a[data-ui="#${pid}"] span`).text().trim() || `线路${i + 1}`
+      const videos = $(page).find('.playno a').map((_, a) => {
         return {
           id: $(a).attr('href') ?? "",
           text: $(a).text().trim()
         }
       }).get()
-      playlist.push({ title: groupTitle, videos })
+      // 仅保留有效链接
+      const filtered = videos.filter(v => v.id && v.text)
+      playlist.push({ title: groupTitle, videos: filtered })
     })
 
     // 解析真实 m3u8
@@ -114,12 +133,20 @@ export default class kimivod implements Handle {
     const html = await req(url, { headers: this.headers })
     const $ = kitty.load(html)
 
-    return $('a[href*="/vod/"]').toArray().map((a, i) => {
+    const results: any[] = []
+    const seen = new Set<string>()
+
+    $('a[href*="/vod/"]').each((_, a) => {
       const id = $(a).attr('href') ?? ""
-      const title = $(a).text().trim()
-      const remark = $(a).prev().text().trim().match(/(已完結|HD中字|更新至第\\d+集)/)?.[0] ?? ""
-      return { id, title, cover: '', desc: '', remark, playlist: [] }
+      if (!id || seen.has(id)) return
+      seen.add(id)
+      const title = $(a).attr('title')?.trim() || $(a).text().trim()
+      // 搜索页一般没封面，这里留空
+      const remark = $(a).prev().text().trim().match(/(已完結|HD中字|更新至第\d+集)/)?.[0] ?? ""
+      results.push({ id, title, cover: '', desc: '', remark, playlist: [] })
     })
+
+    return results
   }
 
   async parseIframe() {

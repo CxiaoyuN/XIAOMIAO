@@ -65,7 +65,7 @@ export default class kimivod implements Handle {
       const count = parseInt($(tab).find('.badge').text().trim()) || 1
       const videos = []
       for (let j = 1; j <= count; j++) {
-        const href = `${id.replace(/\\.html$/, '')}/1-${j}.html`
+        const href = `${id.replace(/\.html$/, '')}/${i+1}-${j}.html`
         videos.push({ id: href, text: `第${j.toString().padStart(2,'0')}集` })
       }
       playlist.push({ title: groupTitle, videos })
@@ -96,7 +96,7 @@ export default class kimivod implements Handle {
     return $('a[href*="/vod/"]').toArray().map((a, i) => {
       const id = $(a).attr('href') ?? ""
       const title = $(a).text().trim()
-      const remark = $(a).prev().text().trim().match(/(已完結|HD中字|更新至第\\d+集)/)?.[0] ?? ""
+      const remark = $(a).prev().text().trim().match(/(已完結|HD中字|更新至第\d+集)/)?.[0] ?? ""
       return { id, title, cover: '', desc: '', remark, playlist: [] }
     })
   }

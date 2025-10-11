@@ -20,7 +20,7 @@ export default class kimivod implements Handle {
       { text: "動漫", id: "/vod/show/id/3.html" },
       { text: "綜藝", id: "/vod/show/id/4.html" },
       { text: "短劇", id: "/vod/show/id/39.html" },
-      { text: "倫理", id: "/vod/show/id/42.html" },
+      { text: "伦理", id: "/vod/show/id/42.html" },
     ]
   }
 
@@ -43,15 +43,20 @@ export default class kimivod implements Handle {
 
     // 短剧分类
     if ($('div.grid .s6.m3.l2').length) {
-      items = $('div.grid .s6.m3.l2 a.wave').toArray()
+      items = $('div.grid .s6.m3.l2 a.wave').toArray() // 只取带封面的 a
     }
 
     return items.map(a => {
       const id = $(a).attr('href') ?? ""
       const title = $(a).attr('title')?.trim() || $(a).find('img').attr('alt')?.trim() || ""
-      // 只取 src，不要 data-src
+
+      // 取 src 并解析真实地址
       let cover = $(a).find('img').attr('src') ?? ""
+      if (cover.includes('&src=')) {
+        cover = cover.split('&src=')[1] // 截取 &src= 后面的真实地址
+      }
       if (cover.startsWith('//')) cover = 'https:' + cover
+
       const remark = $(a).find('.absolute').text().trim()
       return { id, title, cover, remark, desc: '' }
     })
@@ -64,6 +69,9 @@ export default class kimivod implements Handle {
 
     const title = $('h1.title').text().trim()
     let cover = $('img[itemprop="image"]').attr('src') ?? ""
+    if (cover.includes('&src=')) {
+      cover = cover.split('&src=')[1]
+    }
     if (cover.startsWith('//')) cover = 'https:' + cover
 
     // 简介：优先 meta，再退回正文

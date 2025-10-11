@@ -2,7 +2,7 @@ export default class kimivod implements Handle {
   getConfig() {
     return <Iconfig>{
       id: "kimivod$",
-      name: "KiMiVod",
+      name: "Kimivod",
       type: 1,
       nsfw: false,
       api: "https://kimivod.com",
@@ -15,12 +15,12 @@ export default class kimivod implements Handle {
 
   async getCategory() {
     return [
-      { text: "電視", id: "/vod/show/id/1.html" },
+      { text: "電視劇", id: "/vod/show/id/1.html" },
       { text: "電影", id: "/vod/show/id/2.html" },
       { text: "動漫", id: "/vod/show/id/3.html" },
       { text: "綜藝", id: "/vod/show/id/4.html" },
       { text: "短劇", id: "/vod/show/id/39.html" },
-      { text: "倫理", id: "/vod/show/id/42.html" },
+      { text: "伦理片", id: "/vod/show/id/42.html" },
     ]
   }
 
@@ -65,12 +65,25 @@ export default class kimivod implements Handle {
       const pid = $(page).attr('id') || ''
       const groupTitle = $(`.tabs a[data-ui="#${pid}"] span`).text().trim() || `线路${i+1}`
 
-      const videos = $(page).find('.playno a').map((j, a) => {
+      let videos = $(page).find('.playno a').map((j, a) => {
         const text = $(a).text().trim()
         const href = $(a).attr('href') ?? ""
         const link = href.startsWith('http') ? href : `${env.baseUrl}${href}`
         return { text, id: link }
       }).get()
+
+      // 如果播放项为空，自动拼接备用链接
+      if (videos.length === 0) {
+        const total = parseInt(remark.match(/\d+/)?.[0] ?? "0")
+        const vid = id.match(/\d+/)?.[0] ?? ""
+        videos = Array.from({ length: total }, (_, k) => {
+          const ep = k + 1
+          return {
+            text: `第${ep.toString().padStart(2, '0')}集`,
+            id: `${env.baseUrl}/vod/${vid}/1-${ep}.html`
+          }
+        })
+      }
 
       playlist.push({ title: groupTitle, videos })
     })

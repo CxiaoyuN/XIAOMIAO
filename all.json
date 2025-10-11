@@ -957,7 +957,7 @@
   },
   {
     "id": "kimivod$",
-    "name": "KiMiVod",
+    "name": "Kimivod",
     "type": 1,
     "nsfw": false,
     "api": "https://kimivod.com",
@@ -965,12 +965,12 @@
       "js": {
         "category": [
           {
-            "text": "電影",
-            "id": "/vod/show/id/2.html"
+            "text": "電視劇",
+            "id": "/vod/show/id/1.html"
           },
           {
-            "text": "電視",
-            "id": "/vod/show/id/1.html"
+            "text": "電影",
+            "id": "/vod/show/id/2.html"
           },
           {
             "text": "動漫",
@@ -985,7 +985,7 @@
             "id": "/vod/show/id/39.html"
           },
           {
-            "text": "倫理",
+            "text": "伦理片",
             "id": "/vod/show/id/42.html"
           }
         ],

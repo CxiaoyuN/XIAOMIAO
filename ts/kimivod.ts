@@ -20,7 +20,7 @@ export default class kimivod implements Handle {
       { text: "動漫", id: "/vod/show/id/3.html" },
       { text: "綜藝", id: "/vod/show/id/4.html" },
       { text: "短劇", id: "/vod/show/id/39.html" },
-      { text: "伦理", id: "/vod/show/id/42.html" },
+      { text: "倫理", id: "/vod/show/id/42.html" },
     ]
   }
 

@@ -15,12 +15,12 @@ export default class kimivod implements Handle {
 
   async getCategory() {
     return [
-      { text: "電視劇", id: "/vod/show/id/1.html" },
+      { text: "電視", id: "/vod/show/id/1.html" },
       { text: "電影", id: "/vod/show/id/2.html" },
       { text: "動漫", id: "/vod/show/id/3.html" },
       { text: "綜藝", id: "/vod/show/id/4.html" },
       { text: "短劇", id: "/vod/show/id/39.html" },
-      { text: "伦理片", id: "/vod/show/id/42.html" },
+      { text: "伦理", id: "/vod/show/id/42.html" },
     ]
   }
 
@@ -51,28 +51,29 @@ export default class kimivod implements Handle {
     const html = await req(`${env.baseUrl}${id}`, { headers: this.headers })
     const $ = kitty.load(html)
 
-    const title = $('h1.title').text().trim() || $('h1').text().trim()
+    const title = $('h1.title').text().trim()
     let cover = $('img[itemprop="image"]').attr('data-src') ?? ""
     if (cover.startsWith('//')) cover = 'https:' + cover
 
-    // 简介：用正则从正文提取
-    const descMatch = html.match(/線上看.*?(本劇講述的是.*?。)/)
-    const desc = descMatch ? descMatch[1] : ""
+    // 简介：优先 meta，再退回正文
+    const desc = $('meta[name="description"]').attr('content') 
+              ?? $('body').text().match(/本劇.*?。/)?.[0] 
+              ?? ""
 
+    // 播放列表：直接抓静态 a 标签
     const playlist: IPlaylist[] = []
-    $('.tabs a[data-ui]').each((i, tab) => {
-      const groupTitle = $(tab).find('span').text().trim() || `线路${i+1}`
-      const count = parseInt($(tab).find('.badge').text().trim()) || 1
-      const videos = []
-      for (let j = 1; j <= count; j++) {
-        // 拼接完整 URL，保证小猫影视能请求
-        const href = `${env.baseUrl}${id.replace(/\.html$/, '')}/${i+1}-${j}.html`
-        videos.push({ id: href, text: `第${j.toString().padStart(2,'0')}集` })
-      }
+    $('.page').each((i, page) => {
+      const groupTitle = $(`.tabs a[data-ui="#${$(page).attr('id')}"] span`).text().trim() || `线路${i+1}`
+      const videos = $(page).find('.playno a').map((j, a) => {
+        return {
+          id: $(a).attr('href') ?? "",
+          text: $(a).text().trim()
+        }
+      }).get()
       playlist.push({ title: groupTitle, videos })
     })
 
-    // 自动解析真实播放地址
+    // 解析真实 m3u8
     for (const line of playlist) {
       for (const video of line.videos) {
         const playHtml = await req(video.id, { headers: this.headers })
@@ -97,7 +98,7 @@ export default class kimivod implements Handle {
     return $('a[href*="/vod/"]').toArray().map((a, i) => {
       const id = $(a).attr('href') ?? ""
       const title = $(a).text().trim()
-      const remark = $(a).prev().text().trim().match(/(已完結|HD中字|更新至第\d+集)/)?.[0] ?? ""
+      const remark = $(a).prev().text().trim().match(/(已完結|HD中字|更新至第\\d+集)/)?.[0] ?? ""
       return { id, title, cover: '', desc: '', remark, playlist: [] }
     })
   }

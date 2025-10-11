@@ -4,7 +4,7 @@ export default class RealXXX implements Handle {
   getConfig() {
     return <Iconfig>{
       id: "real_xxxx",
-      name: "一个纯粹的x站",
+      name: "纯粹X站",
       type: 1,
       nsfw: true,
       api: "https://rtk.ygccdxz9.ink",

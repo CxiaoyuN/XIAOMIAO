@@ -20,7 +20,7 @@ export default class kimivod implements Handle {
       { text: "動漫", id: "/vod/show/id/3.html" },
       { text: "綜藝", id: "/vod/show/id/4.html" },
       { text: "短劇", id: "/vod/show/id/39.html" },
-      { text: "伦理", id: "/vod/show/id/42.html" },
+      { text: "倫理", id: "/vod/show/id/42.html" },
     ]
   }
 
@@ -59,13 +59,27 @@ export default class kimivod implements Handle {
       || $('span.right-align').text().trim()
 
     const playlist: IPlaylist[] = []
-    const videos = $('.playno a').toArray().map((a, i) => {
-      const href = $(a).attr('href') ?? ""
-      const text = $(a).text().trim() || `第${i + 1}集`
-      return { id: href, text }
+    $('.tabs a[data-ui]').each((i, tab) => {
+      const groupTitle = $(tab).find('span').text().trim() || `线路${i+1}`
+      const videos = $('.playno a').toArray().map((a, j) => {
+        const href = $(a).attr('href') ?? ""
+        const text = $(a).text().trim() || `第${j+1}集`
+        return { id: href, text }
+      })
+      if (videos.length) playlist.push({ title: groupTitle, videos })
     })
-    if (videos.length) playlist.push({ title: '播放列表', videos })
 
+    // 如果没有 tabs，也直接抓 playno
+    if (!playlist.length) {
+      const videos = $('.playno a').toArray().map((a, j) => {
+        const href = $(a).attr('href') ?? ""
+        const text = $(a).text().trim() || `第${j+1}集`
+        return { id: href, text }
+      })
+      if (videos.length) playlist.push({ title: '播放列表', videos })
+    }
+
+    // 自动解析真实播放地址
     for (const line of playlist) {
       for (const video of line.videos) {
         const playHtml = await req(`${env.baseUrl}${video.id}`, { headers: this.headers })
@@ -90,7 +104,7 @@ export default class kimivod implements Handle {
     return $('a[href*="/vod/"]').toArray().map((a, i) => {
       const id = $(a).attr('href') ?? ""
       const title = $(a).text().trim()
-      const remark = $(a).prev().text().trim().match(/(已完結|HD中字|更新至第\d+集)/)?.[0] ?? ""
+      const remark = $(a).prev().text().trim().match(/(已完結|HD中字|更新至第\\d+集)/)?.[0] ?? ""
       return { id, title, cover: '', desc: '', remark, playlist: [] }
     })
   }

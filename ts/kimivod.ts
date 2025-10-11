@@ -15,12 +15,12 @@ export default class kimivod implements Handle {
 
   async getCategory() {
     return [
-      { text: "電視", id: "/vod/show/id/1.html" },
+      { text: "電視劇", id: "/vod/show/id/1.html" },
       { text: "電影", id: "/vod/show/id/2.html" },
       { text: "動漫", id: "/vod/show/id/3.html" },
       { text: "綜藝", id: "/vod/show/id/4.html" },
       { text: "短劇", id: "/vod/show/id/39.html" },
-      { text: "伦理", id: "/vod/show/id/42.html" },
+      { text: "伦理片", id: "/vod/show/id/42.html" },
     ]
   }
 
@@ -65,7 +65,8 @@ export default class kimivod implements Handle {
       const count = parseInt($(tab).find('.badge').text().trim()) || 1
       const videos = []
       for (let j = 1; j <= count; j++) {
-        const href = `${id.replace(/\.html$/, '')}/${i+1}-${j}.html`
+        // 拼接完整 URL，保证小猫影视能请求
+        const href = `${env.baseUrl}${id.replace(/\.html$/, '')}/${i+1}-${j}.html`
         videos.push({ id: href, text: `第${j.toString().padStart(2,'0')}集` })
       }
       playlist.push({ title: groupTitle, videos })
@@ -74,7 +75,7 @@ export default class kimivod implements Handle {
     // 自动解析真实播放地址
     for (const line of playlist) {
       for (const video of line.videos) {
-        const playHtml = await req(`${env.baseUrl}${video.id}`, { headers: this.headers })
+        const playHtml = await req(video.id, { headers: this.headers })
         const m3u8 = kitty.utils.getM3u8WithStr(playHtml)
         video.id = m3u8
       }

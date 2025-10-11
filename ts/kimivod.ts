@@ -15,11 +15,12 @@ export default class kimivod implements Handle {
 
   async getCategory() {
     return [
-      { text: "電視劇", id: "/vod/show/id/1.html" },
+      { text: "電視", id: "/vod/show/id/1.html" },
       { text: "電影", id: "/vod/show/id/2.html" },
       { text: "動漫", id: "/vod/show/id/3.html" },
       { text: "綜藝", id: "/vod/show/id/4.html" },
       { text: "短劇", id: "/vod/show/id/39.html" },
+      { text: "伦理", id: "/vod/show/id/42.html" },
     ]
   }
 
@@ -33,16 +34,7 @@ export default class kimivod implements Handle {
     const html = await req(url, { headers: this.headers })
     const $ = kitty.load(html)
 
-    const items = $('.grid.container_list .post').toArray()
-    if (items.length === 0) {
-      // 短剧或特殊结构
-      return $('a[href*="/vod/"]').toArray().map(a => {
-        const id = $(a).attr('href') ?? ""
-        const title = $(a).text().trim()
-        return { id, title, cover: '', remark: '', desc: '' }
-      })
-    }
-
+    const items = $('.grid.container_list .post, .s6.m3.l2').toArray()
     return items.map(item => {
       const a = $(item).find('a').first()
       const id = a.attr('href') ?? ""
@@ -67,7 +59,6 @@ export default class kimivod implements Handle {
       || $('span.right-align').text().trim()
 
     const playlist: IPlaylist[] = []
-    // 通用播放列表提取
     const videos = $('.playno a').toArray().map((a, i) => {
       const href = $(a).attr('href') ?? ""
       const text = $(a).text().trim() || `第${i + 1}集`
@@ -75,7 +66,6 @@ export default class kimivod implements Handle {
     })
     if (videos.length) playlist.push({ title: '播放列表', videos })
 
-    // 自动提取真实播放地址
     for (const line of playlist) {
       for (const video of line.videos) {
         const playHtml = await req(`${env.baseUrl}${video.id}`, { headers: this.headers })

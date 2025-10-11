@@ -2,7 +2,7 @@ export default class kimivod implements Handle {
   getConfig() {
     return <Iconfig>{
       id: "kimivod$",
-      name: "KimiVod",
+      name: "Kimivod",
       type: 1,
       nsfw: false,
       api: "https://kimivod.com",
@@ -15,7 +15,7 @@ export default class kimivod implements Handle {
 
   async getCategory() {
     return [
-      { text: "電視", id: "/vod/show/id/1.html" },
+      { text: "電視劇", id: "/vod/show/id/1.html" },
       { text: "電影", id: "/vod/show/id/2.html" },
       { text: "動漫", id: "/vod/show/id/3.html" },
       { text: "綜藝", id: "/vod/show/id/4.html" },
@@ -35,7 +35,7 @@ export default class kimivod implements Handle {
 
     const items = $('.grid.container_list .post').toArray()
     if (items.length === 0) {
-      // 短剧或特殊结构处理
+      // 短剧或特殊结构
       return $('a[href*="/vod/"]').toArray().map(a => {
         const id = $(a).attr('href') ?? ""
         const title = $(a).text().trim()
@@ -59,37 +59,27 @@ export default class kimivod implements Handle {
     const html = await req(`${env.baseUrl}${id}`, { headers: this.headers })
     const $ = kitty.load(html)
 
-    const title = $('h1.title').text().trim()
-    let cover = $('.module-info-poster img').attr('data-src') ?? ""
+    const title = $('h1.title').text().trim() || $('h1').text().trim()
+    let cover = $('.module-info-poster img').attr('data-src') ?? $('img[itemprop="image"]').attr('data-src') ?? ""
     if (cover.startsWith('//')) cover = 'https:' + cover
 
     const desc = $('details summary:contains("影片簡介")').next('p').text().trim()
       || $('span.right-align').text().trim()
 
     const playlist: IPlaylist[] = []
-    const tabs = $('.tabs a[data-ui]')
-    if (tabs.length) {
-      tabs.each((i, tab) => {
-        const tabId = $(tab).attr('data-ui') ?? ""
-        const groupTitle = $(tab).find('span').text().trim() || `线路${i + 1}`
-        const videos = $(`${tabId} .playno a`).toArray().map((a, j) => {
-          const href = $(a).attr('href') ?? ""
-          const text = $(a).text().trim() || `第${j + 1}集`
-          return { id: href, text }
-        })
-        if (videos.length) playlist.push({ title: groupTitle, videos })
-      })
-    } else {
-      // 单集结构处理
-      const single = $('a[href*="/vod/"][class*="play"]').attr('href')
-      if (single) playlist.push({ title: '單集', videos: [{ id: single, text: '播放' }] })
-    }
+    // 通用播放列表提取
+    const videos = $('.playno a').toArray().map((a, i) => {
+      const href = $(a).attr('href') ?? ""
+      const text = $(a).text().trim() || `第${i + 1}集`
+      return { id: href, text }
+    })
+    if (videos.length) playlist.push({ title: '播放列表', videos })
 
-    // 自动提取每集真实播放地址
+    // 自动提取真实播放地址
     for (const line of playlist) {
       for (const video of line.videos) {
-        const html = await req(`${env.baseUrl}${video.id}`, { headers: this.headers })
-        const m3u8 = kitty.utils.getM3u8WithStr(html)
+        const playHtml = await req(`${env.baseUrl}${video.id}`, { headers: this.headers })
+        const m3u8 = kitty.utils.getM3u8WithStr(playHtml)
         video.id = m3u8
       }
     }

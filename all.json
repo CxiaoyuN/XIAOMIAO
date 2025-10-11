@@ -985,12 +985,12 @@
             "id": "/vod/show/id/39.html"
           },
           {
-            "text": "倫理",
+            "text": "伦理",
             "id": "/vod/show/id/42.html"
           }
         ],
         "home": "const cate=env.get(\"category\")||\"/vod/show/id/1.html\";const page=env.get(\"page\")||1;const url=page===1?`${env.baseUrl}${cate}`:`${env.baseUrl}${cate.replace(\".html\",\"\")}/page/${page}.html`;const html=await req(url,{headers:this.headers});const $=kitty.load(html);const items=$(\".grid.container_list .post, .s6.m3.l2\").toArray();return items.map(item=>{const a=$(item).find(\"a\").first();const id=a.attr(\"href\")??\"\";const title=a.attr(\"title\")?.trim()||$(item).find(\"img\").attr(\"alt\")?.trim()||\"\";const cover=$(item).find(\"img\").attr(\"data-src\")?.trim()??\"\";const remark=$(item).find(\".absolute\").text().trim();return{id,title,cover,remark,desc:\"\"}})",
-        "detail": "const id=env.get(\"movieId\");const html=await req(`${env.baseUrl}${id}`,{headers:this.headers});const $=kitty.load(html);const title=$(\"h1.title\").text().trim();const cover=$(\"img[itemprop=\\\"image\\\"]\").attr(\"data-src\")?.trim()??\"\";const remark=$(\"p:contains(\\\"\\u66F4\\u65B0\\\")\").text().trim();const desc=$(\"meta[name=\\\"description\\\"]\").attr(\"content\")?.trim()??$(\"details summary:contains(\\\"\\u5F71\\u7247\\u7C21\\u4ECB\\\")\").next(\"p\").text().trim()??$(\"details p span.right-align\").text().trim()??\"\";const playlist=[];$(\".page\").each((i,page)=>{const pid=$(page).attr(\"id\")||\"\";const groupTitle=$(`.tabs a[data-ui=\"#${pid}\"] span`).text().trim()||`线路${i+1}`;const videos=$(page).find(\".playno a\").map((j,a)=>{return{id:$(a).attr(\"href\")??\"\",text:$(a).text().trim()}}).get();playlist.push({title:groupTitle,videos})});return{id,cover,title,remark,desc,playlist}"
+        "detail": "const id=env.get(\"movieId\");const html=await req(`${env.baseUrl}${id}`,{headers:this.headers});const $=kitty.load(html);const title=$(\"h1.title\").text().trim();const cover=$(\"img[itemprop=\\\"image\\\"]\").attr(\"data-src\")?.trim()??\"\";const remark=$(\"p:contains(\\\"\\u66F4\\u65B0\\\")\").text().trim();const desc=$(\"meta[name=\\\"description\\\"]\").attr(\"content\")?.trim()??$(\"details summary:contains(\\\"\\u5F71\\u7247\\u7C21\\u4ECB\\\")\").next(\"p\").text().trim()??$(\"details p span.right-align\").text().trim()??\"\";const playlist=[];$(\".page\").each((i,page)=>{const pid=$(page).attr(\"id\")||\"\";const groupTitle=$(`.tabs a[data-ui=\"#${pid}\"] span`).text().trim()||`线路${i+1}`;const videos=$(page).find(\".playno a\").map((j,a)=>{const text=$(a).text().trim();const href=$(a).attr(\"href\")??\"\";const link=href.startsWith(\"http\")?href:`${env.baseUrl}${href}`;return{text,id:link}}).get();playlist.push({title:groupTitle,videos})});return{id,cover,title,remark,desc,playlist}"
       }
     }
   },

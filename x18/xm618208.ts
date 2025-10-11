@@ -11,7 +11,7 @@ export default class XM618208 implements Handle {
 
   async getCategory() {
     return [
-      { id: '13', text: '香蕉精品' },
+      { id: '13', text: '香蕉' },
       { id: '22', text: '制服' },
       { id: '6', text: '国产' }
     ]

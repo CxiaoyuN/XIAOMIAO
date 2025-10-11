@@ -15,12 +15,12 @@ export default class kimivod implements Handle {
 
   async getCategory() {
     return [
-      { text: "電視", id: "/vod/show/id/1.html" },
+      { text: "電視劇", id: "/vod/show/id/1.html" },
       { text: "電影", id: "/vod/show/id/2.html" },
       { text: "動漫", id: "/vod/show/id/3.html" },
       { text: "綜藝", id: "/vod/show/id/4.html" },
       { text: "短劇", id: "/vod/show/id/39.html" },
-      { text: "倫理", id: "/vod/show/id/42.html" },
+      { text: "伦理片", id: "/vod/show/id/42.html" },
     ]
   }
 
@@ -34,7 +34,6 @@ export default class kimivod implements Handle {
     const html = await req(url, { headers: this.headers })
     const $ = kitty.load(html)
 
-    // 合并普通分类和短剧分类的结构
     const items = $('.grid.container_list .post, .s6.m3.l2').toArray()
     return items.map(item => {
       const a = $(item).find('a').first()
@@ -44,5 +43,38 @@ export default class kimivod implements Handle {
       const remark = $(item).find('.absolute').text().trim()
       return { id, title, cover, remark, desc: '' }
     })
+  }
+
+  async getDetail() {
+    const id = env.get<string>('movieId')
+    const html = await req(`${env.baseUrl}${id}`, { headers: this.headers })
+    const $ = kitty.load(html)
+
+    const title = $('h1.title').text().trim()
+    const cover = $('img[itemprop="image"]').attr('data-src')?.trim() ?? ""
+    const remark = $('p:contains("更新")').text().trim()
+
+    const desc = $('meta[name="description"]').attr('content')?.trim()
+              ?? $('details summary:contains("影片簡介")').next('p').text().trim()
+              ?? $('details p span.right-align').text().trim()
+              ?? ""
+
+    const playlist: IPlaylist[] = []
+
+    $('.page').each((i, page) => {
+      const pid = $(page).attr('id') || ''
+      const groupTitle = $(`.tabs a[data-ui="#${pid}"] span`).text().trim() || `线路${i+1}`
+
+      const videos = $(page).find('.playno a').map((j, a) => {
+        return {
+          id: $(a).attr('href') ?? "",
+          text: $(a).text().trim()
+        }
+      }).get()
+
+      playlist.push({ title: groupTitle, videos })
+    })
+
+    return { id, cover, title, remark, desc, playlist }
   }
 }

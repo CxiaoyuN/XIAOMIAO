@@ -20,7 +20,7 @@ export default class kimivod implements Handle {
       { text: "動漫", id: "/vod/show/id/3.html" },
       { text: "綜藝", id: "/vod/show/id/4.html" },
       { text: "短劇", id: "/vod/show/id/39.html" },
-      { text: "伦理", id: "/vod/show/id/42.html" },
+      { text: "倫理", id: "/vod/show/id/42.html" },
     ]
   }
 
@@ -34,14 +34,14 @@ export default class kimivod implements Handle {
     const html = await req(url, { headers: this.headers })
     const $ = kitty.load(html)
 
-    const items = $('.grid.container_list .post, .s6.m3.l2').toArray()
-    return items.map(item => {
-      const a = $(item).find('a').first()
-      const id = a.attr('href') ?? ""
-      const title = a.attr('title')?.trim() ?? $(item).find('div').last().text().trim()
-      let cover = $(item).find('img').attr('data-src') ?? ""
+    // 分类页：直接抓 a[href*="/vod/"]
+    const items = $('a[href*="/vod/"]').toArray()
+    return items.map(a => {
+      const id = $(a).attr('href') ?? ""
+      const title = $(a).attr('title')?.trim() || $(a).text().trim()
+      let cover = $(a).find('img').attr('data-src') ?? ""
       if (cover.startsWith('//')) cover = 'https:' + cover
-      const remark = $(item).find('.absolute').text().trim()
+      const remark = $(a).find('.absolute').text().trim()
       return { id, title, cover, remark, desc: '' }
     })
   }

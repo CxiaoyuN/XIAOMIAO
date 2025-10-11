@@ -27,12 +27,12 @@ export default class kimivod implements Handle {
 
   async getCategory() {
     return [
-      { text: "電視劇", id: "/vod/show/id/1.html" },
+      { text: "電視", id: "/vod/show/id/1.html" },
       { text: "電影", id: "/vod/show/id/2.html" },
       { text: "動漫", id: "/vod/show/id/3.html" },
       { text: "綜藝", id: "/vod/show/id/4.html" },
       { text: "短劇", id: "/vod/show/id/39.html" },
-      { text: "伦理片", id: "/vod/show/id/42.html" },
+      { text: "伦理", id: "/vod/show/id/42.html" },
     ]
   }
 
@@ -73,15 +73,18 @@ export default class kimivod implements Handle {
               ?? ""
 
     const playlist: IPlaylist[] = []
+
     $('.page').each((i, page) => {
       const pid = $(page).attr('id') || ''
       const groupTitle = $(`.tabs a[data-ui="#${pid}"] span`).text().trim() || `线路${i+1}`
+
       const videos = $(page).find('.playno a').map((j, a) => {
         return {
           id: $(a).attr('href') ?? "",
           text: $(a).text().trim()
         }
       }).get()
+
       playlist.push({ title: groupTitle, videos })
     })
 
@@ -95,7 +98,7 @@ export default class kimivod implements Handle {
             video.id = m3u8
           }
         } catch (e) {
-          // 出错就保留原始链接
+          // 保留原始链接
         }
       }
     }
@@ -116,7 +119,7 @@ export default class kimivod implements Handle {
     return $('a[href*="/vod/"]').toArray().map((a, i) => {
       const id = $(a).attr('href') ?? ""
       const title = $(a).attr('title')?.trim() || $(a).text().trim()
-      const remark = $(a).prev().text().trim().match(/(已完結|HD中字|更新至第\\d+集)/)?.[0] ?? ""
+      const remark = $(a).prev().text().trim().match(/(已完結|HD中字|更新至第\d+集)/)?.[0] ?? ""
       return { id, title, cover: '', desc: '', remark, playlist: [] }
     })
   }

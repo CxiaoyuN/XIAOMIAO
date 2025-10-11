@@ -15,12 +15,12 @@ export default class kimivod implements Handle {
 
   async getCategory() {
     return [
-      { text: "電視", id: "/vod/show/id/1.html" },
+      { text: "電視劇", id: "/vod/show/id/1.html" },
       { text: "電影", id: "/vod/show/id/2.html" },
       { text: "動漫", id: "/vod/show/id/3.html" },
       { text: "綜藝", id: "/vod/show/id/4.html" },
       { text: "短劇", id: "/vod/show/id/39.html" },
-      { text: "倫理", id: "/vod/show/id/42.html" },
+      { text: "伦理片", id: "/vod/show/id/42.html" },
     ]
   }
 
@@ -76,5 +76,32 @@ export default class kimivod implements Handle {
     })
 
     return { id, cover, title, remark, desc, playlist }
+  }
+
+  async getSearch() {
+    const wd = env.get<string>('keyword') || ''
+    const page = env.get<number>('page') || 1
+    const url = page === 1
+      ? `https://cn.kimivod.com/search.php?searchword=${encodeURIComponent(wd)}`
+      : `https://cn.kimivod.com/search.php?searchword=${encodeURIComponent(wd)}&page=${page}`
+
+    const html = await req(url, { headers: this.headers })
+    const $ = kitty.load(html)
+
+    const items = $('a[title]').toArray()
+    return items.map(a => {
+      const id = $(a).attr('href') ?? ""
+      const title = $(a).attr('title')?.trim() ?? ""
+      const cover = $(a).find('img').attr('data-src')?.trim() ?? ""
+      const remark = $(a).find('.absolute').text().trim()
+      return { id, title, cover, remark, desc: '', playlist: [] }
+    })
+  }
+
+  async parseIframe() {
+    const iframe = env.get<string>('iframe')
+    const html = await req(iframe.startsWith('http') ? iframe : `${env.baseUrl}${iframe}`, { headers: this.headers })
+    const $ = kitty.load(html)
+    return $('meta[itemprop="contentUrl"]').attr('content')?.trim() ?? ""
   }
 }

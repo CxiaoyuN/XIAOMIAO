@@ -1042,6 +1042,64 @@
     }
   },
   {
+    "id": "18xxx$",
+    "name": "18xxx",
+    "type": 1,
+    "nsfw": true,
+    "api": "https://www.18xxx6.hair",
+    "extra": {
+      "gfw": false,
+      "searchLimit": 21,
+      "js": {
+        "category": [
+          {
+            "id": "20",
+            "text": "绝美少女"
+          },
+          {
+            "id": "21",
+            "text": "激情口交"
+          },
+          {
+            "id": "22",
+            "text": "同性专区"
+          },
+          {
+            "id": "23",
+            "text": "人妖激情"
+          },
+          {
+            "id": "24",
+            "text": "重咸口味"
+          },
+          {
+            "id": "25",
+            "text": "国产专区"
+          },
+          {
+            "id": "26",
+            "text": "日韩专区"
+          },
+          {
+            "id": "27",
+            "text": "欧美专区"
+          },
+          {
+            "id": "28",
+            "text": "卡通动漫"
+          },
+          {
+            "id": "29",
+            "text": "三级伦理"
+          }
+        ],
+        "home": "const cate=env.get(\"category\");const page=env.get(\"page\");const url=`${env.baseUrl}/cn/home/web/index.php/vod/type/id/${cate}/page/${page}.html`;const $=kitty.load(await req(url));return $(\".watchlist .ng-scope\").toArray().map(item=>{const title=$(item).find(\".title\").text().trim();const id=$(item).find(\"a\").attr(\"href\")??\"\";const cover=$(item).find(\"img\").attr(\"data-original\")??\"\";return{title,id,cover}})",
+        "detail": "const id=env.get(\"movieId\");const url=`${env.baseUrl}${id}`;const html=await req(url);const m3u8=kitty.utils.getM3u8WithStr(html);return{playlist:[{title:\"\\u9ED8\\u8BA4\",videos:[{text:\"\\u64AD\\u653E\",url:m3u8}]}]}",
+        "search": "const wd=env.get(\"keyword\");const page=env.get(\"page\");const url=`${env.baseUrl}/cn/home/web/index.php/vod/search/page/${page}/wd/${wd}.html`;const $=kitty.load(await req(url));return $(\".watchlist .ng-scope\").toArray().map(item=>{const title=$(item).find(\".title\").text().trim();const id=$(item).find(\"a\").attr(\"href\")??\"\";const cover=$(item).find(\"img\").attr(\"data-original\")??\"\";return{title,id,cover}})"
+      }
+    }
+  },
+  {
     "id": "91jav$",
     "name": "91Jav",
     "type": 1,
@@ -1383,6 +1441,88 @@
         "detail": "const id=env.get(\"movieId\");const html=await req(`${env.baseUrl}${id}`);const $=kitty.load(html);const img=$(\".pull-left.pull-left-mobile1 img.lazy\");const player=$(\"#playlist4 tr\").toArray().map(item=>{const a=$(item).find(\"a\");const id=a.attr(\"href\")??\"\";const text=a.text();return{text,id}});return{title:img.attr(\"title\")??\"\",cover:img.attr(\"src\")??\"\",id:id,playlist:[{title:\"\\u9ED8\\u8BA4\",videos:player}]}",
         "search": "const url=`${env.baseUrl}/index.php/vod/search/page/${env.get(\"page\")}/wd/${env.get(\"keyword\")}.html`;const html=await(await fetch(url)).text();const $=kitty.load(html);return $(\".show-list li\").toArray().map(item=>{const _=$(item).find(\"img\")??\"\";const a=$(item).find(\"a.play-img\");const remark=$($(item).find(\"dl.fn-left\").toArray().at(-1)).find(\"dd\").text();const id=a.attr(\"href\")??\"\";const cover=_.attr(\"src\")??\"\";const title=_.attr(\"alt\")??\"\";return{id,cover,title,remark,playlist:[]}})",
         "parseIframe": "const url=`${env.baseUrl}${env.get(\"iframe\")}`;const html=await req(url);const $=kitty.load(html);const script=$(\"#bofang_box script\").text();const m3u8=script.match(/\"url\":\"(.*?)\"/)[1].replace(/\\\\/g,\"\");return m3u8"
+      }
+    }
+  },
+  {
+    "id": "gdd$",
+    "name": "GDD视频",
+    "type": 1,
+    "nsfw": true,
+    "api": "https://www.gdd5.quest",
+    "extra": {
+      "gfw": false,
+      "searchLimit": 20,
+      "js": {
+        "category": [
+          {
+            "id": "21",
+            "text": "女神学生"
+          },
+          {
+            "id": "22",
+            "text": "美女直播"
+          },
+          {
+            "id": "23",
+            "text": "人妻系列"
+          },
+          {
+            "id": "24",
+            "text": "强奸乱伦"
+          },
+          {
+            "id": "25",
+            "text": "自拍偷拍"
+          },
+          {
+            "id": "26",
+            "text": "制服诱惑"
+          },
+          {
+            "id": "27",
+            "text": "巨乳系列"
+          },
+          {
+            "id": "28",
+            "text": "自慰系列"
+          },
+          {
+            "id": "29",
+            "text": "国产视频"
+          },
+          {
+            "id": "30",
+            "text": "无码视频"
+          },
+          {
+            "id": "31",
+            "text": "有码视频"
+          },
+          {
+            "id": "32",
+            "text": "中文字幕"
+          },
+          {
+            "id": "33",
+            "text": "日韩精品"
+          },
+          {
+            "id": "34",
+            "text": "欧美精品"
+          },
+          {
+            "id": "35",
+            "text": "动漫精品"
+          },
+          {
+            "id": "36",
+            "text": "三级伦理"
+          }
+        ],
+        "home": "const cate=env.get(\"category\");const page=env.get(\"page\");const url=`${env.baseUrl}/cn/home/web/index.php/vod/type/id/${cate}/page/${page}.html`;const $=kitty.load(await req(url));return $(\"ul.videos li\").toArray().map(item=>{const a=$(item).find(\"a\");const title=a.attr(\"title\")??\"\";const id=a.attr(\"href\")??\"\";const cover=a.find(\"img\").attr(\"src\")??\"\";const remark=a.find(\".badge\").text().trim();return{id,title,cover,remark}})",
+        "detail": "const id=env.get(\"movieId\");const url=`${env.baseUrl}${id}`;const html=await req(url);const m3u8=kitty.utils.getM3u8WithStr(html);return{playlist:[{title:\"\\u9ED8\\u8BA4\",videos:[{text:\"\\u64AD\\u653E\",url:m3u8}]}]}",
+        "search": "const wd=env.get(\"keyword\");const page=env.get(\"page\");const url=`${env.baseUrl}/cn/home/web/index.php/vod/search/page/${page}/wd/${wd}.html`;const $=kitty.load(await req(url));return $(\"ul.videos li\").toArray().map(item=>{const a=$(item).find(\"a\");const title=a.attr(\"title\")??\"\";const id=a.attr(\"href\")??\"\";const cover=a.find(\"img\").attr(\"src\")??\"\";const remark=a.find(\".badge\").text().trim();return{id,title,cover,remark}})"
       }
     }
   },
@@ -1797,6 +1937,92 @@
         "detail": "const id=env.get(\"movieId\");const url=`${env.baseUrl}/video?id=${id}`;const $=kitty.load(await req(url));const script=$(\"#__NEXT_DATA__\").text();const json=JSON.parse(script);const data=json.props.initialState.video.data;const urls=Array.from(new Set([data.src,...(data.srcs??[])]));const playlist=[{title:\"\\u9ED8\\u8BA4\",videos:urls.map((item,index)=>{return{text:`源${index}`,id:item}})}];return{id,cover:data.preview||data.preview_hp||data.previewImagesUrl,title:data.title,desc:data.description,playlist}",
         "search": "const wd=env.get(\"keyword\");const page=env.get(\"page\");const url=`${env.baseUrl}/search?keyword=${wd}&page=${page}&type=title`;const $=kitty.load(await req(url));const script=$(\"#__NEXT_DATA__\").text();const json=JSON.parse(script);const allvideos=json.props.initialState.search.docs;return allvideos.map(item=>{return{id:item.videoId,cover:item.preview||item.preview_hp||item.previewImagesUrl,title:item.title,remark:item.code}})",
         "parseIframe": "const iframe=env.get(\"iframe\");return\"\""
+      }
+    }
+  },
+  {
+    "id": "real_xxxx",
+    "name": "一个纯粹的x站",
+    "type": 1,
+    "nsfw": true,
+    "api": "https://rtk.ygccdxz9.ink",
+    "extra": {
+      "gfw": false,
+      "searchLimit": 48,
+      "js": {
+        "category": [
+          {
+            "id": "20",
+            "text": "亚洲情色"
+          },
+          {
+            "id": "21",
+            "text": "制服师生"
+          },
+          {
+            "id": "22",
+            "text": "卡通动漫"
+          },
+          {
+            "id": "23",
+            "text": "丝袜美腿"
+          },
+          {
+            "id": "24",
+            "text": "强奸乱伦"
+          },
+          {
+            "id": "25",
+            "text": "偷拍自拍"
+          },
+          {
+            "id": "29",
+            "text": "人妻熟女"
+          },
+          {
+            "id": "30",
+            "text": "无码专区"
+          },
+          {
+            "id": "32",
+            "text": "自淫系列"
+          },
+          {
+            "id": "36",
+            "text": "国产精品"
+          },
+          {
+            "id": "33",
+            "text": "拳交系列"
+          },
+          {
+            "id": "28",
+            "text": "欧美性爱"
+          },
+          {
+            "id": "31",
+            "text": "SM捆绑"
+          },
+          {
+            "id": "35",
+            "text": "男同女同"
+          },
+          {
+            "id": "26",
+            "text": "4K岛国"
+          },
+          {
+            "id": "27",
+            "text": "中文字幕"
+          },
+          {
+            "id": "37",
+            "text": "三级伦理"
+          }
+        ],
+        "home": "const cate=env.get(\"category\");const page=env.get(\"page\");const url=`${env.baseUrl}/cn/home/web/index.php/vod/type/id/${cate}/page/${page}.html`;const $=kitty.load(await req(url));return $(\".detail_right_div ul li\").toArray().map(item=>{const img=$(item).find(\"img\");const title=img.attr(\"title\")??\"\";const cover=img.attr(\"src\")??\"\";const id=$(item).find(\"a\").attr(\"href\")??\"\";const remark=$(item).find(\"i\").text()??\"\";return{title,cover,id,remark}})",
+        "detail": "const id=env.get(\"movieId\");const url=`${env.baseUrl}${id}`;const html=await req(url);const m3u8=kitty.utils.getM3u8WithStr(html);return{playlist:[{title:\"\\u9ED8\\u8BA4\",videos:[{text:\"\\u64AD\\u653E\",url:m3u8}]}]}",
+        "search": "const wd=env.get(\"keyword\");const page=env.get(\"page\");const url=`${env.baseUrl}/cn/home/web/index.php/vod/search/page/${page}/wd/${wd}.html`;const $=kitty.load(await req(url));return $(\".detail_right_div ul li\").toArray().map(item=>{const img=$(item).find(\"img\");const title=img.attr(\"title\")??\"\";const cover=img.attr(\"src\")??\"\";const id=$(item).find(\"a\").attr(\"href\")??\"\";const remark=$(item).find(\"i\").text()??\"\";return{title,cover,id,remark}})"
       }
     }
   },

@@ -9,10 +9,6 @@ export default class kimivod implements Handle {
     }
   }
 
-  headers = {
-    'User-Agent': 'Mozilla/5.0 (iPhone; CPU iPhone OS 15_0 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/15.0 Mobile/15E148 Safari/604.1'
-  }
-
   async getCategory() {
     return [
       { text: "電視", id: "/vod/show/id/1.html" },

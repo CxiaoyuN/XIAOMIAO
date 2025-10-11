@@ -37,23 +37,31 @@ export default class XM6181035 implements Handle {
     const page = env.get('page')
     const url = `${env.baseUrl}/index.php/vod/type/id/${cate}/page/${page}.html`
     const html = await req(url)
-    const $ = kitty.load(html)
 
-    return $('.vodbox').toArray().map(el => {
-      const relative = $(el).attr('href') ?? ''
-      const id = relative
-      const title = $(el).find('.km-script').text().trim()
-      let cover = $(el).find('img.lazy').attr('data-original') ?? ''
-      if (cover.startsWith('//')) cover = 'https:' + cover
+    // 正则提取所有 vodbox 区块
+    const matches = html.matchAll(/<a[^>]*class="vodbox"[^>]*href="([^"]+)"[^>]*>[\s\S]*?<img[^>]*data-original="([^"]+)"[^>]*>[\s\S]*?<p[^>]*class="km-script"[^>]*>([^<]+)<\/p>/g)
 
+    const result = []
+    for (const match of matches) {
+      const relative = match[1]
+      const cover = match[2]
+      const title = match[3].trim()
       const fullUrl = `${env.baseUrl}${relative}`
-      const playlist = [{
-        name: '在线播放',
-        urls: [{ name: '立即播放', id: fullUrl }]
-      }]
 
-      return { id, title, cover, desc: '', remark: '', playlist }
-    })
+      result.push({
+        id: relative,
+        title,
+        cover,
+        desc: '',
+        remark: '',
+        playlist: [{
+          name: '在线播放',
+          urls: [{ name: '立即播放', id: fullUrl }]
+        }]
+      })
+    }
+
+    return result
   }
 
   async getSearch() {
@@ -62,35 +70,47 @@ export default class XM6181035 implements Handle {
     const page = env.get('page') || 1
     const url = `${env.baseUrl}/index.php/vod/type/id/${cate}/wd/${encodeURIComponent(keyword)}/page/${page}.html`
     const html = await req(url)
-    const $ = kitty.load(html)
 
-    return $('.vodbox').toArray().map(el => {
-      const relative = $(el).attr('href') ?? ''
-      const id = relative
-      const title = $(el).find('.km-script').text().trim()
-      let cover = $(el).find('img.lazy').attr('data-original') ?? ''
-      if (cover.startsWith('//')) cover = 'https:' + cover
+    const matches = html.matchAll(/<a[^>]*class="vodbox"[^>]*href="([^"]+)"[^>]*>[\s\S]*?<img[^>]*data-original="([^"]+)"[^>]*>[\s\S]*?<p[^>]*class="km-script"[^>]*>([^<]+)<\/p>/g)
 
+    const result = []
+    for (const match of matches) {
+      const relative = match[1]
+      const cover = match[2]
+      const title = match[3].trim()
       const fullUrl = `${env.baseUrl}${relative}`
-      const playlist = [{
-        name: '在线播放',
-        urls: [{ name: '立即播放', id: fullUrl }]
-      }]
 
-      return { id, title, cover, desc: '', remark: '', playlist }
-    })
+      result.push({
+        id: relative,
+        title,
+        cover,
+        desc: '',
+        remark: '',
+        playlist: [{
+          name: '在线播放',
+          urls: [{ name: '立即播放', id: fullUrl }]
+        }]
+      })
+    }
+
+    return result
   }
 
   async getDetail() {
     const id = env.get('movieId')
     const fullUrl = `${env.baseUrl}${id}`
 
-    const playlist = [{
-      name: '在线播放',
-      urls: [{ name: '立即播放', id: fullUrl }]
-    }]
-
-    return { id, title: '在线播放', cover: '', desc: '', remark: '', playlist }
+    return {
+      id,
+      title: '在线播放',
+      cover: '',
+      desc: '',
+      remark: '',
+      playlist: [{
+        name: '在线播放',
+        urls: [{ name: '立即播放', id: fullUrl }]
+      }]
+    }
   }
 
   async parseIframe() {

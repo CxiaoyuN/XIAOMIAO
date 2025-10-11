@@ -41,10 +41,6 @@ export default class ZZ1100 implements Handle {
       const href = a.attr('href') ?? '';
       const id = href;
 
-      const script = $(item).find('.av_data_title script').html();
-      const titleMatch = script?.match(/decodeURIComponent\("(.+?)"\)/);
-      const title = titleMatch ? decodeURIComponent(titleMatch[1].replace(/\+/g, ' ')) : '未知标题';
-
       const img = $(item).find('img');
       let cover = img.attr('data-src') ?? '';
       if (!cover || cover === '') cover = img.attr('src') ?? '';
@@ -52,7 +48,7 @@ export default class ZZ1100 implements Handle {
       if (!cover.startsWith('http')) cover = `${env.baseUrl}${cover}`;
 
       const remark = $(item).find('.ico-time').text().trim();
-      return { id, title, cover, desc: '', remark, playlist: [] };
+      return { id, title: '', cover, desc: '', remark, playlist: [] };
     });
 
     return result.length > 0 ? result : [];
@@ -97,10 +93,6 @@ export default class ZZ1100 implements Handle {
       const href = a.attr('href') ?? '';
       const id = href;
 
-      const script = $(item).find('.av_data_title script').html();
-      const titleMatch = script?.match(/decodeURIComponent\("(.+?)"\)/);
-      const title = titleMatch ? decodeURIComponent(titleMatch[1].replace(/\+/g, ' ')) : '未知标题';
-
       const img = $(item).find('img');
       let cover = img.attr('data-src') ?? '';
       if (!cover || cover === '') cover = img.attr('src') ?? '';
@@ -108,7 +100,7 @@ export default class ZZ1100 implements Handle {
       if (!cover.startsWith('http')) cover = `${env.baseUrl}${cover}`;
 
       const remark = $(item).find('.ico-time').text().trim();
-      return { id, title, cover, desc: '', remark, playlist: [] };
+      return { id, title: '', cover, desc: '', remark, playlist: [] };
     });
 
     return result.length > 0 ? result : [];

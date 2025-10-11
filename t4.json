@@ -3,7 +3,7 @@
     "id": "t4-AiGuaTV",
     "name": "爱瓜TV(T4)",
     "api": "https://tvbot.ggff.net/aigua",
-    "nsfw": true,
+    "nsfw": false,
     "type": 1,
     "extra": {
       "template": "t4"

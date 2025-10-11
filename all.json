@@ -965,7 +965,7 @@
       "js": {
         "category": [
           {
-            "text": "電視劇",
+            "text": "電視",
             "id": "/vod/show/id/1.html"
           },
           {
@@ -985,11 +985,11 @@
             "id": "/vod/show/id/39.html"
           },
           {
-            "text": "伦理片",
+            "text": "倫理",
             "id": "/vod/show/id/42.html"
           }
         ],
-        "home": "const cate=env.get(\"category\")||\"/vod/show/id/1.html\";const page=env.get(\"page\")||1;const url=page===1?`${env.baseUrl}${cate}`:`${env.baseUrl}${cate.replace(\".html\",\"\")}/page/${page}.html`;const html=await req(url,{headers:this.headers});const $=kitty.load(html);const items=$(\".grid.container_list .post\").toArray();return items.map(item=>{const a=$(item).find(\"a\").first();const id=a.attr(\"href\")??\"\";const title=a.attr(\"title\")?.trim()||$(item).find(\"img\").attr(\"alt\")?.trim()||\"\";const cover=$(item).find(\"img\").attr(\"data-src\")?.trim()??\"\";const remark=$(item).find(\".absolute\").text().trim();return{id,title,cover,remark,desc:\"\"}})"
+        "home": "const cate=env.get(\"category\")||\"/vod/show/id/1.html\";const page=env.get(\"page\")||1;const url=page===1?`${env.baseUrl}${cate}`:`${env.baseUrl}${cate.replace(\".html\",\"\")}/page/${page}.html`;const html=await req(url,{headers:this.headers});const $=kitty.load(html);const items=$(\".grid.container_list .post, .s6.m3.l2\").toArray();return items.map(item=>{const a=$(item).find(\"a\").first();const id=a.attr(\"href\")??\"\";const title=a.attr(\"title\")?.trim()||$(item).find(\"img\").attr(\"alt\")?.trim()||\"\";const cover=$(item).find(\"img\").attr(\"data-src\")?.trim()??\"\";const remark=$(item).find(\".absolute\").text().trim();return{id,title,cover,remark,desc:\"\"}})"
       }
     }
   },

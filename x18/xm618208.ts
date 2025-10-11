@@ -2,7 +2,7 @@ export default class XM6181035 implements Handle {
   getConfig() {
     return {
       id: 'xm6181035',
-      name: '黄集资源',
+      name: '小猫影视6181035',
       api: 'https://6181035.xyz',
       type: 1,
       nsfw: true
@@ -51,21 +51,17 @@ export default class XM6181035 implements Handle {
   async getDetail() {
     const id = env.get('movieId')
     const url = `${env.baseUrl}${id}`
-    const html = await req(url)
-    const $ = kitty.load(html)
 
-    const title = $('p.km-script').text().trim()
-    const cover = $('img.lazy').attr('data-original') ?? ''
     const playlist = [{
       name: '在线播放',
       urls: [{ name: '立即播放', id: url }]
     }]
 
-    return { id, title, cover, desc: '', remark: '', playlist }
+    return { id, title: '在线播放', cover: '', desc: '', remark: '', playlist }
   }
 
   async parseIframe() {
-    const iframe = env.get('iframe')
-    return kitty.utils.getM3u8WithIframe(env)
+    // 不再使用 iframe 解析，直接跳过
+    return ''
   }
 }

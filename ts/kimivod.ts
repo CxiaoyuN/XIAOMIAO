@@ -20,7 +20,7 @@ export default class kimivod implements Handle {
       { text: "動漫", id: "/vod/show/id/3.html" },
       { text: "綜藝", id: "/vod/show/id/4.html" },
       { text: "短劇", id: "/vod/show/id/39.html" },
-      { text: "倫理", id: "/vod/show/id/42.html" },
+      { text: "伦理", id: "/vod/show/id/42.html" },
     ]
   }
 
@@ -52,32 +52,24 @@ export default class kimivod implements Handle {
     const $ = kitty.load(html)
 
     const title = $('h1.title').text().trim() || $('h1').text().trim()
-    let cover = $('.module-info-poster img').attr('data-src') ?? $('img[itemprop="image"]').attr('data-src') ?? ""
+    let cover = $('img[itemprop="image"]').attr('data-src') ?? ""
     if (cover.startsWith('//')) cover = 'https:' + cover
 
-    const desc = $('details summary:contains("影片簡介")').next('p').text().trim()
-      || $('span.right-align').text().trim()
+    // 简介：用正则从正文提取
+    const descMatch = html.match(/線上看.*?(本劇講述的是.*?。)/)
+    const desc = descMatch ? descMatch[1] : ""
 
     const playlist: IPlaylist[] = []
     $('.tabs a[data-ui]').each((i, tab) => {
       const groupTitle = $(tab).find('span').text().trim() || `线路${i+1}`
-      const videos = $('.playno a').toArray().map((a, j) => {
-        const href = $(a).attr('href') ?? ""
-        const text = $(a).text().trim() || `第${j+1}集`
-        return { id: href, text }
-      })
-      if (videos.length) playlist.push({ title: groupTitle, videos })
+      const count = parseInt($(tab).find('.badge').text().trim()) || 1
+      const videos = []
+      for (let j = 1; j <= count; j++) {
+        const href = `${id.replace(/\\.html$/, '')}/1-${j}.html`
+        videos.push({ id: href, text: `第${j.toString().padStart(2,'0')}集` })
+      }
+      playlist.push({ title: groupTitle, videos })
     })
-
-    // 如果没有 tabs，也直接抓 playno
-    if (!playlist.length) {
-      const videos = $('.playno a').toArray().map((a, j) => {
-        const href = $(a).attr('href') ?? ""
-        const text = $(a).text().trim() || `第${j+1}集`
-        return { id: href, text }
-      })
-      if (videos.length) playlist.push({ title: '播放列表', videos })
-    }
 
     // 自动解析真实播放地址
     for (const line of playlist) {
